@@ -34,8 +34,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     icons: {
-      icon: "/deepseek-whale-black.svg",
-      shortcut: "/deepseek-whale-black.svg",
+      icon: [
+        { url: "/favicon.ico", sizes: "64x64" },
+        { url: "/favicon-64.png", type: "image/png", sizes: "64x64" },
+        { url: "/deepseek-whale-black.svg", type: "image/svg+xml" },
+      ],
+      shortcut: "/favicon.ico",
     },
     openGraph: {
       type: "website",

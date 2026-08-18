@@ -33,6 +33,8 @@ test("server-renders the Plugin Hub coming-soon page", async () => {
   assert.match(html, /Plugin Hub/);
   assert.match(html, /非官方社区项目/);
   assert.match(html, /name="email"/);
+  assert.match(html, /rel="shortcut icon" href="\/favicon\.ico"/);
+  assert.match(html, /rel="icon" href="\/favicon-64\.png"/);
   assert.doesNotMatch(html, /codex-preview|Building your site/i);
 });
 
