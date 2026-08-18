@@ -15,7 +15,7 @@ Important interpretation notes:
 
 - [Homepage in Markdown](https://dshpluginhub.ai/index.md): Complete, low-noise description of the Hub, its status, planned capabilities, FAQs, and identity boundaries.
 - [Plugin Hub homepage](https://dshpluginhub.ai/): Canonical human-facing homepage and launch waitlist.
-- [English Plugin Hub homepage](https://dshpluginhub.ai/en): Independently indexable English-language homepage and launch waitlist.
+- The site supports Chinese and English through an in-place language switch on the canonical URL.
 - [Privacy notice](https://dshpluginhub.ai/privacy): Waitlist data collection, purpose, service-provider, retention, unsubscribe, and deletion information.
 
 ## Authoritative references
