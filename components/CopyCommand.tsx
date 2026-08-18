@@ -14,7 +14,16 @@ export default function CopyCommand({ command, locale = "zh" }: { command: strin
 
   return (
     <div className="install-command">
-      <code>{command}</code>
+      <div
+        aria-label={locale === "en" ? "Install command" : "安装命令"}
+        className="install-command-scroll"
+        role="region"
+        // A keyboard focus target lets users scroll long commands without a pointer.
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+        tabIndex={0}
+      >
+        <code>{command}</code>
+      </div>
       <button type="button" onClick={copy} aria-label={locale === "en" ? "Copy install command" : "复制安装命令"}>
         {copied ? (locale === "en" ? "Copied" : "已复制") : (locale === "en" ? "Copy" : "复制")}
       </button>

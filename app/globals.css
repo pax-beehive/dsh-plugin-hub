@@ -1441,18 +1441,33 @@ a {
   gap: 20px;
   margin-top: 28px;
   padding: 17px 20px;
-  overflow-x: auto;
+  overflow: hidden;
   border: 1px solid #dfe3ef;
   border-radius: 12px;
   background: #11162d;
   color: #dbe2ff;
 }
 
+.install-command-scroll {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.install-command-scroll:focus-visible {
+  outline: 2px solid #8da4ff;
+  outline-offset: 4px;
+}
+
 .install-command code {
+  display: block;
+  width: max-content;
   white-space: nowrap;
 }
 
 .install-command button {
+  flex: 0 0 auto;
   min-width: 62px;
   height: 34px;
   border: 1px solid rgb(255 255 255 / 20%);
