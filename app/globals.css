@@ -354,6 +354,90 @@ a {
   text-align: right;
 }
 
+.preference-page {
+  display: grid;
+  min-height: 100svh;
+  place-items: center;
+  padding: 28px;
+  background:
+    radial-gradient(700px 360px at 50% 0%, rgb(77 107 254 / 16%), transparent 72%),
+    #f8f9ff;
+}
+
+.preference-card {
+  width: min(560px, 100%);
+  padding: 44px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 18px 50px rgb(11 17 48 / 9%);
+}
+
+.preference-brand {
+  display: inline-block;
+  margin-bottom: 52px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.preference-brand strong {
+  color: var(--blue);
+}
+
+.preference-card .eyebrow {
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.preference-card h1 {
+  margin: 0 0 16px;
+  font-size: clamp(32px, 7vw, 48px);
+  letter-spacing: -0.035em;
+}
+
+.preference-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.preference-card .preference-english {
+  margin-top: 8px;
+  color: var(--quiet);
+}
+
+.preference-card form {
+  margin-top: 30px;
+}
+
+.preference-card button {
+  min-height: 48px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--blue);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 650;
+}
+
+.preference-back {
+  display: inline-block;
+  margin-top: 36px;
+  color: var(--blue-dark);
+  font-size: 13px;
+}
+
+.preference-card .preference-disclaimer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  color: var(--quiet);
+  font-size: 11px;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

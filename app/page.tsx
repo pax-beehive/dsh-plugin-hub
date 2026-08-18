@@ -2,7 +2,13 @@
 
 import { FormEvent, useState } from "react";
 
-type FormState = "idle" | "submitting" | "subscribed" | "duplicate" | "error";
+type FormState =
+  | "idle"
+  | "submitting"
+  | "subscribed"
+  | "saved"
+  | "duplicate"
+  | "error";
 
 const copy = {
   zh: {
@@ -15,7 +21,8 @@ const copy = {
     email: "你的邮箱",
     submit: "上线时通知我",
     submitting: "正在加入…",
-    subscribed: "订阅成功，我们上线时会通知你。",
+    subscribed: "订阅成功，欢迎邮件已发送，请检查收件箱。",
+    saved: "邮箱已保存，欢迎邮件可能稍后送达。",
     duplicate: "你已经在等候名单里了。",
     error: "暂时无法提交，请稍后再试。",
     hint: "只发送产品上线和重要进展，不发垃圾邮件。",
@@ -37,7 +44,8 @@ const copy = {
     email: "Your email",
     submit: "Notify me",
     submitting: "Joining…",
-    subscribed: "You’re on the list. We’ll notify you at launch.",
+    subscribed: "You’re on the list. Check your inbox for our welcome email.",
+    saved: "Your email is saved. The welcome email may arrive later.",
     duplicate: "You’re already on the waitlist.",
     error: "We couldn’t save that right now. Please try again.",
     hint: "Only launch news and meaningful updates. No spam.",
@@ -74,10 +82,19 @@ export default function Home() {
           locale: language,
         }),
       });
-      const result = (await response.json()) as { status?: string };
+      const result = (await response.json()) as {
+        status?: string;
+        emailStatus?: string;
+      };
 
       if (!response.ok) throw new Error("waitlist request failed");
-      setFormState(result.status === "already_subscribed" ? "duplicate" : "subscribed");
+      setFormState(
+        result.status === "already_subscribed"
+          ? "duplicate"
+          : result.emailStatus === "sent"
+            ? "subscribed"
+            : "saved",
+      );
       form.reset();
     } catch {
       setFormState("error");
@@ -87,6 +104,8 @@ export default function Home() {
   const formMessage =
     formState === "subscribed"
       ? t.subscribed
+      : formState === "saved"
+        ? t.saved
       : formState === "duplicate"
         ? t.duplicate
         : formState === "error"

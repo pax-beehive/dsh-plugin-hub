@@ -1,5 +1,7 @@
 import { getDb } from "@/db";
 import { waitlistSignups } from "@/db/schema";
+import { sendWelcomeEmail } from "@/lib/waitlist-email";
+import { eq, sql } from "drizzle-orm";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -36,22 +38,66 @@ export async function POST(request: Request) {
   }
 
   const locale = payload.locale === "en" ? "en" : "zh";
+  const signupId = crypto.randomUUID();
+  const unsubscribeToken = crypto.randomUUID();
 
   try {
-    const rows = await getDb()
+    const db = getDb();
+    const rows = await db
       .insert(waitlistSignups)
       .values({
-        id: crypto.randomUUID(),
+        id: signupId,
         email,
         locale,
         source: "hero",
+        unsubscribeToken,
+        followupStatus: "pending",
       })
       .onConflictDoNothing({ target: waitlistSignups.email })
       .returning({ id: waitlistSignups.id });
 
+    if (rows.length === 0) {
+      return Response.json({ status: "already_subscribed" }, { status: 200 });
+    }
+
+    let emailStatus: "sent" | "pending" = "pending";
+    try {
+      const unsubscribeUrl = new URL("/unsubscribe", new URL(request.url).origin);
+      unsubscribeUrl.searchParams.set("token", unsubscribeToken);
+      const result = await sendWelcomeEmail({
+        email,
+        locale,
+        unsubscribeUrl: unsubscribeUrl.toString(),
+      });
+
+      await db
+        .update(waitlistSignups)
+        .set({
+          followupStatus: "sent",
+          followupAttempts: 1,
+          followupResult: result.delivery,
+          followupLastError: null,
+          followupSentAt: sql`CURRENT_TIMESTAMP`,
+        })
+        .where(eq(waitlistSignups.id, signupId));
+      emailStatus = "sent";
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message.slice(0, 500) : "unknown_error";
+      console.error("waitlist_followup_failed", message);
+      await db
+        .update(waitlistSignups)
+        .set({
+          followupStatus: "failed",
+          followupAttempts: 1,
+          followupLastError: message,
+        })
+        .where(eq(waitlistSignups.id, signupId));
+    }
+
     return Response.json(
-      { status: rows.length > 0 ? "subscribed" : "already_subscribed" },
-      { status: rows.length > 0 ? 201 : 200 },
+      { status: "subscribed", emailStatus },
+      { status: 201 },
     );
   } catch (error) {
     console.error("waitlist_insert_failed", error);

@@ -35,3 +35,14 @@ test("server-renders the Plugin Hub coming-soon page", async () => {
   assert.match(html, /name="email"/);
   assert.doesNotMatch(html, /codex-preview|Building your site/i);
 });
+
+test("server-renders the bilingual unsubscribe confirmation page", async () => {
+  const response = await render("/unsubscribe?token=test-token");
+  assert.equal(response.status, 200);
+
+  const html = await response.text();
+  assert.match(html, /确认退订/);
+  assert.match(html, /Unsubscribe/);
+  assert.match(html, /\/api\/waitlist\/unsubscribe\?token=test-token/);
+  assert.match(html, /非官方独立社区项目/);
+});
