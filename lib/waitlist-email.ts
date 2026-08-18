@@ -1,4 +1,8 @@
 import { env } from "cloudflare:workers";
+import {
+  interpretCloudflareSendResponse,
+  type CloudflareSendResponse,
+} from "./cloudflare-email-response.ts";
 
 type RuntimeEmailEnv = {
   CLOUDFLARE_ACCOUNT_ID?: string;
@@ -11,16 +15,6 @@ type WelcomeEmailInput = {
   email: string;
   locale: "en" | "zh";
   unsubscribeUrl: string;
-};
-
-type CloudflareSendResponse = {
-  success?: boolean;
-  errors?: Array<{ code?: number; message?: string }>;
-  result?: {
-    delivered?: string[];
-    permanent_bounces?: string[];
-    queued?: string[];
-  } | null;
 };
 
 export type WelcomeEmailResult = {
@@ -67,25 +61,7 @@ export async function sendWelcomeEmail(
   const payload = (await response.json().catch(() => null)) as
     | CloudflareSendResponse
     | null;
-  const result = payload?.result;
-
-  if (!response.ok || payload?.success !== true || !result) {
-    throw new Error(formatProviderError(response.status, payload));
-  }
-
-  if (result.permanent_bounces?.includes(input.email)) {
-    throw new Error("email_permanent_bounce");
-  }
-
-  if (result.delivered?.includes(input.email)) {
-    return { delivery: "delivered" };
-  }
-
-  if (result.queued?.includes(input.email)) {
-    return { delivery: "queued" };
-  }
-
-  throw new Error("email_recipient_not_accepted");
+  return interpretCloudflareSendResponse(response.status, payload, input.email);
 }
 
 function buildWelcomeEmail(locale: "en" | "zh", unsubscribeUrl: string) {
@@ -159,19 +135,6 @@ function emailShell(input: {
     </div>
   </div>
 </body></html>`;
-}
-
-function formatProviderError(
-  status: number,
-  payload: CloudflareSendResponse | null,
-) {
-  const providerErrors = payload?.errors
-    ?.map((error) => `${error.code ?? "unknown"}:${error.message ?? "unknown"}`)
-    .join(",");
-  return `email_provider_error_${status}${providerErrors ? `_${providerErrors}` : ""}`.slice(
-    0,
-    500,
-  );
 }
 
 function escapeHtml(value: string) {

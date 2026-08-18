@@ -157,7 +157,7 @@ evidence, RPO is unknown and the destructive migration must not proceed.
 - Security configuration missing: severity 1; restore the missing secret and
   redeploy the same validated version.
 - Email failures or pending count reaches threshold: severity 2; inspect Email
-  Service status and logs, preserve subscriptions, and retry only after the
-  provider is healthy.
+  Service status and logs and preserve subscriptions. Do not replay a failed
+  row until provider logs confirm the original message was not accepted.
 - Stats endpoint alone fails: severity 2; verify the admin token revision and
   D1 aggregate query before changing subscriber data.

@@ -51,8 +51,6 @@ export async function POST(request: Request) {
           console.error("waitlist_followup_background_failed", error);
         }),
       ),
-    sleep: (milliseconds) =>
-      new Promise((resolve) => setTimeout(resolve, milliseconds)),
   });
 
   try {

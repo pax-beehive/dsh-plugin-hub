@@ -4,8 +4,8 @@ An independent, unofficial community project for discovering and sharing
 DeepSeek Harness plugins. The initial release is a coming-soon landing page
 with a D1-backed email waitlist.
 
-The waitlist includes unsubscribe and re-subscribe handling, bounded background
-email retries, hashed D1 rate limiting, Cloudflare Turnstile
+The waitlist includes unsubscribe and re-subscribe handling, single-attempt
+background email handoff, hashed D1 rate limiting, Cloudflare Turnstile
 verification, source attribution, and a bilingual privacy notice.
 
 ## Prerequisites

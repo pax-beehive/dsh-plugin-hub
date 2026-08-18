@@ -53,7 +53,6 @@ type WaitlistHandlerDependencies = {
     unsubscribeUrl: string;
   }): Promise<WelcomeEmailResult>;
   defer(promise: Promise<unknown>): void;
-  sleep(milliseconds: number): Promise<void>;
 };
 
 type WaitlistPayload = {
@@ -164,37 +163,26 @@ async function deliverWelcomeEmail(
   record: SubscriptionRecord,
   unsubscribeUrl: string,
 ) {
-  let lastError = "unknown_error";
-
-  for (let attempt = 1; attempt <= 3; attempt += 1) {
-    try {
-      const result = await dependencies.sendWelcomeEmail({
-        email: record.email,
-        locale: record.locale,
-        unsubscribeUrl,
-      });
-      await dependencies.store.updateFollowup(record.id, {
-        status: "sent",
-        attempts: attempt,
-        result: result.delivery,
-      });
-      return;
-    } catch (error) {
-      lastError =
-        error instanceof Error
-          ? error.message.slice(0, 500)
-          : "unknown_error";
-      if (attempt < 3) {
-        await dependencies.sleep(attempt * 750);
-      }
-    }
+  try {
+    const result = await dependencies.sendWelcomeEmail({
+      email: record.email,
+      locale: record.locale,
+      unsubscribeUrl,
+    });
+    await dependencies.store.updateFollowup(record.id, {
+      status: "sent",
+      attempts: 1,
+      result: result.delivery,
+    });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message.slice(0, 500) : "unknown_error";
+    await dependencies.store.updateFollowup(record.id, {
+      status: "failed",
+      attempts: 1,
+      error: message,
+    });
   }
-
-  await dependencies.store.updateFollowup(record.id, {
-    status: "failed",
-    attempts: 3,
-    error: lastError,
-  });
 }
 
 function normalizeEmail(value: unknown): string | null {

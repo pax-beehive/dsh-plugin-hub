@@ -113,7 +113,6 @@ test("the waitlist API persists a verified signup and its delivery result in D1"
     verifyTurnstile: async () => true,
     sendWelcomeEmail: async () => ({ delivery: "delivered" }),
     defer: (promise) => deferred.push(promise),
-    sleep: async () => {},
   });
 
   const response = await handler(

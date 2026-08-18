@@ -80,7 +80,6 @@ test("an unsubscribed visitor can subscribe again and receives a new email", asy
       return { delivery: "delivered" };
     },
     defer: (promise) => deferred.push(promise),
-    sleep: async () => {},
   });
 
   const response = await handler(
@@ -104,21 +103,19 @@ test("an unsubscribed visitor can subscribe again and receives a new email", asy
   );
 });
 
-test("a transient welcome-email failure is retried before being marked sent", async () => {
+test("an ambiguous provider error never causes duplicate welcome emails", async () => {
   const store = new MemoryStore();
   const deferred: Promise<unknown>[] = [];
-  let attempts = 0;
+  let delivered = 0;
   const handler = createWaitlistHandler({
     store,
     rateLimitSalt: "test-salt",
     verifyTurnstile: async () => true,
     sendWelcomeEmail: async () => {
-      attempts += 1;
-      if (attempts < 3) throw new Error("temporary_provider_error");
-      return { delivery: "queued" };
+      delivered += 1;
+      throw new Error("provider_response_lost_after_delivery");
     },
     defer: (promise) => deferred.push(promise),
-    sleep: async () => {},
   });
 
   const response = await handler(
@@ -127,9 +124,13 @@ test("a transient welcome-email failure is retried before being marked sent", as
   assert.equal(response.status, 201);
   await Promise.all(deferred);
 
-  assert.equal(attempts, 3);
+  assert.equal(delivered, 1);
   assert.deepEqual(store.updates, [
-    { status: "sent", attempts: 3, result: "queued" },
+    {
+      status: "failed",
+      attempts: 1,
+      error: "provider_response_lost_after_delivery",
+    },
   ]);
 });
 
@@ -157,7 +158,6 @@ test("an active subscriber is deduplicated without sending another email", async
       throw new Error("should_not_send");
     },
     defer: (promise) => deferred.push(promise),
-    sleep: async () => {},
   });
 
   const response = await handler(
@@ -177,7 +177,6 @@ test("failed bot verification and rate limiting stop the write path", async () =
     verifyTurnstile: async () => false,
     sendWelcomeEmail: async () => ({ delivery: "delivered" }),
     defer: () => {},
-    sleep: async () => {},
   });
   const challengeResponse = await challenged(
     request({ email: "bot@example.com", turnstileToken: "bad-token" }),
@@ -193,7 +192,6 @@ test("failed bot verification and rate limiting stop the write path", async () =
     verifyTurnstile: async () => true,
     sendWelcomeEmail: async () => ({ delivery: "delivered" }),
     defer: () => {},
-    sleep: async () => {},
   });
   const limitedResponse = await limited(
     request({ email: "fast@example.com", turnstileToken: "valid-token" }),
@@ -203,7 +201,7 @@ test("failed bot verification and rate limiting stop the write path", async () =
   assert.equal(limitedStore.records.size, 0);
 });
 
-test("a final email failure is recorded after three attempts", async () => {
+test("an email failure is recorded after one safe attempt", async () => {
   const store = new MemoryStore();
   const deferred: Promise<unknown>[] = [];
   let attempts = 0;
@@ -216,7 +214,6 @@ test("a final email failure is recorded after three attempts", async () => {
       throw new Error("provider_unavailable");
     },
     defer: (promise) => deferred.push(promise),
-    sleep: async () => {},
   });
 
   await handler(
@@ -224,11 +221,11 @@ test("a final email failure is recorded after three attempts", async () => {
   );
   await Promise.all(deferred);
 
-  assert.equal(attempts, 3);
+  assert.equal(attempts, 1);
   assert.deepEqual(store.updates, [
     {
       status: "failed",
-      attempts: 3,
+      attempts: 1,
       error: "provider_unavailable",
     },
   ]);
@@ -243,7 +240,6 @@ test("arbitrary attribution values are grouped instead of exposed in metrics", a
     verifyTurnstile: async () => true,
     sendWelcomeEmail: async () => ({ delivery: "delivered" }),
     defer: (promise) => deferred.push(promise),
-    sleep: async () => {},
   });
 
   await handler(
