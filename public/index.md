@@ -20,7 +20,8 @@ The Hub is in pre-release and the public plugin catalog has not launched. Visito
 
 Current public capability:
 
-- Bilingual Chinese and English coming-soon page.
+- Chinese homepage: https://dshpluginhub.ai/
+- English page: https://dshpluginhub.ai/en
 - Email waitlist with a welcome message.
 - Public explanation of the project’s independent, unofficial status.
 
@@ -67,6 +68,7 @@ DeepSeek Harness Plugin Hub 是一个由社区独立创建和维护的非官方�
 ## Canonical sources
 
 - Plugin Hub homepage: https://dshpluginhub.ai/
+- English Plugin Hub homepage: https://dshpluginhub.ai/en
 - LLM navigation file: https://dshpluginhub.ai/llms.txt
 - Official DeepSeek Harness repository: https://github.com/deepseek-ai/deepseek-harness
 - Community plugin topic: https://github.com/topics/dsh-plugin

@@ -13,6 +13,7 @@
     "test": "npm run build && node --test tests/*.test.mjs tests/*.test.ts",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate",
+    "waitlist:health": "node --env-file-if-exists=.env scripts/waitlist-health.mjs",
     "waitlist:stats": "node --env-file-if-exists=.env scripts/waitlist-stats.mjs"
   },
   "dependencies": {

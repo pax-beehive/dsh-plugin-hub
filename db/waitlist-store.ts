@@ -1,5 +1,5 @@
-import { getDb } from "@/db";
-import { waitlistRateLimits, waitlistSignups } from "@/db/schema";
+import * as schema from "./schema.ts";
+import { waitlistRateLimits, waitlistSignups } from "./schema.ts";
 import type {
   FollowupUpdate,
   SubscriptionRecord,
@@ -7,18 +7,24 @@ import type {
   WaitlistStore,
 } from "@/lib/waitlist-service";
 import { and, eq, isNotNull, sql } from "drizzle-orm";
+import type { DrizzleD1Database } from "drizzle-orm/d1";
 
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 const RATE_LIMIT_MAX_ATTEMPTS = 8;
 
 export class D1WaitlistStore implements WaitlistStore {
+  private readonly db: DrizzleD1Database<typeof schema>;
+
+  constructor(db: DrizzleD1Database<typeof schema>) {
+    this.db = db;
+  }
+
   async consumeRateLimit(key: string) {
-    const db = getDb();
     const now = Date.now();
     const windowStartedAt =
       Math.floor(now / RATE_LIMIT_WINDOW_MS) * RATE_LIMIT_WINDOW_MS;
     const bucketKey = `${key}:${windowStartedAt}`;
-    const rows = await db
+    const rows = await this.db
       .insert(waitlistRateLimits)
       .values({ key: bucketKey, attempts: 1, windowStartedAt })
       .onConflictDoUpdate({
@@ -41,8 +47,7 @@ export class D1WaitlistStore implements WaitlistStore {
   async subscribe(
     input: Omit<SubscriptionRecord, "id">,
   ): Promise<SubscriptionResult> {
-    const db = getDb();
-    const existing = await db
+    const existing = await this.db
       .select()
       .from(waitlistSignups)
       .where(eq(waitlistSignups.email, input.email))
@@ -57,7 +62,7 @@ export class D1WaitlistStore implements WaitlistStore {
     }
 
     if (current) {
-      const reactivated = await db
+      const reactivated = await this.db
         .update(waitlistSignups)
         .set({
           locale: input.locale,
@@ -91,7 +96,7 @@ export class D1WaitlistStore implements WaitlistStore {
         };
       }
 
-      const active = await db
+      const active = await this.db
         .select()
         .from(waitlistSignups)
         .where(eq(waitlistSignups.email, input.email))
@@ -102,7 +107,7 @@ export class D1WaitlistStore implements WaitlistStore {
       };
     }
 
-    const inserted = await db
+    const inserted = await this.db
       .insert(waitlistSignups)
       .values({
         id: crypto.randomUUID(),
@@ -121,7 +126,7 @@ export class D1WaitlistStore implements WaitlistStore {
       .returning();
 
     if (!inserted[0]) {
-      const active = await db
+      const active = await this.db
         .select()
         .from(waitlistSignups)
         .where(eq(waitlistSignups.email, input.email))
@@ -137,9 +142,8 @@ export class D1WaitlistStore implements WaitlistStore {
   }
 
   async updateFollowup(id: string, update: FollowupUpdate) {
-    const db = getDb();
     if (update.status === "sent") {
-      await db
+      await this.db
         .update(waitlistSignups)
         .set({
           followupStatus: "sent",
@@ -152,7 +156,7 @@ export class D1WaitlistStore implements WaitlistStore {
       return;
     }
 
-    await db
+    await this.db
       .update(waitlistSignups)
       .set({
         followupStatus: "failed",

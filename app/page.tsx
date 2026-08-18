@@ -5,6 +5,7 @@ import {
   type TurnstileWidgetHandle,
 } from "@/components/TurnstileWidget";
 import Image from "next/image";
+import Link from "next/link";
 import {
   FormEvent,
   useCallback,
@@ -114,19 +115,22 @@ const copy = {
   },
 } as const;
 
-const faqStructuredData = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "@id": "https://dshpluginhub.ai/#faq",
-  mainEntity: copy.zh.faq.map(([question, answer]) => ({
-    "@type": "Question",
-    name: question,
-    acceptedAnswer: {
-      "@type": "Answer",
-      text: answer,
-    },
-  })),
-};
+function faqStructuredData(language: keyof typeof copy) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "@id": `https://dshpluginhub.ai${language === "en" ? "/en" : "/"}#faq`,
+    inLanguage: language === "en" ? "en" : "zh-CN",
+    mainEntity: copy[language].faq.map(([question, answer]) => ({
+      "@type": "Question",
+      name: question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: answer,
+      },
+    })),
+  };
+}
 
 function subscribeToWaitlistStorage(listener: () => void) {
   window.addEventListener("storage", listener);
@@ -138,8 +142,12 @@ function hasRecentWaitlistSubscription() {
   return Boolean(storedAt && Date.now() - storedAt < 30 * 24 * 60 * 60 * 1000);
 }
 
-export default function Home() {
-  const [language, setLanguage] = useState<keyof typeof copy>("zh");
+export default function Home({
+  initialLanguage = "zh",
+}: {
+  initialLanguage?: keyof typeof copy;
+}) {
+  const language = initialLanguage;
   const [formState, setFormState] = useState<FormState>("idle");
   const [turnstileToken, setTurnstileToken] = useState("");
   const turnstileRef = useRef<TurnstileWidgetHandle>(null);
@@ -222,10 +230,12 @@ export default function Home() {
             : t.hint;
 
   return (
-    <main className="site-shell">
+    <main className="site-shell" lang={language === "en" ? "en" : "zh-CN"}>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqStructuredData(language)),
+        }}
       />
       <div className="grid-glow" aria-hidden="true" />
       <Image
@@ -252,22 +262,22 @@ export default function Home() {
             {t.status}
           </span>
           <div className="language-switch" aria-label="Language">
-            <button
+            <Link
               className={language === "zh" ? "active" : ""}
-              onClick={() => setLanguage("zh")}
-              aria-pressed={language === "zh"}
-              type="button"
+              href="/"
+              aria-current={language === "zh" ? "page" : undefined}
+              hrefLang="zh-CN"
             >
               中文
-            </button>
-            <button
+            </Link>
+            <Link
               className={language === "en" ? "active" : ""}
-              onClick={() => setLanguage("en")}
-              aria-pressed={language === "en"}
-              type="button"
+              href="/en"
+              aria-current={language === "en" ? "page" : undefined}
+              hrefLang="en"
             >
               EN
-            </button>
+            </Link>
           </div>
         </div>
       </header>

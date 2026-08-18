@@ -1,3 +1,4 @@
+import { getDb } from "@/db";
 import { D1WaitlistStore } from "@/db/waitlist-store";
 import { sendWelcomeEmail } from "@/lib/waitlist-email";
 import { createWaitlistHandler } from "@/lib/waitlist-service";
@@ -21,7 +22,7 @@ export async function POST(request: Request) {
 
   const expectedHostname = new URL(request.url).hostname;
   const handler = createWaitlistHandler({
-    store: new D1WaitlistStore(),
+    store: new D1WaitlistStore(getDb()),
     rateLimitSalt,
     verifyTurnstile: ({ token, remoteIp }) =>
       verifyTurnstileToken({

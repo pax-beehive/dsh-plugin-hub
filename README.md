@@ -52,6 +52,10 @@ Email delivery runs after the subscription has been durably stored. Transient
 delivery failures receive up to three bounded attempts; the final state remains
 available in the aggregate report.
 
+Run the automated production health check with `npm run waitlist:health`. The
+staging, backup, recovery, logging, and alert procedures are documented in
+[`docs/operations/waitlist.md`](docs/operations/waitlist.md).
+
 ## Security Configuration
 
 The D1-backed rate limit is always enabled in production. For Turnstile, create

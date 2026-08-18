@@ -60,6 +60,31 @@ test("server-renders the Plugin Hub coming-soon page", async () => {
   assert.doesNotMatch(html, /codex-preview|Building your site/i);
 });
 
+test("server-renders an independently indexable English landing page", async () => {
+  const response = await render("/en");
+  assert.equal(response.status, 200);
+
+  const html = await response.text();
+  assert.match(
+    html,
+    /<title>DeepSeek Harness Plugin Hub — Discover and share plugins<\/title>/i,
+  );
+  assert.match(html, /<main[^>]+lang="en"/i);
+  assert.match(html, /An open community hub to discover, share, and install Harness plugins/);
+  assert.match(html, /What is DeepSeek Harness Plugin Hub\?/);
+  assert.match(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/en"/);
+  assert.match(
+    html,
+    /rel="alternate" hrefLang="en" href="https:\/\/dshpluginhub\.ai\/en"/i,
+  );
+  assert.match(
+    html,
+    /rel="alternate" hrefLang="zh-CN" href="https:\/\/dshpluginhub\.ai\/?"/i,
+  );
+  assert.match(html, /href="\/"[^>]*>中文<\/a>/i);
+  assert.match(html, /href="\/en"[^>]*>EN<\/a>/i);
+});
+
 test("server-renders the bilingual privacy notice", async () => {
   const response = await render("/privacy");
   assert.equal(response.status, 200);
@@ -99,13 +124,16 @@ test("publishes crawl and AI discovery files with the canonical origin", async (
   assert.match(robots, /User-agent: PerplexityBot\nAllow: \//);
   assert.match(robots, /Sitemap: https:\/\/dshpluginhub\.ai\/sitemap\.xml/);
   assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/<\/loc>/);
+  assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/en<\/loc>/);
   assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/privacy<\/loc>/);
   assert.match(llms, /^# DeepSeek Harness Plugin Hub/m);
   assert.match(llms, /independent, unofficial community project/i);
   assert.match(llms, /https:\/\/dshpluginhub\.ai\/index\.md/);
+  assert.match(llms, /https:\/\/dshpluginhub\.ai\/en/);
   assert.match(llms, /https:\/\/github\.com\/deepseek-ai\/deepseek-harness/);
   assert.match(markdownHome, /## Current status/);
   assert.match(markdownHome, /## Planned first release/);
+  assert.match(markdownHome, /English page: https:\/\/dshpluginhub\.ai\/en/);
   assert.match(markdownHome, /not affiliated with, authorized by, or endorsed/i);
   assert.match(llmsFull, /## Frequently asked questions/);
   assert.match(llmsFull, /Do not claim that plugins can already be browsed/);
