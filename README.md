@@ -5,7 +5,7 @@ DeepSeek Harness plugins. The initial release is a coming-soon landing page
 with a D1-backed email waitlist.
 
 The waitlist includes unsubscribe and re-subscribe handling, bounded background
-email retries, hashed D1 rate limiting, optional Cloudflare Turnstile
+email retries, hashed D1 rate limiting, Cloudflare Turnstile
 verification, source attribution, and a bilingual privacy notice.
 
 ## Prerequisites
@@ -65,9 +65,9 @@ TURNSTILE_SECRET_KEY=server-secret-key
 
 `VITE_TURNSTILE_SITE_KEY` is embedded during the build. Store
 `TURNSTILE_SECRET_KEY`, `WAITLIST_RATE_LIMIT_SALT`, and
-`WAITLIST_ADMIN_TOKEN` as hosted secrets. When Turnstile is not configured, the
-form remains protected by the honeypot and D1 rate limit rather than becoming
-unusable.
+`WAITLIST_ADMIN_TOKEN` as hosted secrets. Production deliberately rejects new
+subscriptions if either Turnstile or the rate-limit secret is missing, so a
+partial security configuration cannot silently weaken protection.
 
 The Worker adds a Content Security Policy, frame protection, MIME sniffing
 protection, a restrictive Permissions Policy, and a referrer policy.

@@ -43,7 +43,6 @@ export interface WaitlistStore {
 type WaitlistHandlerDependencies = {
   store: WaitlistStore;
   rateLimitSalt: string;
-  turnstileRequired?: boolean;
   verifyTurnstile(input: {
     token: string;
     remoteIp: string | null;
@@ -95,30 +94,35 @@ export function createWaitlistHandler(dependencies: WaitlistHandlerDependencies)
     }
 
     const remoteIp = request.headers.get("cf-connecting-ip")?.trim() || null;
-    if (dependencies.turnstileRequired !== false) {
-      const turnstileToken = boundedString(payload.turnstileToken, 2048);
-      if (
-        !turnstileToken ||
-        !(await dependencies.verifyTurnstile({
-          token: turnstileToken,
-          remoteIp,
-        }))
-      ) {
-        return Response.json({ error: "challenge_failed" }, { status: 403 });
-      }
+    const turnstileToken = boundedString(payload.turnstileToken, 2048);
+    if (
+      !turnstileToken ||
+      !(await dependencies.verifyTurnstile({
+        token: turnstileToken,
+        remoteIp,
+      }))
+    ) {
+      return Response.json({ error: "challenge_failed" }, { status: 403 });
     }
 
-    const rateLimitKey = await hashRateLimitKey(
-      remoteIp ?? "unknown",
-      dependencies.rateLimitSalt,
-    );
-    const rateLimit = await dependencies.store.consumeRateLimit(rateLimitKey);
-    if (!rateLimit.allowed) {
+    const [ipRateLimitKey, emailRateLimitKey] = await Promise.all([
+      hashRateLimitKey(`ip:${remoteIp ?? "unknown"}`, dependencies.rateLimitSalt),
+      hashRateLimitKey(`email:${email}`, dependencies.rateLimitSalt),
+    ]);
+    const ipRateLimit =
+      await dependencies.store.consumeRateLimit(ipRateLimitKey);
+    const emailRateLimit =
+      await dependencies.store.consumeRateLimit(emailRateLimitKey);
+    if (!ipRateLimit.allowed || !emailRateLimit.allowed) {
+      const retryAfterSeconds = Math.max(
+        ipRateLimit.retryAfterSeconds,
+        emailRateLimit.retryAfterSeconds,
+      );
       return Response.json(
         { error: "rate_limited" },
         {
           status: 429,
-          headers: { "retry-after": String(rateLimit.retryAfterSeconds) },
+          headers: { "retry-after": String(retryAfterSeconds) },
         },
       );
     }
@@ -208,12 +212,21 @@ function boundedString(value: unknown, maxLength: number): string | null {
 
 function sourceFrom(payload: WaitlistPayload) {
   const utmSource = boundedString(payload.utmSource, 80);
-  if (utmSource) return `utm:${utmSource}`.slice(0, 100);
+  if (utmSource) {
+    const normalized = utmSource.toLowerCase();
+    return KNOWN_CAMPAIGN_SOURCES.has(normalized)
+      ? `utm:${normalized}`
+      : "utm:other";
+  }
 
   const referrer = boundedString(payload.referrer, 500);
   if (referrer) {
     try {
-      return `referral:${new URL(referrer).hostname}`.slice(0, 100);
+      const hostname = new URL(referrer).hostname.toLowerCase();
+      const knownDomain = KNOWN_REFERRAL_DOMAINS.find(
+        (domain) => hostname === domain || hostname.endsWith(`.${domain}`),
+      );
+      return knownDomain ? `referral:${knownDomain}` : "referral:other";
     } catch {
       return "referral";
     }
@@ -221,6 +234,31 @@ function sourceFrom(payload: WaitlistPayload) {
 
   return "direct";
 }
+
+const KNOWN_CAMPAIGN_SOURCES = new Set([
+  "bing",
+  "discord",
+  "github",
+  "google",
+  "hackernews",
+  "linkedin",
+  "newsletter",
+  "reddit",
+  "wechat",
+  "x",
+]);
+
+const KNOWN_REFERRAL_DOMAINS = [
+  "bing.com",
+  "discord.com",
+  "github.com",
+  "google.com",
+  "linkedin.com",
+  "news.ycombinator.com",
+  "reddit.com",
+  "wechat.com",
+  "x.com",
+];
 
 function isSameOrigin(request: Request): boolean {
   const origin = request.headers.get("origin");

@@ -1,7 +1,4 @@
-const secret = (
-  process.env.WAITLIST_ADMIN_TOKEN ||
-  process.env.CLOUDFLARE_EMAIL_API_TOKEN
-)?.trim();
+const secret = process.env.WAITLIST_ADMIN_TOKEN?.trim();
 const configuredOrigin =
   process.env.CLOUDFLARE_PRODUCTION_DOMAIN || "https://dshpluginhub.ai";
 const origin = (
@@ -12,7 +9,7 @@ const origin = (
 
 if (!secret) {
   console.error(
-    "WAITLIST_ADMIN_TOKEN or CLOUDFLARE_EMAIL_API_TOKEN is missing from .env",
+    "WAITLIST_ADMIN_TOKEN is missing from .env",
   );
   process.exitCode = 1;
 } else {

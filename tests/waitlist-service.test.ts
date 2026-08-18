@@ -203,21 +203,57 @@ test("failed bot verification and rate limiting stop the write path", async () =
   assert.equal(limitedStore.records.size, 0);
 });
 
-test("the form remains usable with D1 rate limiting when Turnstile is not configured", async () => {
+test("a final email failure is recorded after three attempts", async () => {
+  const store = new MemoryStore();
+  const deferred: Promise<unknown>[] = [];
+  let attempts = 0;
+  const handler = createWaitlistHandler({
+    store,
+    rateLimitSalt: "test-salt",
+    verifyTurnstile: async () => true,
+    sendWelcomeEmail: async () => {
+      attempts += 1;
+      throw new Error("provider_unavailable");
+    },
+    defer: (promise) => deferred.push(promise),
+    sleep: async () => {},
+  });
+
+  await handler(
+    request({ email: "failure@example.com", turnstileToken: "valid-token" }),
+  );
+  await Promise.all(deferred);
+
+  assert.equal(attempts, 3);
+  assert.deepEqual(store.updates, [
+    {
+      status: "failed",
+      attempts: 3,
+      error: "provider_unavailable",
+    },
+  ]);
+});
+
+test("arbitrary attribution values are grouped instead of exposed in metrics", async () => {
   const store = new MemoryStore();
   const deferred: Promise<unknown>[] = [];
   const handler = createWaitlistHandler({
     store,
     rateLimitSalt: "test-salt",
-    turnstileRequired: false,
-    verifyTurnstile: async () => false,
+    verifyTurnstile: async () => true,
     sendWelcomeEmail: async () => ({ delivery: "delivered" }),
     defer: (promise) => deferred.push(promise),
     sleep: async () => {},
   });
 
-  const response = await handler(request({ email: "human@example.com" }));
-  assert.equal(response.status, 201);
+  await handler(
+    request({
+      email: "source@example.com",
+      turnstileToken: "valid-token",
+      utmSource: "alice@example.com",
+    }),
+  );
   await Promise.all(deferred);
-  assert.equal(store.records.has("human@example.com"), true);
+
+  assert.equal(store.records.get("source@example.com")?.source, "utm:other");
 });

@@ -117,7 +117,21 @@ export class D1WaitlistStore implements WaitlistStore {
         unsubscribeToken: input.unsubscribeToken,
         followupStatus: "pending",
       })
+      .onConflictDoNothing({ target: waitlistSignups.email })
       .returning();
+
+    if (!inserted[0]) {
+      const active = await db
+        .select()
+        .from(waitlistSignups)
+        .where(eq(waitlistSignups.email, input.email))
+        .limit(1);
+      if (!active[0]) throw new Error("waitlist_insert_conflict_without_row");
+      return {
+        status: "already_subscribed",
+        record: toSubscriptionRecord(active[0]),
+      };
+    }
 
     return { status: "created", record: toSubscriptionRecord(inserted[0]) };
   }

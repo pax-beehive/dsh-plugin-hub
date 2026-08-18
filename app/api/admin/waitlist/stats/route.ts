@@ -1,30 +1,18 @@
 import { getDb } from "@/db";
 import { waitlistSignups } from "@/db/schema";
+import { hasValidAdminBearer } from "@/lib/admin-auth";
 import { desc, sql } from "drizzle-orm";
 import { env } from "cloudflare:workers";
 
 type RuntimeAdminEnv = {
-  CLOUDFLARE_EMAIL_API_TOKEN?: string;
   WAITLIST_ADMIN_TOKEN?: string;
 };
 
 export async function GET(request: Request) {
   const runtime = env as unknown as RuntimeAdminEnv;
-  const adminSecret =
-    runtime.WAITLIST_ADMIN_TOKEN ?? runtime.CLOUDFLARE_EMAIL_API_TOKEN;
-  const expectedToken = adminSecret
-    ? await deriveBearerToken(adminSecret)
-    : undefined;
-  const suppliedToken = request.headers
-    .get("authorization")
-    ?.replace(/^Bearer\s+/i, "")
-    .trim();
+  const adminSecret = runtime.WAITLIST_ADMIN_TOKEN;
 
-  if (
-    !expectedToken ||
-    !suppliedToken ||
-    !constantTimeEqual(suppliedToken, expectedToken)
-  ) {
+  if (!(await hasValidAdminBearer(request.headers.get("authorization"), adminSecret))) {
     return Response.json(
       { error: "unauthorized" },
       {
@@ -45,7 +33,9 @@ export async function GET(request: Request) {
           total: sql<number>`count(*)`,
           active: sql<number>`coalesce(sum(case when ${waitlistSignups.unsubscribedAt} is null then 1 else 0 end), 0)`,
           unsubscribed: sql<number>`coalesce(sum(case when ${waitlistSignups.unsubscribedAt} is not null then 1 else 0 end), 0)`,
-          emailSent: sql<number>`coalesce(sum(case when ${waitlistSignups.followupStatus} = 'sent' then 1 else 0 end), 0)`,
+          emailDelivered: sql<number>`coalesce(sum(case when ${waitlistSignups.followupStatus} = 'sent' and ${waitlistSignups.followupResult} = 'delivered' then 1 else 0 end), 0)`,
+          emailQueued: sql<number>`coalesce(sum(case when ${waitlistSignups.followupStatus} = 'sent' and ${waitlistSignups.followupResult} = 'queued' then 1 else 0 end), 0)`,
+          emailPending: sql<number>`coalesce(sum(case when ${waitlistSignups.followupStatus} in ('pending', 'not_sent') then 1 else 0 end), 0)`,
           emailFailed: sql<number>`coalesce(sum(case when ${waitlistSignups.followupStatus} = 'failed' then 1 else 0 end), 0)`,
         })
         .from(waitlistSignups),
@@ -80,7 +70,9 @@ export async function GET(request: Request) {
           total: 0,
           active: 0,
           unsubscribed: 0,
-          emailSent: 0,
+          emailDelivered: 0,
+          emailQueued: 0,
+          emailPending: 0,
           emailFailed: 0,
         },
         byLocale: localeRows,
@@ -99,22 +91,4 @@ export async function GET(request: Request) {
       { status: 503, headers: { "cache-control": "no-store" } },
     );
   }
-}
-
-function constantTimeEqual(left: string, right: string) {
-  const maxLength = Math.max(left.length, right.length);
-  let difference = left.length ^ right.length;
-  for (let index = 0; index < maxLength; index += 1) {
-    difference |=
-      (left.charCodeAt(index) || 0) ^ (right.charCodeAt(index) || 0);
-  }
-  return difference === 0;
-}
-
-async function deriveBearerToken(secret: string) {
-  const bytes = new TextEncoder().encode(`pluginhub-waitlist-stats:${secret}`);
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return Array.from(new Uint8Array(digest), (byte) =>
-    byte.toString(16).padStart(2, "0"),
-  ).join("");
 }

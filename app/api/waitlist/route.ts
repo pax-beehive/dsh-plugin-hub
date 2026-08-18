@@ -5,7 +5,6 @@ import { verifyTurnstileToken } from "@/lib/turnstile";
 import { env, waitUntil } from "cloudflare:workers";
 
 type RuntimeWaitlistEnv = {
-  CLOUDFLARE_EMAIL_API_TOKEN?: string;
   TURNSTILE_SECRET_KEY?: string;
   WAITLIST_RATE_LIMIT_SALT?: string;
 };
@@ -13,10 +12,9 @@ type RuntimeWaitlistEnv = {
 export async function POST(request: Request) {
   const runtime = env as unknown as RuntimeWaitlistEnv;
   const turnstileSecret = runtime.TURNSTILE_SECRET_KEY;
-  const rateLimitSalt =
-    runtime.WAITLIST_RATE_LIMIT_SALT ?? runtime.CLOUDFLARE_EMAIL_API_TOKEN;
+  const rateLimitSalt = runtime.WAITLIST_RATE_LIMIT_SALT;
 
-  if (!rateLimitSalt) {
+  if (!turnstileSecret || !rateLimitSalt) {
     console.error("waitlist_security_not_configured");
     return Response.json({ error: "service_unavailable" }, { status: 503 });
   }
@@ -25,10 +23,9 @@ export async function POST(request: Request) {
   const handler = createWaitlistHandler({
     store: new D1WaitlistStore(),
     rateLimitSalt,
-    turnstileRequired: Boolean(turnstileSecret),
     verifyTurnstile: ({ token, remoteIp }) =>
       verifyTurnstileToken({
-        secret: turnstileSecret ?? "",
+        secret: turnstileSecret,
         token,
         remoteIp,
         expectedAction: "waitlist",
