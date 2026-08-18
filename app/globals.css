@@ -238,8 +238,19 @@ a {
   box-shadow: 0 0 0 4px rgb(77 107 254 / 14%);
 }
 
+.waitlist-form.is-complete input {
+  border-color: rgb(26 157 102 / 32%);
+  background: rgb(24 160 104 / 5%);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
 .waitlist-form button {
+  display: inline-flex;
   height: 50px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   padding: 0 26px;
   border: 0;
   border-radius: 12px;
@@ -266,6 +277,29 @@ a {
   opacity: 0.72;
 }
 
+.waitlist-form button.is-complete,
+.waitlist-form button.is-complete:hover {
+  background: #169c64;
+  box-shadow: 0 8px 24px rgb(22 156 100 / 28%);
+  cursor: default;
+  opacity: 1;
+  animation: subscription-confirm 620ms cubic-bezier(0.2, 0.9, 0.3, 1.25)
+    both;
+}
+
+.subscription-check {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 20%);
+  font-size: 13px;
+  font-weight: 800;
+  animation: subscription-check-pop 520ms 100ms
+    cubic-bezier(0.2, 0.9, 0.3, 1.4) both;
+}
+
 .honeypot {
   position: absolute;
   left: -10000px;
@@ -283,6 +317,11 @@ a {
 
 .form-hint.error {
   color: #b42318;
+}
+
+.form-hint.success {
+  color: #13764c;
+  animation: subscription-message-rise 520ms ease-out both;
 }
 
 .feature-grid {
@@ -467,6 +506,40 @@ a {
   }
   50% {
     transform: translateY(-8px);
+  }
+}
+
+@keyframes subscription-confirm {
+  0% {
+    transform: scale(0.96);
+  }
+  55% {
+    transform: scale(1.035);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes subscription-check-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.35) rotate(-18deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+@keyframes subscription-message-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

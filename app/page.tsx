@@ -21,6 +21,7 @@ const copy = {
     email: "你的邮箱",
     submit: "上线时通知我",
     submitting: "正在加入…",
+    subscribedButton: "已订阅",
     subscribed: "订阅成功，欢迎邮件已发送，请检查收件箱。",
     saved: "邮箱已保存，欢迎邮件可能稍后送达。",
     duplicate: "你已经在等候名单里了。",
@@ -44,6 +45,7 @@ const copy = {
     email: "Your email",
     submit: "Notify me",
     submitting: "Joining…",
+    subscribedButton: "Subscribed",
     subscribed: "You’re on the list. Check your inbox for our welcome email.",
     saved: "Your email is saved. The welcome email may arrive later.",
     duplicate: "You’re already on the waitlist.",
@@ -63,10 +65,14 @@ export default function Home() {
   const [language, setLanguage] = useState<keyof typeof copy>("zh");
   const [formState, setFormState] = useState<FormState>("idle");
   const t = copy[language];
+  const isComplete =
+    formState === "subscribed" ||
+    formState === "saved" ||
+    formState === "duplicate";
 
   async function submitWaitlist(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (formState === "submitting") return;
+    if (formState === "submitting" || isComplete) return;
 
     const form = event.currentTarget;
     const formData = new FormData(form);
@@ -95,7 +101,6 @@ export default function Home() {
             ? "subscribed"
             : "saved",
       );
-      form.reset();
     } catch {
       setFormState("error");
     }
@@ -162,7 +167,10 @@ export default function Home() {
         </h1>
         <p className="intro">{t.intro}</p>
 
-        <form className="waitlist-form" onSubmit={submitWaitlist}>
+        <form
+          className={`waitlist-form ${isComplete ? "is-complete" : ""}`}
+          onSubmit={submitWaitlist}
+        >
           <label className="sr-only" htmlFor="waitlist-email">
             {t.email}
           </label>
@@ -172,6 +180,8 @@ export default function Home() {
             name="email"
             placeholder="you@example.com"
             autoComplete="email"
+            disabled={isComplete}
+            aria-describedby="waitlist-status"
             required
           />
           <div className="honeypot" aria-hidden="true">
@@ -184,12 +194,28 @@ export default function Home() {
               autoComplete="off"
             />
           </div>
-          <button type="submit" disabled={formState === "submitting"}>
-            {formState === "submitting" ? t.submitting : t.submit}
+          <button
+            type="submit"
+            className={isComplete ? "is-complete" : ""}
+            disabled={formState === "submitting" || isComplete}
+          >
+            {isComplete ? (
+              <>
+                <span className="subscription-check" aria-hidden="true">
+                  ✓
+                </span>
+                {t.subscribedButton}
+              </>
+            ) : formState === "submitting" ? (
+              t.submitting
+            ) : (
+              t.submit
+            )}
           </button>
         </form>
         <p
-          className={`form-hint ${formState === "error" ? "error" : ""}`}
+          id="waitlist-status"
+          className={`form-hint ${formState === "error" ? "error" : ""} ${isComplete ? "success" : ""}`}
           aria-live="polite"
         >
           {formMessage}
