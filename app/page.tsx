@@ -1,6 +1,17 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import {
+  TurnstileWidget,
+  type TurnstileWidgetHandle,
+} from "@/components/TurnstileWidget";
+import Image from "next/image";
+import {
+  FormEvent,
+  useCallback,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
 type FormState =
   | "idle"
@@ -27,6 +38,8 @@ const copy = {
     duplicate: "你已经在等候名单里了。",
     error: "暂时无法提交，请稍后再试。",
     hint: "只发送产品上线和重要进展，不发垃圾邮件。",
+    privacyPrefix: "提交即表示你同意我们的",
+    privacyLink: "隐私说明",
     disclaimer:
       "非官方社区项目，由社区独立创建和维护，与 DeepSeek 官方无隶属、授权或背书关系。",
     knowledgeEyebrow: "ABOUT THE HUB",
@@ -70,6 +83,8 @@ const copy = {
     duplicate: "You’re already on the waitlist.",
     error: "We couldn’t save that right now. Please try again.",
     hint: "Only launch news and meaningful updates. No spam.",
+    privacyPrefix: "By submitting, you agree to our",
+    privacyLink: "privacy notice",
     disclaimer:
       "An independent, unofficial community project. Not affiliated with, authorized by, or endorsed by DeepSeek.",
     knowledgeEyebrow: "ABOUT THE HUB",
@@ -113,18 +128,42 @@ const faqStructuredData = {
   })),
 };
 
+function subscribeToWaitlistStorage(listener: () => void) {
+  window.addEventListener("storage", listener);
+  return () => window.removeEventListener("storage", listener);
+}
+
+function hasRecentWaitlistSubscription() {
+  const storedAt = Number(localStorage.getItem("pluginhub.waitlistJoinedAt"));
+  return Boolean(storedAt && Date.now() - storedAt < 30 * 24 * 60 * 60 * 1000);
+}
+
 export default function Home() {
   const [language, setLanguage] = useState<keyof typeof copy>("zh");
   const [formState, setFormState] = useState<FormState>("idle");
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const turnstileRef = useRef<TurnstileWidgetHandle>(null);
+  const previouslyJoined = useSyncExternalStore(
+    subscribeToWaitlistStorage,
+    hasRecentWaitlistSubscription,
+    () => false,
+  );
   const t = copy[language];
+  const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY ?? "";
+  const effectiveFormState =
+    formState === "idle" && previouslyJoined ? "duplicate" : formState;
   const isComplete =
-    formState === "subscribed" ||
-    formState === "saved" ||
-    formState === "duplicate";
+    effectiveFormState === "subscribed" ||
+    effectiveFormState === "saved" ||
+    effectiveFormState === "duplicate";
+
+  const handleTurnstileToken = useCallback((token: string) => {
+    setTurnstileToken(token);
+  }, []);
 
   async function submitWaitlist(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (formState === "submitting" || isComplete) return;
+    if (effectiveFormState === "submitting" || isComplete) return;
 
     const form = event.currentTarget;
     const formData = new FormData(form);
@@ -138,6 +177,17 @@ export default function Home() {
           email: formData.get("email"),
           website: formData.get("website"),
           locale: language,
+          turnstileToken,
+          referrer: document.referrer,
+          utmSource: new URLSearchParams(window.location.search).get(
+            "utm_source",
+          ),
+          utmMedium: new URLSearchParams(window.location.search).get(
+            "utm_medium",
+          ),
+          utmCampaign: new URLSearchParams(window.location.search).get(
+            "utm_campaign",
+          ),
         }),
       });
       const result = (await response.json()) as {
@@ -146,26 +196,28 @@ export default function Home() {
       };
 
       if (!response.ok) throw new Error("waitlist request failed");
-      setFormState(
+      const nextState =
         result.status === "already_subscribed"
           ? "duplicate"
           : result.emailStatus === "sent"
             ? "subscribed"
-            : "saved",
-      );
+            : "saved";
+      setFormState(nextState);
+      localStorage.setItem("pluginhub.waitlistJoinedAt", String(Date.now()));
     } catch {
       setFormState("error");
+      turnstileRef.current?.reset();
     }
   }
 
   const formMessage =
-    formState === "subscribed"
+    effectiveFormState === "subscribed"
       ? t.subscribed
-      : formState === "saved"
+      : effectiveFormState === "saved"
         ? t.saved
-        : formState === "duplicate"
+        : effectiveFormState === "duplicate"
           ? t.duplicate
-          : formState === "error"
+          : effectiveFormState === "error"
             ? t.error
             : t.hint;
 
@@ -176,11 +228,14 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }}
       />
       <div className="grid-glow" aria-hidden="true" />
-      <img
+      <Image
         className="whale-watermark"
         src="/deepseek-whale-black.svg"
         alt=""
         aria-hidden="true"
+        width={760}
+        height={760}
+        priority
       />
 
       <header className="site-header">
@@ -229,19 +284,43 @@ export default function Home() {
           className={`waitlist-form ${isComplete ? "is-complete" : ""}`}
           onSubmit={submitWaitlist}
         >
-          <label className="sr-only" htmlFor="waitlist-email">
-            {t.email}
-          </label>
-          <input
-            id="waitlist-email"
-            type="email"
-            name="email"
-            placeholder="you@example.com"
-            autoComplete="email"
-            disabled={isComplete}
-            aria-describedby="waitlist-status"
-            required
-          />
+          <div className="waitlist-fields">
+            <label className="sr-only" htmlFor="waitlist-email">
+              {t.email}
+            </label>
+            <input
+              id="waitlist-email"
+              type="email"
+              name="email"
+              placeholder="you@example.com"
+              autoComplete="email"
+              disabled={isComplete}
+              aria-describedby="waitlist-status"
+              required
+            />
+            <button
+              type="submit"
+              className={isComplete ? "is-complete" : ""}
+              disabled={
+                effectiveFormState === "submitting" ||
+                isComplete ||
+                (Boolean(turnstileSiteKey) && !turnstileToken)
+              }
+            >
+              {isComplete ? (
+                <>
+                  <span className="subscription-check" aria-hidden="true">
+                    ✓
+                  </span>
+                  {t.subscribedButton}
+                </>
+              ) : effectiveFormState === "submitting" ? (
+                t.submitting
+              ) : (
+                t.submit
+              )}
+            </button>
+          </div>
           <div className="honeypot" aria-hidden="true">
             <label htmlFor="company-website">Website</label>
             <input
@@ -252,31 +331,24 @@ export default function Home() {
               autoComplete="off"
             />
           </div>
-          <button
-            type="submit"
-            className={isComplete ? "is-complete" : ""}
-            disabled={formState === "submitting" || isComplete}
-          >
-            {isComplete ? (
-              <>
-                <span className="subscription-check" aria-hidden="true">
-                  ✓
-                </span>
-                {t.subscribedButton}
-              </>
-            ) : formState === "submitting" ? (
-              t.submitting
-            ) : (
-              t.submit
-            )}
-          </button>
+          {!isComplete && turnstileSiteKey ? (
+            <TurnstileWidget
+              ref={turnstileRef}
+              siteKey={turnstileSiteKey}
+              language={language}
+              onTokenChange={handleTurnstileToken}
+            />
+          ) : null}
         </form>
         <p
           id="waitlist-status"
-          className={`form-hint ${formState === "error" ? "error" : ""} ${isComplete ? "success" : ""}`}
+          className={`form-hint ${effectiveFormState === "error" ? "error" : ""} ${isComplete ? "success" : ""}`}
           aria-live="polite"
         >
           {formMessage}
+        </p>
+        <p className="privacy-hint">
+          {t.privacyPrefix} <a href="/privacy">{t.privacyLink}</a>。
         </p>
 
         <div className="feature-grid">
@@ -322,7 +394,10 @@ export default function Home() {
 
       <footer className="site-footer">
         <span>© 2026 DeepSeek Harness Plugin Hub</span>
-        <span className="community-note">{t.disclaimer}</span>
+        <div className="footer-notes">
+          <a href="/privacy">{t.privacyLink}</a>
+          <span className="community-note">{t.disclaimer}</span>
+        </div>
       </footer>
     </main>
   );

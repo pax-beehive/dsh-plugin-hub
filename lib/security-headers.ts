@@ -1,0 +1,30 @@
+export function withSecurityHeaders(response: Response) {
+  const headers = new Headers(response.headers);
+  headers.set(
+    "content-security-policy",
+    [
+      "default-src 'self'",
+      "base-uri 'self'",
+      "connect-src 'self' https://challenges.cloudflare.com",
+      "font-src 'self' data:",
+      "form-action 'self'",
+      "frame-ancestors 'none'",
+      "frame-src https://challenges.cloudflare.com",
+      "img-src 'self' data:",
+      "object-src 'none'",
+      "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
+      "style-src 'self' 'unsafe-inline'",
+      "upgrade-insecure-requests",
+    ].join("; "),
+  );
+  headers.set("permissions-policy", "camera=(), microphone=(), geolocation=()");
+  headers.set("referrer-policy", "strict-origin-when-cross-origin");
+  headers.set("x-content-type-options", "nosniff");
+  headers.set("x-frame-options", "DENY");
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}

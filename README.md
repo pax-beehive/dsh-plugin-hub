@@ -4,6 +4,10 @@ An independent, unofficial community project for discovering and sharing
 DeepSeek Harness plugins. The initial release is a coming-soon landing page
 with a D1-backed email waitlist.
 
+The waitlist includes unsubscribe and re-subscribe handling, bounded background
+email retries, hashed D1 rate limiting, optional Cloudflare Turnstile
+verification, source attribution, and a bilingual privacy notice.
+
 ## Prerequisites
 
 - Node.js `>=22.13.0`
@@ -22,6 +26,7 @@ This starter does not use `wrangler.jsonc`.
 
 - `app/page.tsx` contains the bilingual landing page
 - `app/api/waitlist/route.ts` accepts and deduplicates subscriptions
+- `app/api/admin/waitlist/stats/route.ts` returns aggregate, non-PII interest metrics
 - `db/schema.ts` defines the D1 waitlist table
 - `.openai/hosting.json` declares the logical `DB` binding
 
@@ -29,6 +34,57 @@ This starter does not use `wrangler.jsonc`.
 
 This is an independent, unofficial community project. It is not affiliated
 with, authorized by, or endorsed by DeepSeek.
+
+## Waitlist Operations
+
+Run the aggregate interest report against production:
+
+```bash
+npm run waitlist:stats
+```
+
+The report contains totals, active and unsubscribed counts, email delivery
+status, language mix, top campaign sources, and the last 30 days of signups. It
+does not return email addresses. The script reads the production domain and
+server credential from the ignored local `.env` file.
+
+Email delivery runs after the subscription has been durably stored. Transient
+delivery failures receive up to three bounded attempts; the final state remains
+available in the aggregate report.
+
+## Security Configuration
+
+The D1-backed rate limit is always enabled in production. For Turnstile, create
+a managed widget for `dshpluginhub.ai` and the Sites fallback hostname, then
+configure both:
+
+```dotenv
+VITE_TURNSTILE_SITE_KEY=public-site-key
+TURNSTILE_SECRET_KEY=server-secret-key
+```
+
+`VITE_TURNSTILE_SITE_KEY` is embedded during the build. Store
+`TURNSTILE_SECRET_KEY`, `WAITLIST_RATE_LIMIT_SALT`, and
+`WAITLIST_ADMIN_TOKEN` as hosted secrets. When Turnstile is not configured, the
+form remains protected by the honeypot and D1 rate limit rather than becoming
+unusable.
+
+The Worker adds a Content Security Policy, frame protection, MIME sniffing
+protection, a restrictive Permissions Policy, and a referrer policy.
+
+## Database Changes
+
+After editing `db/schema.ts`:
+
+```bash
+npm run db:generate
+npm run check
+```
+
+Inspect and commit the generated `drizzle/*.sql` migration. Sites packages and
+applies committed migrations during publication. Use separate Sites projects
+and D1 databases for staging and production once core Plugin Hub development
+begins; do not test migrations against the production waitlist first.
 
 ## Workspace Auth Headers
 
@@ -95,7 +151,9 @@ actions tied to the current ChatGPT user. Leave public content anonymous.
 - `npm run dev`: start local development
 - `npm run build`: verify the vinext build output
 - `npm test`: build and verify the rendered landing page
+- `npm run check`: run lint, build, and all behavior tests
 - `npm run db:generate`: generate Drizzle migrations after schema changes
+- `npm run waitlist:stats`: display aggregate production waitlist interest
 
 ## Learn More
 

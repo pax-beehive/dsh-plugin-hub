@@ -8,8 +8,14 @@ export const waitlistSignups = sqliteTable(
     email: text("email").notNull(),
     locale: text("locale").notNull().default("zh"),
     source: text("source").notNull().default("hero"),
+    referrer: text("referrer"),
+    utmSource: text("utm_source"),
+    utmMedium: text("utm_medium"),
+    utmCampaign: text("utm_campaign"),
+    consentVersion: text("consent_version").notNull().default("2026-08-17"),
     unsubscribeToken: text("unsubscribe_token"),
     unsubscribedAt: text("unsubscribed_at"),
+    resubscribedAt: text("resubscribed_at"),
     followupStatus: text("followup_status").notNull().default("not_sent"),
     followupAttempts: integer("followup_attempts").notNull().default(0),
     followupResult: text("followup_result"),
@@ -24,3 +30,9 @@ export const waitlistSignups = sqliteTable(
     ),
   ],
 );
+
+export const waitlistRateLimits = sqliteTable("waitlist_rate_limits", {
+  key: text("key").primaryKey(),
+  attempts: integer("attempts").notNull().default(1),
+  windowStartedAt: integer("window_started_at").notNull(),
+});

@@ -15,6 +15,13 @@
       "when": 1787020671860,
       "tag": "0001_peaceful_blindfold",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1787022860315,
+      "tag": "0002_red_big_bertha",
+      "breakpoints": true
     }
   ]
 }

@@ -39,6 +39,7 @@ test("server-renders the Plugin Hub coming-soon page", async () => {
   assert.match(html, /为 Harness 插件生态而建的社区入口/);
   assert.match(html, /DeepSeek Harness Plugin Hub 是什么？/);
   assert.match(html, /name="email"/);
+  assert.match(html, /href="\/privacy"/);
   assert.match(
     html,
     /rel="canonical" href="https:\/\/dshpluginhub\.ai\/?"/,
@@ -57,6 +58,17 @@ test("server-renders the Plugin Hub coming-soon page", async () => {
     /rel="describedby" href="https:\/\/dshpluginhub\.ai\/llms\.txt"/,
   );
   assert.doesNotMatch(html, /codex-preview|Building your site/i);
+});
+
+test("server-renders the bilingual privacy notice", async () => {
+  const response = await render("/privacy");
+  assert.equal(response.status, 200);
+
+  const html = await response.text();
+  assert.match(html, /你的邮箱如何被使用/);
+  assert.match(html, /What we collect/);
+  assert.match(html, /hello@dshpluginhub\.ai/);
+  assert.match(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/privacy"/);
 });
 
 test("server-renders the bilingual unsubscribe confirmation page", async () => {
@@ -87,6 +99,7 @@ test("publishes crawl and AI discovery files with the canonical origin", async (
   assert.match(robots, /User-agent: PerplexityBot\nAllow: \//);
   assert.match(robots, /Sitemap: https:\/\/dshpluginhub\.ai\/sitemap\.xml/);
   assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/<\/loc>/);
+  assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/privacy<\/loc>/);
   assert.match(llms, /^# DeepSeek Harness Plugin Hub/m);
   assert.match(llms, /independent, unofficial community project/i);
   assert.match(llms, /https:\/\/dshpluginhub\.ai\/index\.md/);

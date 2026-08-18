@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { ClearWaitlistState } from "./ClearWaitlistState";
 
 export const metadata: Metadata = {
   title: "Email preferences — DeepSeek Harness Plugin Hub",
@@ -31,6 +32,7 @@ export default async function UnsubscribePage({
 
         {isDone ? (
           <>
+            <ClearWaitlistState />
             <p className="eyebrow">PREFERENCES UPDATED</p>
             <h1>已成功退订</h1>
             <p>你将不会再收到 Plugin Hub 的更新邮件。</p>

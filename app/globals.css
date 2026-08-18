@@ -215,8 +215,15 @@ a {
 .waitlist-form {
   display: flex;
   width: min(480px, 90vw);
-  gap: 10px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
   margin-top: 42px;
+}
+
+.waitlist-fields {
+  display: flex;
+  gap: 10px;
 }
 
 .waitlist-form input {
@@ -323,6 +330,31 @@ a {
 .form-hint.success {
   color: #13764c;
   animation: subscription-message-rise 520ms ease-out both;
+}
+
+.turnstile-shell {
+  min-height: 65px;
+}
+
+.turnstile-widget {
+  width: 100%;
+}
+
+.turnstile-error {
+  color: #b42318;
+  font-size: 12px;
+}
+
+.privacy-hint {
+  margin: -4px 0 0;
+  color: var(--quiet);
+  font-size: 11px;
+}
+
+.privacy-hint a,
+.footer-notes a {
+  color: var(--muted);
+  text-underline-offset: 3px;
 }
 
 .feature-grid {
@@ -498,6 +530,13 @@ a {
   text-align: right;
 }
 
+.footer-notes {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 18px;
+}
+
 .preference-page {
   display: grid;
   min-height: 100svh;
@@ -580,6 +619,24 @@ a {
   border-top: 1px solid var(--line);
   color: var(--quiet);
   font-size: 11px;
+}
+
+.legal-card {
+  width: min(760px, 100%);
+}
+
+.legal-card section {
+  margin-top: 32px;
+}
+
+.legal-card h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+
+.legal-card section p + p {
+  margin-top: 8px;
+  color: var(--quiet);
 }
 
 .sr-only {
@@ -702,6 +759,12 @@ a {
   .community-note {
     text-align: left;
   }
+
+  .footer-notes {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
 }
 
 @media (max-width: 520px) {
@@ -709,7 +772,7 @@ a {
     display: none;
   }
 
-  .waitlist-form {
+  .waitlist-fields {
     flex-direction: column;
   }
 
