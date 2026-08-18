@@ -146,3 +146,15 @@ test("publishes crawl and AI discovery files with the canonical origin", async (
   assert.match(llmSingular, /canonical llms\.txt/i);
   assert.match(llmSingular, /https:\/\/dshpluginhub\.ai\/llms\.txt/);
 });
+
+test("serves the vinext hydration manifest directly from Worker assets", async () => {
+  const config = JSON.parse(
+    await readFile(new URL("../wrangler.jsonc", import.meta.url), "utf8"),
+  );
+
+  assert.equal(
+    config.assets.run_worker_first,
+    undefined,
+    "asset-first routing is required for vinext-client-entry-manifest.json",
+  );
+});
