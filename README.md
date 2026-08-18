@@ -107,6 +107,10 @@ See [`docs/publishing.md`](docs/publishing.md) for the manifest and security
 contract. A complete minimal package is available in
 [`examples/example-hello`](examples/example-hello).
 
+New teammates should start with [`docs/handover.md`](docs/handover.md) for the
+architecture, resource inventory, code map, operating commands, known limits,
+and production checklist.
+
 ## Staging
 
 Staging uses the Worker `deepseek-harness-plugin-hub-staging`, D1 database
