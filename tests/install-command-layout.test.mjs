@@ -16,6 +16,7 @@ function rule(selector) {
 test("keeps the copy action visible while only the command text scrolls", () => {
   assert.match(component, /className="install-command-scroll"/);
 
+  assert.match(rule(".detail-main"), /min-width:\s*0/);
   assert.match(rule(".install-command"), /overflow:\s*hidden/);
 
   const scrollRule = rule(".install-command-scroll");

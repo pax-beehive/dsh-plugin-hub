@@ -1395,6 +1395,10 @@ a {
   padding: 70px 0 100px;
 }
 
+.detail-main {
+  min-width: 0;
+}
+
 .detail-back {
   display: inline-block;
   margin-bottom: 36px;
