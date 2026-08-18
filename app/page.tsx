@@ -29,6 +29,25 @@ const copy = {
     hint: "只发送产品上线和重要进展，不发垃圾邮件。",
     disclaimer:
       "非官方社区项目，由社区独立创建和维护，与 DeepSeek 官方无隶属、授权或背书关系。",
+    knowledgeEyebrow: "ABOUT THE HUB",
+    knowledgeTitle: "为 Harness 插件生态而建的社区入口",
+    knowledgeIntro:
+      "DeepSeek Harness 采用“everything is a plugin”的架构。Plugin Hub 希望让社区插件和可复用配置更容易被发现、理解与采用。",
+    officialSource: "查看 DeepSeek Harness 官方开源项目",
+    faq: [
+      [
+        "DeepSeek Harness Plugin Hub 是什么？",
+        "一个由社区独立维护的插件目录与分享平台，面向 DeepSeek Harness 的 dsh-plugin 生态。",
+      ],
+      [
+        "现在可以使用吗？",
+        "目前处于预发布阶段。首版计划支持发现、发布与安装插件，并分享可复用的 Harness 配置。",
+      ],
+      [
+        "这是 DeepSeek 官方网站吗？",
+        "不是。本站是非官方社区项目，与 DeepSeek 官方没有隶属、授权或背书关系。",
+      ],
+    ],
     cards: [
       ["⌘", "插件托管与分享", "发布、发现并安装 Harness 插件"],
       ["◈", "Harness 配置分享", "一键分享你的插件组合方案"],
@@ -53,6 +72,25 @@ const copy = {
     hint: "Only launch news and meaningful updates. No spam.",
     disclaimer:
       "An independent, unofficial community project. Not affiliated with, authorized by, or endorsed by DeepSeek.",
+    knowledgeEyebrow: "ABOUT THE HUB",
+    knowledgeTitle: "A community entry point for the Harness plugin ecosystem",
+    knowledgeIntro:
+      "DeepSeek Harness is built around an “everything is a plugin” architecture. Plugin Hub aims to make community plugins and reusable configurations easier to discover, understand, and adopt.",
+    officialSource: "View the official DeepSeek Harness open-source project",
+    faq: [
+      [
+        "What is DeepSeek Harness Plugin Hub?",
+        "An independently maintained community directory and sharing platform for the DeepSeek Harness dsh-plugin ecosystem.",
+      ],
+      [
+        "Can I use it now?",
+        "The Hub is currently in pre-release. The first version is planned to support discovering, publishing, and installing plugins, plus sharing reusable Harness configurations.",
+      ],
+      [
+        "Is this an official DeepSeek website?",
+        "No. This is an unofficial community project and is not affiliated with, authorized by, or endorsed by DeepSeek.",
+      ],
+    ],
     cards: [
       ["⌘", "Plugin hosting & sharing", "Publish, discover, and install plugins"],
       ["◈", "Harness profiles", "Share your installed-plugin setups"],
@@ -60,6 +98,20 @@ const copy = {
     ],
   },
 } as const;
+
+const faqStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://dshpluginhub.ai/#faq",
+  mainEntity: copy.zh.faq.map(([question, answer]) => ({
+    "@type": "Question",
+    name: question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: answer,
+    },
+  })),
+};
 
 export default function Home() {
   const [language, setLanguage] = useState<keyof typeof copy>("zh");
@@ -111,14 +163,18 @@ export default function Home() {
       ? t.subscribed
       : formState === "saved"
         ? t.saved
-      : formState === "duplicate"
-        ? t.duplicate
-        : formState === "error"
-          ? t.error
-          : t.hint;
+        : formState === "duplicate"
+          ? t.duplicate
+          : formState === "error"
+            ? t.error
+            : t.hint;
 
   return (
     <main className="site-shell">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }}
+      />
       <div className="grid-glow" aria-hidden="true" />
       <img
         className="whale-watermark"
@@ -230,6 +286,34 @@ export default function Home() {
               <h2>{title}</h2>
               <p>{description}</p>
             </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className="knowledge-section"
+        aria-labelledby="knowledge-heading"
+      >
+        <div className="knowledge-heading">
+          <p className="knowledge-eyebrow">{t.knowledgeEyebrow}</p>
+          <h2 id="knowledge-heading">{t.knowledgeTitle}</h2>
+          <p>{t.knowledgeIntro}</p>
+          <a
+            href="https://github.com/deepseek-ai/deepseek-harness"
+            target="_blank"
+            rel="noreferrer"
+          >
+            {t.officialSource}
+            <span aria-hidden="true"> ↗</span>
+          </a>
+        </div>
+
+        <div className="faq-list">
+          {t.faq.map(([question, answer], index) => (
+            <details key={question} open={index === 0}>
+              <summary>{question}</summary>
+              <p>{answer}</p>
+            </details>
           ))}
         </div>
       </section>

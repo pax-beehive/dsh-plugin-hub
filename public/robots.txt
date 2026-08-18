@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /unsubscribe
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /api/
+Disallow: /unsubscribe
+
+Sitemap: https://dshpluginhub.ai/sitemap.xml

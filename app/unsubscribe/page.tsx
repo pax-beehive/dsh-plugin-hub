@@ -1,4 +1,14 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Email preferences — DeepSeek Harness Plugin Hub",
+  description: "Manage DeepSeek Harness Plugin Hub email preferences.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 type UnsubscribePageProps = {
   searchParams: Promise<{ status?: string; token?: string }>;

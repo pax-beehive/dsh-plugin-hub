@@ -1,0 +1,27 @@
+# DeepSeek Harness Plugin Hub
+
+> An independent, unofficial community project for discovering, sharing, and installing DeepSeek Harness plugins and reusable Harness configurations.
+
+DeepSeek Harness Plugin Hub is currently in pre-release. The site is being built as a community directory and sharing platform for the `dsh-plugin` ecosystem around DeepSeek Harness.
+
+## Current status
+
+- Coming soon; the public plugin catalog has not launched yet.
+- Visitors can join the email waitlist for launch news and meaningful project updates.
+- The planned first release covers plugin discovery, publishing, installation, reusable Harness configuration sharing, ratings, and reviews.
+
+## Project identity
+
+- This website is independently created and maintained by the community.
+- It is not affiliated with, authorized by, or endorsed by DeepSeek.
+- DeepSeek Harness itself is an open-source agent harness developed by DeepSeek AI and uses an “everything is a plugin” architecture.
+
+## Canonical resources
+
+- [Plugin Hub homepage](https://dshpluginhub.ai/): Canonical homepage and waitlist.
+- [Official DeepSeek Harness repository](https://github.com/deepseek-ai/deepseek-harness): Authoritative source for DeepSeek Harness code, documentation, installation, and project status.
+- [dsh-plugin repositories](https://github.com/topics/dsh-plugin): GitHub topic used by the official project to improve community plugin discoverability.
+
+## Contact
+
+- Email: hello@dshpluginhub.ai
