@@ -301,6 +301,16 @@ a {
   box-shadow: 0 8px 24px rgb(11 17 48 / 5%);
   text-align: left;
   backdrop-filter: blur(8px);
+  animation: card-float 5.4s ease-in-out infinite;
+  will-change: transform;
+}
+
+.feature-card:nth-child(2) {
+  animation-delay: -1.8s;
+}
+
+.feature-card:nth-child(3) {
+  animation-delay: -3.6s;
 }
 
 .feature-glyph {
@@ -363,6 +373,16 @@ a {
   }
   50% {
     opacity: 1;
+  }
+}
+
+@keyframes card-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
   }
 }
 
@@ -435,5 +455,10 @@ a {
     scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+
+  .feature-card {
+    animation: none;
+    transform: none;
   }
 }
