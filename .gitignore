@@ -1,0 +1,22 @@
+# Dependencies and build output
+node_modules/
+dist/
+.next/
+.vinext/
+
+# Cloudflare local state
+.wrangler/
+.dev.vars
+.dev.vars.*
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Test and tool output
+coverage/
+*.log
+
+# macOS
+.DS_Store
