@@ -25,4 +25,3 @@ Use the `dsh-hub-locale` cookie with values `zh` or `en`.
 - HTML and metadata depend on a cookie, so the Worker must render these pages dynamically.
 - Search engines see one canonical URL rather than separately indexable translations.
 - Any future CDN page caching must include the locale cookie in its cache key or skip caching localized HTML.
-
