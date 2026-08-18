@@ -1,4 +1,3 @@
-import { waitlistSignups } from "../db/schema.ts";
 import * as schema from "../db/schema.ts";
 import { sql } from "drizzle-orm";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
@@ -17,8 +16,7 @@ export function createHealthHandler(dependencies: HealthDependencies) {
     try {
       await dependencies
         .getDatabase()
-        .select({ count: sql<number>`count(*)` })
-        .from(waitlistSignups);
+        .get<{ ok: number }>(sql`SELECT 1 AS ok`);
       return Response.json(
         { status: "ok", database: "reachable" },
         { headers },

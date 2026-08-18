@@ -1,0 +1,26 @@
+{
+  "$schema": "../../../node_modules/wrangler/config-schema.json",
+  "name": "pluginhub-integration-test",
+  "main": "../../dist/server/index.js",
+  "compatibility_date": "2026-05-22",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "../../public",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "pluginhub-integration",
+      "database_id": "00000000-0000-0000-0000-000000000001",
+      "migrations_dir": "../../drizzle"
+    }
+  ],
+  "vars": {
+    "WAITLIST_ADMIN_TOKEN": "integration-admin-secret",
+    "WAITLIST_RATE_LIMIT_SALT": "integration-rate-limit-salt",
+    "WAITLIST_INTEGRATION_TEST": "true",
+    "TURNSTILE_SECRET_KEY": "1x0000000000000000000000000000000AA"
+  }
+}

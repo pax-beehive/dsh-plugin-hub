@@ -27,18 +27,29 @@ npm run waitlist:stats
 ```
 
 `waitlist:health` exits non-zero when the public route cannot reach D1, the
-protected stats route fails, failed email count reaches
+protected stats route fails, email failures from the last 24 hours reach
 `WAITLIST_ALERT_MAX_FAILED_EMAILS` (default 5), or pending email count reaches
-`WAITLIST_ALERT_MAX_PENDING_EMAILS` (default 10). It prints aggregate values
+`WAITLIST_ALERT_MAX_PENDING_EMAILS` (default 10) after remaining pending for at
+least 15 minutes. It prints aggregate values
 only and never returns email addresses.
 
-Recommended scheduling:
+Alert recipient: `hello@dshpluginhub.ai`, configured through
+`WAITLIST_ALERT_TO_EMAIL`. On a failed aggregate check, the script uses the
+existing Cloudflare Email Service credentials to send a non-PII, best-effort
+secondary alert before it exits non-zero. This email is not the primary channel:
+the signup follow-up and this alert share a Cloudflare Email Service failure
+domain.
+
+Required scheduling:
 
 - Probe `GET https://dshpluginhub.ai/api/health` every five minutes. Alert after
   two consecutive non-200 responses.
-- Run `npm run waitlist:health` hourly from a secret-capable runner that has
-  `WAITLIST_ADMIN_TOKEN`. Route non-zero exits to the operator's existing pager
-  or email notification channel.
+- Run `npm run waitlist:health` hourly from a persistent, secret-capable runner
+  that has the local `.env`. Use the cron expression `0 * * * *`. The runner
+  must independently notify the operator when the command exits non-zero or the
+  scheduled run is missed; this runner notification is the primary alert path.
+  Configure it before treating monitoring as operational. The script's email is
+  only a secondary delivery attempt.
 - Review `npm run waitlist:stats` weekly for signup and delivery trends.
 
 ## Logs
@@ -70,10 +81,12 @@ References:
 
 Before catalog development or any schema change:
 
-1. Create a separate Sites project with its own `DB` binding. Never point a
-   staging deployment at the production D1 database.
-2. Give staging its own hostname and Turnstile widget/hostname entry. Use a
-   non-production sender or an allowlisted recipient for email tests.
+1. Create a separate private Sites project named `DeepSeek Plugin Hub Staging`,
+   with hostname `staging.dshpluginhub.ai` and its own `DB` binding. Never point
+   a staging deployment at the production D1 database.
+2. Add `staging.dshpluginhub.ai` to a staging-only Turnstile widget. Use
+   `hello@dshpluginhub.ai` as the only allowed email-test recipient until a
+   separate staging sender is configured.
 3. Apply every committed migration to a fresh staging database through a saved
    Sites version.
 4. Run `npm run check`, then verify `/`, `/en`, `/privacy`, `/api/health`, one
@@ -95,7 +108,8 @@ Before any destructive or data-rewriting migration:
    row count, and current `/api/health` result.
 2. Obtain a provider-confirmed restore point or export for the Sites-managed D1
    database. Database row inspection is verification, not a backup.
-3. If a restorable point or export cannot be confirmed, stop. Use an additive,
+3. If a restorable point or export cannot be confirmed, stop. This is a hard
+   release blocker, not an operator judgement call. Use an additive,
    forward-compatible migration instead of a destructive migration.
 4. Retain the restore evidence with the release record, never in the Git
    repository if it contains subscriber data.

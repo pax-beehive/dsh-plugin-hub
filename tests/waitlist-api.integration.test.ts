@@ -57,6 +57,8 @@ test("the protected stats API aggregates migrated D1 records without exposing em
     emailQueued: 0,
     emailPending: 0,
     emailFailed: 0,
+    emailFailedLast24Hours: 0,
+    emailPendingOver15Minutes: 0,
   });
 });
 
@@ -184,4 +186,64 @@ test("the public health API reports D1 reachability without exposing waitlist da
     status: "degraded",
     database: "unreachable",
   });
+});
+
+test("delivery alerts use the reactivation time instead of the original signup age", async (t) => {
+  const { sqlite, binding } = await createTestD1();
+  t.after(() => sqlite.close());
+  const database = drizzle(binding, { schema });
+  const store = new D1WaitlistStore(database);
+  const created = await store.subscribe({
+    email: "returning@example.com",
+    locale: "en",
+    source: "direct",
+    referrer: null,
+    utmSource: null,
+    utmMedium: null,
+    utmCampaign: null,
+    consentVersion: "2026-08-17",
+    unsubscribeToken: "old-token",
+    unsubscribedAt: null,
+  });
+  sqlite
+    .prepare(
+      `UPDATE waitlist_signups
+       SET created_at = datetime('now', '-30 days'),
+           unsubscribed_at = datetime('now', '-1 day')
+       WHERE id = ?`,
+    )
+    .run(created.record.id);
+  const reactivated = await store.subscribe({
+    ...created.record,
+    unsubscribeToken: "new-token",
+    unsubscribedAt: null,
+  });
+  assert.equal(reactivated.status, "reactivated");
+
+  const adminSecret = "integration-admin-secret";
+  const handler = createWaitlistStatsHandler({
+    adminSecret,
+    getDatabase: () => database,
+  });
+  const statsRequest = async () => {
+    const response = await handler(
+      new Request("http://localhost/api/admin/waitlist/stats", {
+        headers: {
+          authorization: `Bearer ${await deriveAdminBearer(adminSecret)}`,
+        },
+      }),
+    );
+    return response.json();
+  };
+
+  const pendingStats = await statsRequest();
+  assert.equal(pendingStats.summary.emailPendingOver15Minutes, 0);
+
+  await store.updateFollowup(created.record.id, {
+    status: "failed",
+    attempts: 3,
+    error: "provider_unavailable",
+  });
+  const failedStats = await statsRequest();
+  assert.equal(failedStats.summary.emailFailedLast24Hours, 1);
 });

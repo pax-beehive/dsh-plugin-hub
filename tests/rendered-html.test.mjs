@@ -29,6 +29,7 @@ test("server-renders the Plugin Hub coming-soon page", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
+  assert.match(html, /^<!DOCTYPE html><html lang="zh-CN">/i);
   assert.match(
     html,
     /<title>DeepSeek Harness Plugin Hub — 插件发现与分享社区<\/title>/i,
@@ -69,7 +70,7 @@ test("server-renders an independently indexable English landing page", async () 
     html,
     /<title>DeepSeek Harness Plugin Hub — Discover and share plugins<\/title>/i,
   );
-  assert.match(html, /<main[^>]+lang="en"/i);
+  assert.match(html, /^<!DOCTYPE html><html lang="en">/i);
   assert.match(html, /An open community hub to discover, share, and install Harness plugins/);
   assert.match(html, /What is DeepSeek Harness Plugin Hub\?/);
   assert.match(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/en"/);
@@ -83,6 +84,11 @@ test("server-renders an independently indexable English landing page", async () 
   );
   assert.match(html, /href="\/"[^>]*>中文<\/a>/i);
   assert.match(html, /href="\/en"[^>]*>EN<\/a>/i);
+  assert.match(html, /"@id":"https:\/\/dshpluginhub\.ai\/en#webpage"/);
+  assert.doesNotMatch(
+    html,
+    /"@id":"https:\/\/dshpluginhub\.ai\/#webpage"/,
+  );
 });
 
 test("server-renders the bilingual privacy notice", async () => {

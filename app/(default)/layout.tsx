@@ -1,16 +1,6 @@
+import SiteDocument from "@/components/SiteDocument";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import "../globals.css";
 
 const siteUrl = new URL("https://dshpluginhub.ai");
 const title = "DeepSeek Harness Plugin Hub — 插件发现与分享社区";
@@ -86,68 +76,8 @@ export const metadata: Metadata = {
   },
 };
 
-const websiteStructuredData = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "WebSite",
-      "@id": "https://dshpluginhub.ai/#website",
-      url: "https://dshpluginhub.ai/",
-      name: "DeepSeek Harness Plugin Hub",
-      alternateName: "DSH Plugin Hub",
-      description,
-      inLanguage: ["zh-CN", "en"],
-      publisher: {
-        "@type": "Organization",
-        name: "DeepSeek Harness Plugin Hub Community",
-        url: "https://dshpluginhub.ai/",
-      },
-    },
-    {
-      "@type": "WebPage",
-      "@id": "https://dshpluginhub.ai/#webpage",
-      url: "https://dshpluginhub.ai/",
-      name: title,
-      description,
-      isPartOf: { "@id": "https://dshpluginhub.ai/#website" },
-      about: {
-        "@type": "SoftwareApplication",
-        name: "DeepSeek Harness",
-        applicationCategory: "DeveloperApplication",
-        url: "https://github.com/deepseek-ai/deepseek-harness",
-      },
-      inLanguage: ["zh-CN", "en"],
-    },
-  ],
-};
-
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="zh-CN">
-      <head>
-        <link
-          rel="alternate"
-          type="text/markdown"
-          href="https://dshpluginhub.ai/index.md"
-        />
-        <link
-          rel="describedby"
-          href="https://dshpluginhub.ai/llms.txt"
-        />
-      </head>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(websiteStructuredData),
-          }}
-        />
-        {children}
-      </body>
-    </html>
-  );
+}: Readonly<{ children: React.ReactNode }>) {
+  return <SiteDocument language="zh-CN">{children}</SiteDocument>;
 }

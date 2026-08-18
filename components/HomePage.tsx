@@ -132,6 +132,29 @@ function faqStructuredData(language: keyof typeof copy) {
   };
 }
 
+function pageStructuredData(language: keyof typeof copy) {
+  const path = language === "en" ? "/en" : "/";
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `https://dshpluginhub.ai${path}#webpage`,
+    url: `https://dshpluginhub.ai${path}`,
+    name:
+      language === "en"
+        ? "DeepSeek Harness Plugin Hub — Discover and share plugins"
+        : "DeepSeek Harness Plugin Hub — 插件发现与分享社区",
+    description: copy[language].intro,
+    isPartOf: { "@id": "https://dshpluginhub.ai/#website" },
+    about: {
+      "@type": "SoftwareApplication",
+      name: "DeepSeek Harness",
+      applicationCategory: "DeveloperApplication",
+      url: "https://github.com/deepseek-ai/deepseek-harness",
+    },
+    inLanguage: language === "en" ? "en" : "zh-CN",
+  };
+}
+
 function subscribeToWaitlistStorage(listener: () => void) {
   window.addEventListener("storage", listener);
   return () => window.removeEventListener("storage", listener);
@@ -142,7 +165,7 @@ function hasRecentWaitlistSubscription() {
   return Boolean(storedAt && Date.now() - storedAt < 30 * 24 * 60 * 60 * 1000);
 }
 
-export default function Home({
+export default function HomePage({
   initialLanguage = "zh",
 }: {
   initialLanguage?: keyof typeof copy;
@@ -235,6 +258,12 @@ export default function Home({
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(faqStructuredData(language)),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(pageStructuredData(language)),
         }}
       />
       <div className="grid-glow" aria-hidden="true" />

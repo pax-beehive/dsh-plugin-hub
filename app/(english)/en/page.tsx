@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Home from "../page";
+import HomePage from "@/components/HomePage";
 
 const title = "DeepSeek Harness Plugin Hub — Discover and share plugins";
 const description =
@@ -41,5 +41,5 @@ export const metadata: Metadata = {
 };
 
 export default function EnglishHome() {
-  return <Home initialLanguage="en" />;
+  return <HomePage initialLanguage="en" />;
 }

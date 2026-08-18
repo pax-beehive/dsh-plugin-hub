@@ -24,9 +24,11 @@ This starter does not use `wrangler.jsonc`.
 
 ## Project Shape
 
-- `app/page.tsx` contains the bilingual landing page
+- `components/HomePage.tsx` contains the shared waitlist landing experience
+- `app/(default)/page.tsx` and `app/(english)/en/page.tsx` expose indexable Chinese and English routes
 - `app/api/waitlist/route.ts` accepts and deduplicates subscriptions
 - `app/api/admin/waitlist/stats/route.ts` returns aggregate, non-PII interest metrics
+- `app/api/health/route.ts` provides a non-PII D1 reachability probe
 - `db/schema.ts` defines the D1 waitlist table
 - `.openai/hosting.json` declares the logical `DB` binding
 

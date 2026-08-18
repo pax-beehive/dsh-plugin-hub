@@ -2,7 +2,7 @@ type TurnstileVerificationInput = {
   secret: string;
   token: string;
   remoteIp: string | null;
-  expectedAction: string;
+  expectedAction: string | null;
   expectedHostnames: string[];
 };
 
@@ -43,7 +43,7 @@ export async function verifyTurnstileToken(
     return Boolean(
       response.ok &&
         result.success &&
-        result.action === input.expectedAction &&
+        (!input.expectedAction || result.action === input.expectedAction) &&
         result.hostname &&
         input.expectedHostnames.includes(result.hostname),
     );

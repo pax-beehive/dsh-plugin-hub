@@ -43,6 +43,8 @@ export function createWaitlistStatsHandler(
             emailQueued: sql<number>`coalesce(sum(case when ${waitlistSignups.followupStatus} = 'sent' and ${waitlistSignups.followupResult} = 'queued' then 1 else 0 end), 0)`,
             emailPending: sql<number>`coalesce(sum(case when ${waitlistSignups.followupStatus} in ('pending', 'not_sent') then 1 else 0 end), 0)`,
             emailFailed: sql<number>`coalesce(sum(case when ${waitlistSignups.followupStatus} = 'failed' then 1 else 0 end), 0)`,
+            emailFailedLast24Hours: sql<number>`coalesce(sum(case when ${waitlistSignups.followupStatus} = 'failed' and coalesce(${waitlistSignups.resubscribedAt}, ${waitlistSignups.createdAt}) >= datetime('now', '-24 hours') then 1 else 0 end), 0)`,
+            emailPendingOver15Minutes: sql<number>`coalesce(sum(case when ${waitlistSignups.followupStatus} in ('pending', 'not_sent') and coalesce(${waitlistSignups.resubscribedAt}, ${waitlistSignups.createdAt}) < datetime('now', '-15 minutes') then 1 else 0 end), 0)`,
           })
           .from(waitlistSignups),
         db
@@ -80,6 +82,8 @@ export function createWaitlistStatsHandler(
             emailQueued: 0,
             emailPending: 0,
             emailFailed: 0,
+            emailFailedLast24Hours: 0,
+            emailPendingOver15Minutes: 0,
           },
           byLocale: localeRows,
           topSources: sourceRows.map((row) => ({
