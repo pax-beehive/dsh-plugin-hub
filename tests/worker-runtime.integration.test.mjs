@@ -97,10 +97,29 @@ test(
         database: "reachable",
       });
 
+      const englishCatalogResponse = await fetch(`${origin}/plugins`, {
+        headers: { cookie: "dsh-hub-locale=en" },
+      });
+      assert.equal(englishCatalogResponse.status, 200);
+      const englishCatalogHtml = await englishCatalogResponse.text();
+      assert.match(englishCatalogHtml, /^<!DOCTYPE html><html lang="en">/i);
+      assert.match(englishCatalogHtml, /Discover verified DSH plugins/);
+      assert.doesNotMatch(englishCatalogHtml, /发现可验证的 DSH Plugins/);
+
       const unauthorizedResponse = await fetch(
         `${origin}/api/admin/waitlist/stats`,
       );
       assert.equal(unauthorizedResponse.status, 401);
+
+      const invalidCallbackResponse = await fetch(
+        `${origin}/callback?code=probe&state=probe`,
+        { redirect: "manual" },
+      );
+      assert.equal(invalidCallbackResponse.status, 303);
+      assert.equal(
+        invalidCallbackResponse.headers.get("location"),
+        `${origin}/auth/error`,
+      );
 
       const signupResponse = await fetch(`${origin}/api/waitlist`, {
         method: "POST",
@@ -173,9 +192,10 @@ test(
       assert.equal(after.summary.active, 1);
       assert.equal(after.summary.unsubscribed, 1);
 
-      const englishResponse = await fetch(`${origin}/en`);
-      assert.equal(englishResponse.status, 200);
-      assert.match(await englishResponse.text(), /^<!DOCTYPE html><html lang="en">/i);
+      const englishResponse = await fetch(`${origin}/en`, { redirect: "manual" });
+      assert.equal(englishResponse.status, 308);
+      assert.equal(englishResponse.headers.get("location"), `${origin}/`);
+      assert.match(englishResponse.headers.get("set-cookie") ?? "", /dsh-hub-locale=en/);
     } finally {
       if (worker && worker.exitCode === null) {
         worker.kill("SIGTERM");

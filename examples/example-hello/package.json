@@ -1,0 +1,59 @@
+{
+  "name": "@dsh-plugin-hub/example-hello",
+  "version": "0.1.0",
+  "description": "Minimal DSH bundle used to verify npm-first publishing through DSH Plugin Hub.",
+  "license": "MIT",
+  "files": [
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pax-beehive/dsh-plugin-hub.git",
+    "directory": "examples/example-hello"
+  },
+  "homepage": "https://dshpluginhub.ai",
+  "engines": {
+    "node": ">=22"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "hub": {
+      "schemaVersion": 1,
+      "displayName": "Hello DSH",
+      "summary": "A minimal bundle for testing npm-first installation with DSH Plugin Hub.",
+      "description": "Adds one harmless Hello DSH row to the Cordis configuration. This package is the reference example for publishing, discovering, and installing a DSH bundle through the Hub.",
+      "homepage": "https://github.com/pax-beehive/dsh-plugin-hub/tree/main/examples/example-hello",
+      "categories": [
+        "examples",
+        "developer-tools"
+      ],
+      "keywords": [
+        "deepseek-harness",
+        "dsh",
+        "plugin",
+        "example"
+      ],
+      "compatibility": {
+        "dsh": ">=0.1.0-rc.7",
+        "node": ">=22",
+        "platforms": [],
+        "surfaces": [
+          "any"
+        ],
+        "hmr": "config"
+      },
+      "entryIds": [
+        "hello-dsh"
+      ],
+      "before": [],
+      "after": [],
+      "channel": "stable"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

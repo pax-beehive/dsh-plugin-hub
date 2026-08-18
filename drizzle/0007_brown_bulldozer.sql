@@ -1,0 +1,1 @@
+ALTER TABLE `plugins` ADD `publisher_metadata_json` text DEFAULT '{}' NOT NULL;

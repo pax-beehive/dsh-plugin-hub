@@ -4,6 +4,7 @@ import {
   TurnstileWidget,
   type TurnstileWidgetHandle,
 } from "@/components/TurnstileWidget";
+import LanguageSwitch from "@/components/LanguageSwitch";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -48,6 +49,7 @@ const copy = {
     knowledgeIntro:
       "DeepSeek Harness 采用“everything is a plugin”的架构。Plugin Hub 希望让社区插件和可复用配置更容易被发现、理解与采用。",
     officialSource: "查看 DeepSeek Harness 官方开源项目",
+    exploreHub: "进入 Hub",
     faq: [
       [
         "DeepSeek Harness Plugin Hub 是什么？",
@@ -93,6 +95,7 @@ const copy = {
     knowledgeIntro:
       "DeepSeek Harness is built around an “everything is a plugin” architecture. Plugin Hub aims to make community plugins and reusable configurations easier to discover, understand, and adopt.",
     officialSource: "View the official DeepSeek Harness open-source project",
+    exploreHub: "Explore Hub",
     faq: [
       [
         "What is DeepSeek Harness Plugin Hub?",
@@ -119,7 +122,7 @@ function faqStructuredData(language: keyof typeof copy) {
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "@id": `https://dshpluginhub.ai${language === "en" ? "/en" : "/"}#faq`,
+    "@id": "https://dshpluginhub.ai/#faq",
     inLanguage: language === "en" ? "en" : "zh-CN",
     mainEntity: copy[language].faq.map(([question, answer]) => ({
       "@type": "Question",
@@ -133,7 +136,7 @@ function faqStructuredData(language: keyof typeof copy) {
 }
 
 function pageStructuredData(language: keyof typeof copy) {
-  const path = language === "en" ? "/en" : "/";
+  const path = "/";
   return {
     "@context": "https://schema.org",
     "@type": "WebPage",
@@ -286,28 +289,14 @@ export default function HomePage({
         </a>
 
         <div className="header-actions">
+          <Link className="hub-entry-link" href="/plugins">
+            {t.exploreHub}
+          </Link>
           <span className="launch-status">
             <span aria-hidden="true" />
             {t.status}
           </span>
-          <div className="language-switch" aria-label="Language">
-            <Link
-              className={language === "zh" ? "active" : ""}
-              href="/"
-              aria-current={language === "zh" ? "page" : undefined}
-              hrefLang="zh-CN"
-            >
-              中文
-            </Link>
-            <Link
-              className={language === "en" ? "active" : ""}
-              href="/en"
-              aria-current={language === "en" ? "page" : undefined}
-              hrefLang="en"
-            >
-              EN
-            </Link>
-          </div>
+          <LanguageSwitch locale={language} />
         </div>
       </header>
 

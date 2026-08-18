@@ -1,0 +1,4 @@
+# Minimal DSH bundle patch used by the Hub's end-to-end publication smoke test.
+- insert:
+    - id: hello-dsh
+      name: 'Hello from DSH Plugin Hub'

@@ -17,6 +17,7 @@ dist/
 # Test and tool output
 coverage/
 *.log
+*.tsbuildinfo
 
 # macOS
 .DS_Store

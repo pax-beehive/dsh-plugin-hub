@@ -2,19 +2,29 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-async function render(pathname = "/") {
+process.env.WORKOS_CLIENT_ID ??= "client_render_test";
+process.env.WORKOS_API_KEY ??= "sk_test_render";
+process.env.WORKOS_COOKIE_PASSWORD ??=
+  "render-test-cookie-password-at-least-32-characters";
+process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI ??= "http://localhost/callback";
+
+async function render(pathname = "/", headers = {}) {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
 
   return worker.fetch(
     new Request(`http://localhost${pathname}`, {
-      headers: { accept: "text/html" },
+      headers: { accept: "text/html", ...headers },
     }),
     {
       ASSETS: {
         fetch: async () => new Response("Not found", { status: 404 }),
       },
+      WORKOS_CLIENT_ID: "client_render_test",
+      WORKOS_API_KEY: "sk_test_render",
+      WORKOS_COOKIE_PASSWORD: "render-test-cookie-password-at-least-32-characters",
+      NEXT_PUBLIC_WORKOS_REDIRECT_URI: "http://localhost/callback",
     },
     {
       waitUntil() {},
@@ -61,8 +71,8 @@ test("server-renders the Plugin Hub coming-soon page", async () => {
   assert.doesNotMatch(html, /codex-preview|Building your site/i);
 });
 
-test("server-renders an independently indexable English landing page", async () => {
-  const response = await render("/en");
+test("server-renders English on the same URL from the locale cookie", async () => {
+  const response = await render("/", { cookie: "dsh-hub-locale=en" });
   assert.equal(response.status, 200);
 
   const html = await response.text();
@@ -73,42 +83,36 @@ test("server-renders an independently indexable English landing page", async () 
   assert.match(html, /^<!DOCTYPE html><html lang="en">/i);
   assert.match(html, /An open community hub to discover, share, and install Harness plugins/);
   assert.match(html, /What is DeepSeek Harness Plugin Hub\?/);
-  assert.match(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/en"/);
-  assert.match(
-    html,
-    /rel="alternate" hrefLang="en" href="https:\/\/dshpluginhub\.ai\/en"/i,
-  );
-  assert.match(
-    html,
-    /rel="alternate" hrefLang="zh-CN" href="https:\/\/dshpluginhub\.ai\/?"/i,
-  );
-  assert.match(html, /href="\/"[^>]*>中文<\/a>/i);
-  assert.match(html, /href="\/en"[^>]*>EN<\/a>/i);
-  assert.match(html, /"@id":"https:\/\/dshpluginhub\.ai\/en#webpage"/);
-  assert.doesNotMatch(
-    html,
-    /"@id":"https:\/\/dshpluginhub\.ai\/#webpage"/,
-  );
+  assert.match(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/?"/);
+  assert.match(html, /aria-pressed="true"[^>]*>EN<\/button>/i);
+  assert.match(html, /"@id":"https:\/\/dshpluginhub\.ai\/#webpage"/);
 });
 
-test("server-renders the bilingual privacy notice", async () => {
-  const response = await render("/privacy");
+test("legacy English URL stores the preference and redirects to the canonical URL", async () => {
+  const response = await render("/en");
+  assert.equal(response.status, 308);
+  assert.equal(response.headers.get("location"), "http://localhost/");
+  assert.match(response.headers.get("set-cookie") ?? "", /dsh-hub-locale=en/);
+});
+
+test("privacy notice follows the same locale cookie", async () => {
+  const response = await render("/privacy", { cookie: "dsh-hub-locale=en" });
   assert.equal(response.status, 200);
 
   const html = await response.text();
-  assert.match(html, /你的邮箱如何被使用/);
+  assert.match(html, /How we use your email/);
   assert.match(html, /What we collect/);
+  assert.doesNotMatch(html, /你的邮箱如何被使用/);
   assert.match(html, /hello@dshpluginhub\.ai/);
   assert.match(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/privacy"/);
 });
 
-test("server-renders the bilingual unsubscribe confirmation page", async () => {
+test("server-renders the Chinese unsubscribe confirmation by default", async () => {
   const response = await render("/unsubscribe?token=test-token");
   assert.equal(response.status, 200);
 
   const html = await response.text();
   assert.match(html, /确认退订/);
-  assert.match(html, /Unsubscribe/);
   assert.match(html, /\/api\/waitlist\/unsubscribe\?token=test-token/);
   assert.match(html, /非官方独立社区项目/);
   assert.match(html, /name="robots" content="noindex, nofollow"/);
@@ -130,16 +134,16 @@ test("publishes crawl and AI discovery files with the canonical origin", async (
   assert.match(robots, /User-agent: PerplexityBot\nAllow: \//);
   assert.match(robots, /Sitemap: https:\/\/dshpluginhub\.ai\/sitemap\.xml/);
   assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/<\/loc>/);
-  assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/en<\/loc>/);
+  assert.doesNotMatch(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/en<\/loc>/);
   assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/privacy<\/loc>/);
   assert.match(llms, /^# DeepSeek Harness Plugin Hub/m);
   assert.match(llms, /independent, unofficial community project/i);
   assert.match(llms, /https:\/\/dshpluginhub\.ai\/index\.md/);
-  assert.match(llms, /https:\/\/dshpluginhub\.ai\/en/);
+  assert.doesNotMatch(llms, /https:\/\/dshpluginhub\.ai\/en/);
   assert.match(llms, /https:\/\/github\.com\/deepseek-ai\/deepseek-harness/);
   assert.match(markdownHome, /## Current status/);
   assert.match(markdownHome, /## Planned first release/);
-  assert.match(markdownHome, /English page: https:\/\/dshpluginhub\.ai\/en/);
+  assert.match(markdownHome, /Language can be switched in place/);
   assert.match(markdownHome, /not affiliated with, authorized by, or endorsed/i);
   assert.match(llmsFull, /## Frequently asked questions/);
   assert.match(llmsFull, /Do not claim that plugins can already be browsed/);
