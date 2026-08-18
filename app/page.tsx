@@ -200,6 +200,7 @@ export default function Home() {
             <button
               className={language === "zh" ? "active" : ""}
               onClick={() => setLanguage("zh")}
+              aria-pressed={language === "zh"}
               type="button"
             >
               中文
@@ -207,6 +208,7 @@ export default function Home() {
             <button
               className={language === "en" ? "active" : ""}
               onClick={() => setLanguage("en")}
+              aria-pressed={language === "en"}
               type="button"
             >
               EN

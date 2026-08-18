@@ -48,6 +48,14 @@ test("server-renders the Plugin Hub coming-soon page", async () => {
   assert.match(html, /"@type":"FAQPage"/);
   assert.match(html, /rel="shortcut icon" href="\/favicon\.ico"/);
   assert.match(html, /rel="icon" href="\/favicon-64\.png"/);
+  assert.match(
+    html,
+    /rel="alternate" type="text\/markdown" href="https:\/\/dshpluginhub\.ai\/index\.md"/,
+  );
+  assert.match(
+    html,
+    /rel="describedby" href="https:\/\/dshpluginhub\.ai\/llms\.txt"/,
+  );
   assert.doesNotMatch(html, /codex-preview|Building your site/i);
 });
 
@@ -64,16 +72,30 @@ test("server-renders the bilingual unsubscribe confirmation page", async () => {
 });
 
 test("publishes crawl and AI discovery files with the canonical origin", async () => {
-  const [robots, sitemap, llms] = await Promise.all([
-    readFile(new URL("../public/robots.txt", import.meta.url), "utf8"),
-    readFile(new URL("../public/sitemap.xml", import.meta.url), "utf8"),
-    readFile(new URL("../public/llms.txt", import.meta.url), "utf8"),
-  ]);
+  const [robots, sitemap, llms, markdownHome, llmsFull, llmSingular] =
+    await Promise.all([
+      readFile(new URL("../public/robots.txt", import.meta.url), "utf8"),
+      readFile(new URL("../public/sitemap.xml", import.meta.url), "utf8"),
+      readFile(new URL("../public/llms.txt", import.meta.url), "utf8"),
+      readFile(new URL("../public/index.md", import.meta.url), "utf8"),
+      readFile(new URL("../public/llms-full.txt", import.meta.url), "utf8"),
+      readFile(new URL("../public/llm.txt", import.meta.url), "utf8"),
+    ]);
 
   assert.match(robots, /User-agent: OAI-SearchBot\nAllow: \//);
+  assert.match(robots, /User-agent: Claude-SearchBot\nAllow: \//);
+  assert.match(robots, /User-agent: PerplexityBot\nAllow: \//);
   assert.match(robots, /Sitemap: https:\/\/dshpluginhub\.ai\/sitemap\.xml/);
   assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/<\/loc>/);
   assert.match(llms, /^# DeepSeek Harness Plugin Hub/m);
   assert.match(llms, /independent, unofficial community project/i);
+  assert.match(llms, /https:\/\/dshpluginhub\.ai\/index\.md/);
   assert.match(llms, /https:\/\/github\.com\/deepseek-ai\/deepseek-harness/);
+  assert.match(markdownHome, /## Current status/);
+  assert.match(markdownHome, /## Planned first release/);
+  assert.match(markdownHome, /not affiliated with, authorized by, or endorsed/i);
+  assert.match(llmsFull, /## Frequently asked questions/);
+  assert.match(llmsFull, /Do not claim that plugins can already be browsed/);
+  assert.match(llmSingular, /canonical llms\.txt/i);
+  assert.match(llmSingular, /https:\/\/dshpluginhub\.ai\/llms\.txt/);
 });

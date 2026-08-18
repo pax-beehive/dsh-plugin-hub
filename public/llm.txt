@@ -1,0 +1,8 @@
+# DeepSeek Harness Plugin Hub LLM Guide
+
+> The canonical agent-readable navigation file uses the standard plural filename `/llms.txt`.
+
+## Primary
+
+- [Open the canonical llms.txt](https://dshpluginhub.ai/llms.txt): Concise LLM navigation and authoritative source links.
+- [Open the detailed Markdown context](https://dshpluginhub.ai/index.md): Full project facts, status, roadmap boundaries, and FAQs.

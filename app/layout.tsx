@@ -124,6 +124,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
+      <head>
+        <link
+          rel="alternate"
+          type="text/markdown"
+          href="https://dshpluginhub.ai/index.md"
+        />
+        <link
+          rel="describedby"
+          href="https://dshpluginhub.ai/llms.txt"
+        />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <script
           type="application/ld+json"
