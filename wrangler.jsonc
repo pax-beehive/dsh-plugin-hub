@@ -22,6 +22,14 @@
   "observability": {
     "enabled": true
   },
+  "vars": {
+    "HUB_API_ORIGIN": "https://api.dshpluginhub.ai",
+    "WORKOS_CLIENT_ID": "client_01M09HAMFBJJ6T8M0ZYY69M9HP",
+    "NEXT_PUBLIC_WORKOS_REDIRECT_URI": "https://dshpluginhub.ai/callback",
+    "GITHUB_APP_ID": "4631702",
+    "GITHUB_APP_SLUG": "pax-dsh-hub",
+    "GITHUB_REDIRECT_URI": "https://dshpluginhub.ai/integrations/github/oauth/callback"
+  },
   "env": {
     "staging": {
       "name": "deepseek-harness-plugin-hub-staging",
@@ -33,6 +41,7 @@
         }
       ],
       "vars": {
+        "HUB_API_ORIGIN": "https://api.dshpluginhub.ai",
         "WORKOS_CLIENT_ID": "client_01M09HAMFBJJ6T8M0ZYY69M9HP",
         "NEXT_PUBLIC_WORKOS_REDIRECT_URI": "https://staging.dshpluginhub.ai/callback",
         "GITHUB_APP_ID": "4631702",
@@ -47,26 +56,7 @@
           "database_id": "d70df57d-db32-4ee6-88f1-153ff93e94b3",
           "migrations_dir": "drizzle"
         }
-      ],
-      "queues": {
-        "producers": [
-          {
-            "binding": "NPM_SYNC_QUEUE",
-            "queue": "dsh-plugin-hub-npm-sync-staging"
-          }
-        ],
-        "consumers": [
-          {
-            "queue": "dsh-plugin-hub-npm-sync-staging",
-            "max_batch_size": 10,
-            "max_batch_timeout": 5,
-            "max_retries": 3
-          }
-        ]
-      },
-      "triggers": {
-        "crons": ["17 */6 * * *"]
-      }
+      ]
     }
   }
 }
