@@ -1,7 +1,6 @@
 import HubHeader from "@/components/HubHeader";
-import { getDb } from "@/db";
-import { D1RegistryStore } from "@/db/registry-store";
 import { hubCopy } from "@/lib/i18n";
+import { searchProfiles } from "@/lib/hub-api";
 import { getHubLocale } from "@/lib/i18n-server";
 import Link from "next/link";
 
@@ -11,7 +10,7 @@ export default async function ProfilesPage({ searchParams }: { searchParams: Pro
   const q = ((await searchParams).q ?? "").trim().slice(0, 120);
   const locale = await getHubLocale();
   const t = hubCopy[locale];
-  const profiles = await new D1RegistryStore(getDb()).searchProfiles(q, 30);
+  const profiles = await searchProfiles(q, 30);
   return (
     <main className="hub-shell">
       <HubHeader locale={locale} />

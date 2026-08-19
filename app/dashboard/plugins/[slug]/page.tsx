@@ -1,6 +1,5 @@
 import EditPluginListingForm from "@/components/EditPluginListingForm";
-import { getDb } from "@/db";
-import { D1PublisherStore } from "@/db/publisher-store";
+import { getOwnedPlugin } from "@/lib/hub-api";
 import { withAuth } from "@workos-inc/authkit-nextjs";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -14,7 +13,7 @@ export default async function EditPluginListingPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { user } = await withAuth({ ensureSignedIn: true });
+  await withAuth({ ensureSignedIn: true });
   const locale = await getHubLocale();
   const t = locale === "en" ? {
     view: "View public page",
@@ -23,10 +22,7 @@ export default async function EditPluginListingPage({
     view: "查看公开页面",
     intro: "npm 版本继续自动同步；这里保存的是作者补充信息。",
   };
-  const plugin = await new D1PublisherStore(getDb()).findOwnedPlugin(
-    user.id,
-    (await params).slug,
-  );
+  const plugin = await getOwnedPlugin((await params).slug);
   if (!plugin) notFound();
 
   return (

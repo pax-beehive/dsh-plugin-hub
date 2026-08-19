@@ -1,8 +1,7 @@
 import CopyCommand from "@/components/CopyCommand";
 import HubHeader from "@/components/HubHeader";
-import { getDb } from "@/db";
-import { D1RegistryStore } from "@/db/registry-store";
 import { hubCopy } from "@/lib/i18n";
+import { getProfile } from "@/lib/hub-api";
 import { getHubLocale } from "@/lib/i18n-server";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -10,12 +9,12 @@ import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-async function getProfile(slug: string) {
-  return new D1RegistryStore(getDb()).findProfile(slug);
+async function loadProfile(slug: string) {
+  return getProfile(slug);
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const profile = await getProfile((await params).slug);
+  const profile = await loadProfile((await params).slug);
   if (!profile || profile.visibility === "private") return {};
   const latest = profile.versions.find((version) => version.version === profile.latestVersion) ?? profile.versions.at(-1)!;
   const title = `${latest.name} — DSH Profile`;
@@ -29,7 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function ProfileDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-  const profile = await getProfile((await params).slug);
+  const profile = await loadProfile((await params).slug);
   if (!profile || profile.visibility === "private") notFound();
   const locale = await getHubLocale();
   const t = hubCopy[locale];

@@ -4,6 +4,7 @@ import { drizzle } from "drizzle-orm/d1";
 import { D1RegistryStore } from "../db/registry-store.ts";
 import * as schema from "../db/schema.ts";
 import {
+  createPackageBySlugHandler,
   createPackageResolveHandler,
   createPackageSearchHandler,
   createProfileResolveHandler,
@@ -158,6 +159,28 @@ test("package resolution exposes immutable source and compatibility metadata", a
   assert.equal(body.versions[0].source.installSpec, "dsh-conversation-exporter@0.2.0");
   assert.equal(body.versions[0].manifest.dsh.bundle.patch, "./cordis.patch.yml");
   assert.equal(body.versions[0].compatibility.hmr, "refresh");
+});
+
+test("package lookup by slug returns the full package record", async (t) => {
+  const { sqlite, store } = await createRegistryFixture();
+  t.after(() => sqlite.close());
+  const response = await createPackageBySlugHandler(store)("dsh-conversation-exporter");
+  const body = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("cache-control") ?? "", /stale-while-revalidate/);
+  assert.equal(body.slug, "dsh-conversation-exporter");
+  assert.equal(body.packageName, "dsh-conversation-exporter");
+  assert.equal(body.versions[0].source.installSpec, "dsh-conversation-exporter@0.2.0");
+});
+
+test("package lookup by slug returns a stable 404 for missing slugs", async (t) => {
+  const { sqlite, store } = await createRegistryFixture();
+  t.after(() => sqlite.close());
+  const response = await createPackageBySlugHandler(store)("missing");
+
+  assert.equal(response.status, 404);
+  assert.deepEqual(await response.json(), { error: "package_not_found" });
 });
 
 test("profile resolution preserves the published bundle order", async (t) => {

@@ -15,6 +15,21 @@ const updateSchema = z.object({
   publisherMetadata: publisherMetadataSchema,
 }).strict();
 
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ slug: string }> },
+) {
+  const { user } = await withAuth({ ensureSignedIn: true });
+  const plugin = await new D1PublisherStore(getDb()).findOwnedPlugin(
+    user.id,
+    (await params).slug,
+  );
+  if (!plugin) {
+    return Response.json({ error: "plugin_not_found" }, { status: 404 });
+  }
+  return Response.json(plugin);
+}
+
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ slug: string }> },

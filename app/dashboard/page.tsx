@@ -1,8 +1,6 @@
 import PublishRepositoryButton from "@/components/PublishRepositoryButton";
 import PublishNpmPackageForm from "@/components/PublishNpmPackageForm";
-import { getDb } from "@/db";
-import { D1IdentityStore } from "@/db/identity-store";
-import { D1PublisherStore } from "@/db/publisher-store";
+import { listGitHubRepositories, listOwnedPlugins } from "@/lib/hub-api";
 import { withAuth } from "@workos-inc/authkit-nextjs";
 import Link from "next/link";
 import LanguageSwitch from "@/components/LanguageSwitch";
@@ -59,8 +57,8 @@ export default async function DashboardPage({
     empty: "尚未连接可用于认领的仓库。",
   };
   const status = (await searchParams).github;
-  const repositories = await new D1IdentityStore(getDb()).listGitHubRepositories(user.id);
-  const ownedPlugins = await new D1PublisherStore(getDb()).listOwnedPlugins(user.id);
+  const repositories = await listGitHubRepositories();
+  const ownedPlugins = await listOwnedPlugins();
   return (
     <main className="dashboard-shell">
       <header className="dashboard-header">
