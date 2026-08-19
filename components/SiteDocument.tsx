@@ -1,3 +1,4 @@
+import { AuthKitProvider } from "@workos-inc/authkit-nextjs/components";
 import { Geist, Geist_Mono } from "next/font/google";
 
 const geistSans = Geist({
@@ -53,7 +54,7 @@ export default function SiteDocument({
             __html: JSON.stringify(websiteStructuredData),
           }}
         />
-        {children}
+        <AuthKitProvider>{children}</AuthKitProvider>
       </body>
     </html>
   );

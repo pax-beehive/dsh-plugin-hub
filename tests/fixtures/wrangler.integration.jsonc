@@ -21,6 +21,10 @@
     "WAITLIST_ADMIN_TOKEN": "integration-admin-secret",
     "WAITLIST_RATE_LIMIT_SALT": "integration-rate-limit-salt",
     "WAITLIST_INTEGRATION_TEST": "true",
-    "TURNSTILE_SECRET_KEY": "1x0000000000000000000000000000000AA"
+    "TURNSTILE_SECRET_KEY": "1x0000000000000000000000000000000AA",
+    "WORKOS_CLIENT_ID": "client_integration_test",
+    "WORKOS_API_KEY": "sk_test_integration",
+    "WORKOS_COOKIE_PASSWORD": "integration-cookie-password-at-least-32-characters",
+    "NEXT_PUBLIC_WORKOS_REDIRECT_URI": "http://localhost/callback"
   }
 }

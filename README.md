@@ -1,167 +1,168 @@
-# DeepSeek Harness Plugin Hub
+# DSH Plugin Hub
 
-An independent, unofficial community project for discovering and sharing
-DeepSeek Harness plugins. The initial release is a coming-soon landing page
-with a D1-backed email waitlist.
+Community registry, publisher console, and CLI for versioned DeepSeek Harness
+plugins and profiles. The project is independent and unofficial.
 
-The waitlist includes unsubscribe and re-subscribe handling, single-attempt
-background email handoff, hashed D1 rate limiting, Cloudflare Turnstile
-verification, source attribution, and a bilingual privacy notice.
+## What is implemented
 
-## Prerequisites
+- Public plugin search, detail pages, screenshots, compatibility and exact install specs
+- Public ordered profiles with versioned bundle selectors
+- JSON Registry API for packages, versions and profiles
+- `dsh-hub` CLI for search, exact resolution, install, profile apply and lockfiles
+- WorkOS AuthKit publisher accounts
+- Automatic npm discovery, manifest validation and version-history sync
+- Public one-time package submission and signed-in immediate sync
+- Optional GitHub App repository claim and listing management
+- Immutable published versions; listing copy may be refreshed independently
+- Cloudflare Worker + isolated D1 staging environment
 
-- Node.js `>=22.13.0`
+## Workspace
 
-## Quick Start
+```text
+app/                 vinext / Next.js routes and publisher UI
+db/                  D1 schema and stores
+lib/                 registry, GitHub App and publication services
+packages/schemas/    shared Zod wire and manifest schemas
+packages/registry/   version and profile-order resolution
+packages/cli/        dsh-hub command-line client
+examples/             copyable, schema-tested starter bundles
+drizzle/             committed D1 migrations
+scripts/seeds/       reviewed, repeatable registry seed data
+```
+
+The web shell stays on vinext so it deploys as a Cloudflare Worker. Portable
+registry logic lives in workspace packages and has no Cloudflare dependency.
+See [`docs/adr/0001-retain-vinext-cloudflare-worker.md`](docs/adr/0001-retain-vinext-cloudflare-worker.md).
+
+## Local development
+
+Requirements: Node.js `>=22.13.0` and pnpm `10.33.0`.
 
 ```bash
-npm install
-npm run dev
-npm run build
+pnpm install
+cp .env.example .env
+pnpm dev
 ```
 
-This starter does not use `wrangler.jsonc`.
-
-## Project Shape
-
-- `components/HomePage.tsx` contains the shared waitlist landing experience
-- `app/(default)/page.tsx` and `app/(english)/en/page.tsx` expose indexable Chinese and English routes
-- `app/api/waitlist/route.ts` accepts and deduplicates subscriptions
-- `app/api/admin/waitlist/stats/route.ts` returns aggregate, non-PII interest metrics
-- `app/api/health/route.ts` provides a non-PII D1 reachability probe
-- `db/schema.ts` defines the D1 waitlist table
-- `.openai/hosting.json` declares the logical `DB` binding
-
-## Independence Notice
-
-This is an independent, unofficial community project. It is not affiliated
-with, authorized by, or endorsed by DeepSeek.
-
-## Waitlist Operations
-
-Run the aggregate interest report against production:
+Run all gates:
 
 ```bash
-npm run waitlist:stats
+pnpm check
 ```
 
-The report contains totals, active and unsubscribed counts, email delivery
-status, language mix, top campaign sources, and the last 30 days of signups. It
-does not return email addresses. The script reads the production domain and
-server credential from the ignored local `.env` file.
+The full suite builds the Worker and portable packages, validates committed D1
+migrations, and runs API, auth, publication, CLI and workerd integration tests.
 
-Email delivery runs after the subscription has been durably stored. Transient
-delivery failures receive up to three bounded attempts; the final state remains
-available in the aggregate report.
+## Registry API
 
-Run the automated production health check with `npm run waitlist:health`. The
-staging, backup, recovery, logging, and alert procedures are documented in
-[`docs/operations/waitlist.md`](docs/operations/waitlist.md).
-
-## Security Configuration
-
-The D1-backed rate limit is always enabled in production. For Turnstile, create
-a managed widget for `dshpluginhub.ai` and the Sites fallback hostname, then
-configure both:
-
-```dotenv
-VITE_TURNSTILE_SITE_KEY=public-site-key
-TURNSTILE_SECRET_KEY=server-secret-key
+```text
+GET /api/v1/packages?q=vision&limit=20
+GET /api/v1/packages/resolve?name=dsh-conversation-exporter
+GET /api/v1/profiles?limit=20
+GET /api/v1/profiles/{slug}
 ```
 
-`VITE_TURNSTILE_SITE_KEY` is embedded during the build. Store
-`TURNSTILE_SECRET_KEY`, `WAITLIST_RATE_LIMIT_SALT`, and
-`WAITLIST_ADMIN_TOKEN` as hosted secrets. Production deliberately rejects new
-subscriptions if either Turnstile or the rate-limit secret is missing, so a
-partial security configuration cannot silently weaken protection.
+Responses include exact source metadata, compatibility, HMR behavior and
+ordered profile bundles. Public reads are cacheable for 60 seconds with stale
+revalidation.
 
-The Worker adds a Content Security Policy, frame protection, MIME sniffing
-protection, a restrictive Permissions Policy, and a referrer policy.
-
-## Database Changes
-
-After editing `db/schema.ts`:
+## CLI
 
 ```bash
-npm run db:generate
-npm run check
+dsh-hub init my-plugin --repository your-name/my-plugin
+dsh-hub validate my-plugin
+dsh-hub search vision
+dsh-hub info dsh-conversation-exporter --version latest
+dsh-hub install dsh-conversation-exporter --profile web
+dsh-hub profile search team
+dsh-hub profile apply <profile-slug> --profile web
 ```
 
-Inspect and commit the generated `drizzle/*.sql` migration. Sites packages and
-applies committed migrations during publication. Use separate Sites projects
-and D1 databases for staging and production once core Plugin Hub development
-begins; do not test migrations against the production waitlist first.
+Install execution uses argument arrays rather than a shell. A successful apply
+writes `~/.dsh/profiles/<profile>/dsh-hub.lock.json` with resolved versions,
+sources and integrity. Profile bundles execute in the published order after
+`before` / `after` constraints are checked for cycles.
 
-## Workspace Auth Headers
+`dsh-hub init` creates a three-file, schema-valid bundle starter and refuses to
+overwrite existing files. Add `--name @scope/my-plugin` when the npm name
+differs from the target directory.
 
-Signed-in visitors receive both `oai-authenticated-user-id` and `oai-authenticated-user-email`. Private Sites require every visitor to sign in; public Sites may also have anonymous visitors, for whom neither header is present.
+`dsh-hub validate` checks package identity, exact version, listing metadata,
+GitHub repository and the local Cordis patch before anything reaches npm.
 
-The user ID is stable for the same user on the same Site and different across Sites. Email and name are intended for display or contact purposes.
+## Publishing
 
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
+1. Publish a package containing a valid DSH bundle or profile declaration to npm.
+2. Wait for automatic discovery, or paste its package name into the public catalog.
+3. Sign in at `/dashboard` and select **立即同步** when you want an immediate result.
+4. Connect the package repository through the GitHub App to claim and edit its listing.
 
-Treat the full name as optional and fall back to email when it is absent:
+The Hub reads every published version, validates each manifest, and records
+npm's exact tarball URL and integrity. Keywords only discover candidates; a
+valid `dsh.bundle` or `dsh.profile` manifest controls catalog admission. The Hub
+keeps historical versions and marks versions missing from npm as withdrawn.
+It does not host tarballs.
 
-```tsx
-import { headers } from "next/headers";
+See [`docs/publishing.md`](docs/publishing.md) for the manifest and security
+contract. A complete minimal package is available in
+[`examples/example-hello`](examples/example-hello).
 
-export default async function Home() {
-  const requestHeaders = await headers();
-  const userId = requestHeaders.get("oai-authenticated-user-id");
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
+New teammates should start with [`docs/handover.md`](docs/handover.md) for the
+architecture, resource inventory, code map, operating commands, known limits,
+and production checklist.
 
-  const displayName = fullName ?? email;
-  // ...
-}
+## Staging
+
+Staging uses the Worker `deepseek-harness-plugin-hub-staging`, D1 database
+`deepseek-plugin-hub-staging`, Queue `dsh-plugin-hub-npm-sync-staging`, and
+`https://staging.dshpluginhub.ai`.
+
+```bash
+pnpm db:migrate:staging
+pnpm db:seed:staging
+pnpm deploy:staging
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+Secret names are documented in `.env.example`. Store them with `wrangler secret
+put`; never commit their values. Production WorkOS credentials, production D1
+separation and the production route remain launch TODOs.
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+When using AuthKit Hosted UI, configure `/sign-in` as the WorkOS Sign-in
+endpoint (`initiate_login_uri`) and leave the AuthKit external login URI empty.
+The external login field is reserved for applications that provide their own
+authentication UI and complete the `external_auth_id` flow.
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
+## Database changes
 
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
+```bash
+pnpm db:generate
+pnpm check
+```
 
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
+Review the generated SQL before applying it. Staging migrations always run
+against the dedicated staging database.
 
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
+## Security invariants
 
-## Useful Commands
+- WorkOS sessions protect the dashboard and management API.
+- npm responses are bound to the requested package name and exact manifest version.
+- npm search keywords only create candidates; the DSH manifest is the admission gate.
+- Public manifests contain only the install-relevant package fields; npm user,
+  maintainer and operational metadata are discarded before storage.
+- npm tarball sources are HTTPS URLs and retain npm integrity metadata when present.
+- Automatically discovered packages start unclaimed.
+- Repository access through the GitHub App proves a publisher claim.
+- Published package versions are immutable.
+- GitHub integration is optional.
+- GitHub OAuth state is HMAC-signed, short-lived, user-bound and nonce-bound.
+- Callback `installation_id` is accepted only after the current GitHub user can
+  list that installation and its repositories.
+- GitHub user access tokens and installation tokens are never stored.
+- GitHub App private keys and OAuth client secrets are Worker secrets.
+- Public publication excludes private repositories.
+- The waitlist retains Turnstile, D1 rate limiting and non-PII health metrics.
 
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build and verify the rendered landing page
-- `npm run check`: run lint, build, and all behavior tests
-- `npm run db:generate`: generate Drizzle migrations after schema changes
-- `npm run waitlist:stats`: display aggregate production waitlist interest
+## License and independence
 
-## Learn More
-
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+This repository is an independent community project. It has no affiliation,
+authorization, or endorsement from DeepSeek.

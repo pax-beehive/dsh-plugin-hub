@@ -1,16 +1,31 @@
 import SiteDocument from "@/components/SiteDocument";
+import { getHubLocale } from "@/lib/i18n-server";
 import type { Metadata } from "next";
 import "../globals.css";
 
 const siteUrl = new URL("https://dshpluginhub.ai");
-const title = "DeepSeek Harness Plugin Hub — 插件发现与分享社区";
-const description =
-  "DeepSeek Harness Plugin Hub 是一个非官方独立社区项目，旨在帮助开发者发现、分享与安装 Harness 插件，并交流可复用的 Harness 配置。";
+const localizedMetadata = {
+  zh: {
+    title: "DeepSeek Harness Plugin Hub — 插件发现与分享社区",
+    description: "DeepSeek Harness Plugin Hub 是一个非官方独立社区项目，旨在帮助开发者发现、分享与安装 Harness 插件，并交流可复用的 Harness 配置。",
+    locale: "zh_CN",
+    alternateLocale: ["en_US"],
+  },
+  en: {
+    title: "DeepSeek Harness Plugin Hub — Discover and share plugins",
+    description: "An independent, unofficial community hub for discovering, sharing, and installing DeepSeek Harness plugins and reusable Harness configurations.",
+    locale: "en_US",
+    alternateLocale: ["zh_CN"],
+  },
+} as const;
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getHubLocale();
+  const copy = localizedMetadata[locale];
+  return {
   metadataBase: siteUrl,
-  title,
-  description,
+  title: copy.title,
+  description: copy.description,
   applicationName: "DeepSeek Harness Plugin Hub",
   creator: "DeepSeek Harness Plugin Hub Community",
   publisher: "DeepSeek Harness Plugin Hub Community",
@@ -27,10 +42,6 @@ export const metadata: Metadata = {
   ],
   alternates: {
     canonical: "/",
-    languages: {
-      "zh-CN": "/",
-      en: "/en",
-    },
   },
   robots: {
     index: true,
@@ -55,13 +66,13 @@ export const metadata: Metadata = {
     type: "website",
     url: "/",
     siteName: "DeepSeek Harness Plugin Hub",
-    locale: "zh_CN",
-    alternateLocale: ["en_US"],
-    title,
-    description,
+    locale: copy.locale,
+    alternateLocale: [...copy.alternateLocale],
+    title: copy.title,
+    description: copy.description,
     images: [
       {
-        url: "/og.png",
+        url: "/og-v2.png",
         width: 1536,
         height: 1024,
         alt: "DeepSeek Harness Plugin Hub — independent community project",
@@ -70,14 +81,16 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title,
-    description,
-    images: ["/og.png"],
+    title: copy.title,
+    description: copy.description,
+    images: ["/og-v2.png"],
   },
 };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  return <SiteDocument language="zh-CN">{children}</SiteDocument>;
+  const locale = await getHubLocale();
+  return <SiteDocument language={locale === "en" ? "en" : "zh-CN"}>{children}</SiteDocument>;
 }

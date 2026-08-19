@@ -89,7 +89,7 @@ Before catalog development or any schema change:
    separate staging sender is configured.
 3. Apply every committed migration to a fresh staging database through a saved
    Sites version.
-4. Run `npm run check`, then verify `/`, `/en`, `/privacy`, `/api/health`, one
+4. Run `pnpm check`, then verify `/` in both locale-cookie states, `/privacy`, `/api/health`, one
    Turnstile-protected signup, the welcome email, and unsubscribe.
 5. Inspect aggregate stats and confirm that no production address or production
    token entered staging.
