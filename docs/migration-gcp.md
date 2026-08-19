@@ -218,3 +218,63 @@ strategy:
   state, biggest single-step blast radius.
 
 Recommendation: **Option A** for phase 1 (smallest diff), revisit Option C later if desired.
+
+## 8. D1 → Cloud SQL data migration
+
+The npm sync pipeline has already re-discovered `plugins` / `plugin_versions` /
+`profiles` / `profile_versions` into Postgres (with freshly generated UUIDs), so the
+one-shot migration script `scripts/migrate-d1-to-pg.mjs` only rescues D1-exclusive
+data:
+
+- `hub_users`, `github_installations`, `github_installation_repositories`,
+  `waitlist_signups`, `waitlist_rate_limits` — copied wholesale with
+  `ON CONFLICT DO NOTHING` (PK or unique-index collisions on email / tokens are skipped).
+- `plugins` — matched by `package_name`; only the D1-exclusive fields are UPDATEd
+  (`owner_user_id`, `verified`, `deprecated`, and the publisher-edited listing fields).
+  No inserts, no id changes, so `plugin_versions` FKs are untouched. `owner_user_id`
+  is applied via a `hub_users` subquery so a user skipped on an email conflict cannot
+  abort the transaction on the FK.
+- `profiles` — matched by `package_name`; UPDATEs `owner_user_id` / `visibility`.
+- `npm_sync_packages` / `npm_discovery_cursors` are **not** migrated; re-discovery is
+  idempotent.
+
+Steps (requires `npx wrangler login` first; reads the **production** D1 by default,
+`--env staging` targets the staging database):
+
+```sh
+cd pluginhub
+npx wrangler login
+node scripts/migrate-d1-to-pg.mjs [--env staging] [--output migration-output.sql]
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migration-output.sql
+```
+
+The script shells out to `wrangler d1 execute --remote --json` per table, converts
+SQLite values (0/1 → boolean, both timestamp formats → timestamptz, `*_json` text →
+validated jsonb), and writes a single `BEGIN`/`COMMIT` script with `\echo` progress
+markers. It is idempotent: re-running produces the same statements, and
+`ON CONFLICT DO NOTHING` / repeatable UPDATEs make re-applying safe.
+
+Spot-check validation afterwards (run against both databases and compare):
+
+```sql
+-- Postgres: row counts
+SELECT 'hub_users' AS t, count(*) FROM hub_users
+UNION ALL SELECT 'github_installations', count(*) FROM github_installations
+UNION ALL SELECT 'github_installation_repositories', count(*) FROM github_installation_repositories
+UNION ALL SELECT 'waitlist_signups', count(*) FROM waitlist_signups
+UNION ALL SELECT 'waitlist_rate_limits', count(*) FROM waitlist_rate_limits;
+
+-- Postgres: claimed / verified / deprecated plugins (D1 is the only source of these)
+SELECT count(*) FILTER (WHERE owner_user_id IS NOT NULL) AS claimed,
+       count(*) FILTER (WHERE verified) AS verified,
+       count(*) FILTER (WHERE deprecated) AS deprecated
+FROM plugins;
+```
+
+```sh
+# D1 equivalents (compare counts against the Postgres results above)
+npx wrangler d1 execute deepseek-plugin-hub-waitlist --remote --json \
+  --command "SELECT count(*) AS n FROM hub_users"
+npx wrangler d1 execute deepseek-plugin-hub-waitlist --remote --json \
+  --command "SELECT count(*) AS claimed FROM plugins WHERE owner_user_id IS NOT NULL"
+```
