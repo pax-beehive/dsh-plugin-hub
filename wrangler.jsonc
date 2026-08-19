@@ -19,6 +19,12 @@
   ],
   "workers_dev": true,
   "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "dshpluginhub.ai",
+      "custom_domain": true
+    }
+  ],
   "observability": {
     "enabled": true
   },
