@@ -1,16 +1,18 @@
-import HubHeader from "@/components/HubHeader";
+import HubHeader, { HubFooter } from "@/components/HubHeader";
 import { getSyncStatus } from "@/lib/hub-api";
 import { hubCopy, localeTags } from "@/lib/i18n";
 import { getHubLocale } from "@/lib/i18n-server";
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return {
+  return pageMetadata({
+    path: "/status",
     title: "Status — DSH Plugin Hub",
     description: "Public status of the DSH Plugin Hub ingestion pipeline.",
-  };
+  });
 }
 
 const stateOrder = ["accepted", "syncing", "pending", "error", "rejected"];
@@ -37,6 +39,7 @@ export default async function StatusPage() {
             <h2>{t.status.empty}</h2>
           </div>
         </section>
+        <HubFooter locale={locale} />
       </main>
     );
   }
@@ -117,6 +120,7 @@ export default async function StatusPage() {
           </div>
         )}
       </section>
+      <HubFooter locale={locale} />
     </main>
   );
 }

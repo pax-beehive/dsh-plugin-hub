@@ -1,11 +1,12 @@
 import type { PluginRecord } from "@dsh-plugin-hub/schemas";
+import { SITE_ORIGIN, absoluteUrl } from "./site-url.ts";
 
 // Structural minimum for catalog entries in ItemList structured data. Kept
 // local so this module never imports hub-api (which pulls cloudflare:workers
 // and breaks plain-Node render tests).
 export type CatalogEntry = Pick<PluginRecord, "slug" | "displayName">;
 
-const BASE_URL = "https://dshpluginhub.ai";
+const BASE_URL = SITE_ORIGIN;
 
 type JsonLdObject = Record<string, unknown>;
 
@@ -26,10 +27,6 @@ export function JsonLd({
       dangerouslySetInnerHTML={{ __html: serialize(data) }}
     />
   );
-}
-
-export function absoluteUrl(path: string): string {
-  return `${BASE_URL}${path}`;
 }
 
 export function breadcrumbList(
