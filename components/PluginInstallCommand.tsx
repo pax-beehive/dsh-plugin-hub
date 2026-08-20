@@ -118,7 +118,7 @@ export default function PluginInstallCommand({
         </div>
       </div>
       {command ? (
-        <CopyCommand command={command} locale={locale} />
+        <CopyCommand command={command} locale={locale} packageName={installSpec} profile={targetProfile} />
       ) : (
         <p className="profile-target-error" role="status">
           {t.invalid}

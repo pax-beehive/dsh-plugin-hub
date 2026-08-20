@@ -1,3 +1,4 @@
+import DashboardSignupPixel from "@/components/DashboardSignupPixel";
 import PublishRepositoryButton from "@/components/PublishRepositoryButton";
 import PublishNpmPackageForm from "@/components/PublishNpmPackageForm";
 import { listGitHubRepositories, listOwnedPlugins } from "@/lib/hub-api";
@@ -61,6 +62,7 @@ export default async function DashboardPage({
   const ownedPlugins = await listOwnedPlugins();
   return (
     <main className="dashboard-shell">
+      <DashboardSignupPixel />
       <header className="dashboard-header">
         <Link className="brand" href="/">
           <span className="brand-mark">D</span>
