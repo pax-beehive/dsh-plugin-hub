@@ -297,10 +297,22 @@ function fetchRows(env, table) {
     `SELECT * FROM ${table}`,
   ];
   if (env !== "production") args.push("--env", env);
-  const stdout = execFileSync("npx", args, {
-    encoding: "utf8",
-    maxBuffer: 256 * 1024 * 1024,
-  });
+  let stdout;
+  try {
+    stdout = execFileSync("npx", args, {
+      encoding: "utf8",
+      maxBuffer: 256 * 1024 * 1024,
+    });
+  } catch (error) {
+    // Tables that never existed in this D1 database (e.g. production only ever
+    // had waitlist tables) are reported as "no such table"; treat as empty.
+    const detail = `${error.stdout ?? ""}${error.stderr ?? ""}${error.message}`;
+    if (detail.includes("no such table")) {
+      console.warn(`  table ${table} does not exist in D1, skipping`);
+      return [];
+    }
+    throw error;
+  }
   return parseWranglerJson(stdout);
 }
 
