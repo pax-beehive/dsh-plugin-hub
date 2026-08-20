@@ -5,13 +5,13 @@ import {
   pluginRecordSchema,
   profileSearchResponseSchema,
   publisherMetadataSchema,
-  registrySearchResponseSchema,
   screenshotSchema,
   type HubProfile,
   type PluginRecord,
   type ProfileCatalogItem,
 } from "@dsh-plugin-hub/schemas";
 import { z } from "zod";
+import { parseRegistrySearchResponse } from "./registry-search-response";
 import type { PluginSummary } from "./registry-service";
 
 export type { PluginSummary };
@@ -123,7 +123,7 @@ export async function searchPackages(
     params.set("sort", options.sort);
   if (options?.category) params.set("category", options.category);
   const payload = await expectOk(await hubFetch(`/api/v1/packages?${params}`));
-  return registrySearchResponseSchema.parse(payload);
+  return parseRegistrySearchResponse(payload);
 }
 
 const categoryCountSchema = z

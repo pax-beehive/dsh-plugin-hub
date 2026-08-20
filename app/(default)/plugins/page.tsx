@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const pageSize = 30;
-const sortValues = ["popular", "updated", "name"] as const;
+const sortValues = ["popular", "updated"] as const;
 type Sort = (typeof sortValues)[number];
 
 function parseSort(value: string | undefined): Sort {
@@ -112,7 +112,6 @@ export default async function PluginsPage({
   const sortLabels: Record<Sort, string> = {
     popular: t.plugins.sortPopular,
     updated: t.plugins.sortUpdated,
-    name: t.plugins.sortName,
   };
 
   return (
