@@ -2,6 +2,7 @@ import LanguageSwitch from "@/components/LanguageSwitch";
 import { findGuide, guides } from "@/lib/guides";
 import { getHubLocale } from "@/lib/i18n-server";
 import { JsonLd, guideStructuredData } from "@/lib/structured-data";
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -19,11 +20,11 @@ export async function generateMetadata({
   const guide = findGuide(slug);
   if (!guide) return {};
   const locale = await getHubLocale();
-  return {
+  return pageMetadata({
+    path: `/guides/${slug}`,
     title: `${guide.title[locale]} — DSH Plugin Hub`,
     description: guide.description[locale],
-    alternates: { canonical: `/guides/${slug}` },
-  };
+  });
 }
 
 export default async function GuidePage({

@@ -1,9 +1,10 @@
 import CopyCommand from "@/components/CopyCommand";
-import HubHeader from "@/components/HubHeader";
+import HubHeader, { HubFooter } from "@/components/HubHeader";
 import { hubCopy } from "@/lib/i18n";
 import { getProfile } from "@/lib/hub-api";
 import { getHubLocale } from "@/lib/i18n-server";
 import { JsonLd, profileStructuredData } from "@/lib/structured-data";
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -28,13 +29,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       ? `Ordered, versioned DeepSeek Harness profile by ${profile.owner}. Apply it with one dsh-hub command to reproduce the same Harness setup.`
       : `由 ${profile.owner} 发布的有序、带版本的 DeepSeek Harness Profile，一条 dsh-hub 命令复现整套 Harness 配置。`;
   const description = latest.description || fallback;
-  return {
+  return pageMetadata({
+    path: `/profiles/${profile.slug}`,
     title,
     description,
-    alternates: { canonical: `/profiles/${profile.slug}` },
-    openGraph: { title, description, images: [] },
-    twitter: { title, description, images: [] },
-  };
+  });
 }
 
 export default async function ProfileDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -59,7 +58,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
         <p className="catalog-eyebrow">PROFILE · {profile.owner}{profile.claimed ? ` · ${t.common.claimed}` : ""}</p>
         <h1>{latest.name}</h1>
         <p className="detail-summary">{latest.description}</p>
-        <CopyCommand command={`dsh-hub profile apply ${profile.slug}`} locale={locale} />
+        <CopyCommand command={`dsh-hub profile apply ${profile.slug}`} locale={locale} profile={profile.slug} />
         <section className="profile-stack">
           <div className="profile-stack-heading"><h2>{t.profiles.loadOrder}</h2><span>{latest.bundles.length} bundles</span></div>
           {latest.bundles.map((bundle, index) => (
@@ -75,6 +74,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
           <div><dt>{t.profiles.patchCount}</dt><dd>{latest.patch.length}</dd></div>
         </dl>
       </article>
+      <HubFooter locale={locale} />
     </main>
   );
 }
