@@ -1,7 +1,8 @@
-import HubHeader from "@/components/HubHeader";
+import HubHeader, { HubFooter } from "@/components/HubHeader";
 import { hubCopy } from "@/lib/i18n";
 import { searchProfiles } from "@/lib/hub-api";
 import { getHubLocale } from "@/lib/i18n-server";
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -17,13 +18,11 @@ export async function generateMetadata(): Promise<Metadata> {
     locale === "en"
       ? "Ordered, versioned DeepSeek Harness profiles: locked plugin versions and load order, applied with one dsh-hub command to reproduce the same Harness setup."
       : "有序、带版本的 DeepSeek Harness Profile：锁定插件版本与加载顺序，一条 dsh-hub 命令在任何机器上复现同一套 Harness。";
-  return {
+  return pageMetadata({
+    path: "/profiles",
     title,
     description,
-    alternates: { canonical: "/profiles" },
-    openGraph: { title, description },
-    twitter: { title, description },
-  };
+  });
 }
 
 export default async function ProfilesPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
@@ -60,6 +59,7 @@ export default async function ProfilesPage({ searchParams }: { searchParams: Pro
           <div className="catalog-empty"><h2>{t.profiles.emptyTitle}</h2><p>{t.profiles.emptyBody}</p></div>
         )}
       </section>
+      <HubFooter locale={locale} />
     </main>
   );
 }
