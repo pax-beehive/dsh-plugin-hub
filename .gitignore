@@ -21,3 +21,6 @@ coverage/
 
 # macOS
 .DS_Store
+
+# project-local wrangler OAuth state
+.wrangler-auth/

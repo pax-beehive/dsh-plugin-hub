@@ -1,7 +1,5 @@
 import HubHeader from "@/components/HubHeader";
-import { getDb } from "@/db";
-import { D1GithubSourceStore } from "@/db/github-source-store";
-import { D1NpmSyncStore } from "@/db/npm-sync-store";
+import { getSyncStatus } from "@/lib/hub-api";
 import { hubCopy, localeTags } from "@/lib/i18n";
 import { getHubLocale } from "@/lib/i18n-server";
 import type { Metadata } from "next";
@@ -20,17 +18,35 @@ const stateOrder = ["accepted", "syncing", "pending", "error", "rejected"];
 export default async function StatusPage() {
   const locale = await getHubLocale();
   const t = hubCopy[locale];
-  const syncStore = new D1NpmSyncStore(getDb());
-  const [summary, recent, sourceOnlyCount] = await Promise.all([
-    syncStore.statusSummary(),
-    syncStore.recentlySynced(20),
-    new D1GithubSourceStore(getDb()).countPublic(),
-  ]);
+  const status = await getSyncStatus();
+
+  // The Go backend may not serve /api/v1/status yet — render a placeholder
+  // instead of crashing so the URL stays valid and lights up automatically
+  // once the endpoint ships.
+  if (!status) {
+    return (
+      <main className="hub-shell">
+        <HubHeader locale={locale} />
+        <section className="catalog-hero compact">
+          <p className="catalog-eyebrow">STATUS</p>
+          <h1>{t.status.title}</h1>
+          <p>{t.status.intro}</p>
+        </section>
+        <section className="status-section">
+          <div className="catalog-empty">
+            <h2>{t.status.empty}</h2>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  const { summary, recent, sourceOnlyCount } = status;
   const ordered = [...summary].sort(
     (a, b) => stateOrder.indexOf(a.status) - stateOrder.indexOf(b.status),
   );
-  const stateLabel = (status: string) =>
-    (t.status.states as Record<string, string>)[status] ?? status;
+  const stateLabel = (s: string) =>
+    (t.status.states as Record<string, string>)[s] ?? s;
   const kindLabel = (kind: string | null) =>
     kind ? (t.status.kinds as Record<string, string>)[kind] ?? kind : "—";
 

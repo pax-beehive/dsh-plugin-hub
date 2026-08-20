@@ -311,6 +311,10 @@ export const registrySearchResponseSchema = z
   .object({
     items: z.array(pluginRecordSchema.omit({ versions: true })),
     nextCursor: z.string().nullable(),
+    // Present only when the backend supports numbered pagination
+    // (page/sort params). Older backends omit it and the frontend falls back
+    // to cursor-only rendering.
+    total: z.number().int().nonnegative().optional(),
   })
   .strict();
 

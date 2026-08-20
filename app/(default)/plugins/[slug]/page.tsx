@@ -1,8 +1,7 @@
 import HubHeader from "@/components/HubHeader";
 import PluginInstallCommand from "@/components/PluginInstallCommand";
-import { getDb } from "@/db";
-import { D1RegistryStore } from "@/db/registry-store";
 import { hubCopy, localeTags } from "@/lib/i18n";
+import { getPackageBySlug } from "@/lib/hub-api";
 import { getHubLocale } from "@/lib/i18n-server";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -11,7 +10,7 @@ import { notFound } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 async function getPlugin(slug: string) {
-  return new D1RegistryStore(getDb()).findPackageBySlug(slug);
+  return getPackageBySlug(slug);
 }
 
 export async function generateMetadata({

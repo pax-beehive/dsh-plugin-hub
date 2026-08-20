@@ -1,6 +1,5 @@
 import HubHeader from "@/components/HubHeader";
-import { getDb } from "@/db";
-import { D1RegistryStore } from "@/db/registry-store";
+import { listCategories, searchPackages } from "@/lib/hub-api";
 import { hubCopy, localeTags } from "@/lib/i18n";
 import { getHubLocale } from "@/lib/i18n-server";
 import type { Metadata } from "next";
@@ -28,11 +27,13 @@ export default async function CategoryPage({
   const category = decodeURIComponent((await params).category).slice(0, 60);
   const locale = await getHubLocale();
   const t = hubCopy[locale];
-  const store = new D1RegistryStore(getDb());
-  const [items, categories] = await Promise.all([
-    store.listByCategory(category),
-    store.listCategories(),
+  // category is a passthrough param; backends without category filtering
+  // return the unfiltered list, which is still a reasonable page.
+  const [result, categories] = await Promise.all([
+    searchPackages("", { category, limit: 60 }),
+    listCategories(50),
   ]);
+  const items = result.items;
 
   return (
     <main className="hub-shell">

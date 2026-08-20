@@ -56,6 +56,16 @@ export function createPackageResolveHandler(store: RegistryStore) {
   };
 }
 
+export function createPackageBySlugHandler(store: RegistryStore) {
+  return async (slug: string): Promise<Response> => {
+    const plugin = await store.findPackageBySlug(slug);
+    if (!plugin) {
+      return Response.json({ error: "package_not_found" }, { status: 404 });
+    }
+    return Response.json(plugin, { headers: publicCacheHeaders });
+  };
+}
+
 export function createProfileResolveHandler(store: RegistryStore) {
   return async (slug: string): Promise<Response> => {
     const profile = await store.findProfile(slug);

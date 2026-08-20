@@ -1,6 +1,5 @@
-import { getDb } from "@/db";
-import { D1IdentityStore } from "@/db/identity-store";
 import { claimGitHubInstallation, GitHubClaimError } from "@/lib/github-app";
+import { HttpGitHubClaimStore } from "@/lib/hub-internal";
 import { planGitHubOAuthCallback } from "@/lib/github-oauth-callback";
 import { mutableRedirect } from "@/lib/http-response";
 import { withAuth } from "@workos-inc/authkit-nextjs";
@@ -72,7 +71,7 @@ export async function GET(request: Request) {
         stateSecret: runtime.GITHUB_OAUTH_STATE_SECRET,
         redirectUri: runtime.GITHUB_REDIRECT_URI,
       },
-      store: new D1IdentityStore(getDb()),
+      store: new HttpGitHubClaimStore(),
     });
     return mutableRedirect(new URL("/dashboard?github=connected", request.url), 303);
   } catch (error) {

@@ -1,8 +1,10 @@
 import HubHeader from "@/components/HubHeader";
 import SubmitNpmPackageForm from "@/components/SubmitNpmPackageForm";
-import { getDb } from "@/db";
-import { D1GithubSourceStore } from "@/db/github-source-store";
-import { D1RegistryStore } from "@/db/registry-store";
+import {
+  listCategories,
+  listSourceOnlyListings,
+  searchPackages,
+} from "@/lib/hub-api";
 import { hubCopy, localeTags } from "@/lib/i18n";
 import { getHubLocale } from "@/lib/i18n-server";
 import Link from "next/link";
@@ -45,32 +47,35 @@ export default async function PluginsPage({
   const requestedPage = Math.max(Number.parseInt(params.page ?? "1", 10) || 1, 1);
   const locale = await getHubLocale();
   const t = hubCopy[locale];
-  const store = new D1RegistryStore(getDb());
-
-  const firstPass = await store.searchPage({
-    query: q,
+  const result = await searchPackages(q, {
     sort,
     page: requestedPage,
     limit: pageSize,
   });
-  const pageCount = Math.max(Math.ceil(firstPass.total / pageSize), 1);
-  // Clamp out-of-range pages (e.g. stale links after delisting) instead of
-  // rendering an empty grid.
-  const page = Math.min(requestedPage, pageCount);
-  const result = page === requestedPage
-    ? firstPass
-    : await store.searchPage({ query: q, sort, page, limit: pageSize });
+
+  // Backends that support numbered pagination return `total`; older ones omit
+  // it and ignore the page param, in which case we render a single page and
+  // hide the pagination controls instead of risking empty out-of-range pages.
+  const paginated = typeof result.total === "number";
+  const pageCount = paginated
+    ? Math.max(Math.ceil(result.total! / pageSize), 1)
+    : 1;
+  const page = paginated ? Math.min(requestedPage, pageCount) : 1;
+  // Re-fetch only when the backend paginates and the requested page was
+  // clamped out of range (e.g. stale links after delisting).
+  const pageResult =
+    paginated && page !== requestedPage
+      ? await searchPackages(q, { sort, page, limit: pageSize })
+      : result;
 
   const isFirstPage = page === 1;
   const [sourceOnly, categories] = await Promise.all([
-    // Source-only and category rails belong to the first page only.
+    // Source-only and category rails belong to the first page only. Both
+    // degrade to [] when the backend doesn't serve those endpoints yet.
     isFirstPage
-      ? new D1GithubSourceStore(getDb()).listPublic({
-          query: q || undefined,
-          limit: 12,
-        })
+      ? listSourceOnlyListings({ query: q || undefined, limit: 12 })
       : Promise.resolve([]),
-    store.listCategories(12),
+    listCategories(12),
   ]);
 
   const pageHref = (target: { page?: number; sort?: Sort }) => {
@@ -126,7 +131,11 @@ export default async function PluginsPage({
       <section className="catalog-section" aria-label="Plugin results">
         <div className="catalog-section-heading">
           <h2>{q ? t.plugins.result(q) : t.plugins.all}</h2>
-          <span>{t.plugins.totalCount(result.total)}</span>
+          <span>
+            {paginated
+              ? t.plugins.totalCount(result.total!)
+              : t.plugins.count(pageResult.items.length)}
+          </span>
         </div>
         <nav className="sort-tabs" aria-label={t.plugins.sortLabel}>
           {sortValues.map((value) => (
@@ -140,9 +149,9 @@ export default async function PluginsPage({
             </Link>
           ))}
         </nav>
-        {result.items.length ? (
+        {pageResult.items.length ? (
           <div className="plugin-grid">
-            {result.items.map((plugin) => (
+            {pageResult.items.map((plugin) => (
               <Link className="plugin-card" href={`/plugins/${plugin.slug}`} key={plugin.id}>
                 <div className="plugin-card-topline">
                   <span className="plugin-icon" aria-hidden="true">

@@ -20,7 +20,11 @@ const config = join(
 );
 const fixtureWranglerDirectory = join(projectRoot, "tests", "fixtures", ".wrangler");
 
-test(
+// Skipped after the frontend/backend decoupling: the TS API routes this test
+// exercised (/api/waitlist, /api/admin/waitlist/stats) were deleted and are now
+// served by the Go backend (see docs/decoupling-handoff.md §7). Re-enable as an
+// end-to-end test against the Go service, not the worker runtime.
+test.skip(
   "built API routes run against a migrated D1 database in workerd",
   { timeout: 30_000 },
   async () => {
