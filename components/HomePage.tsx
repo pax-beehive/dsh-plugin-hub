@@ -5,6 +5,12 @@ import Link from "next/link";
 const copy = {
   zh: {
     status: "已上线",
+    nav: {
+      plugins: "Plugins",
+      profiles: "Profiles",
+      guides: "指南",
+      status: "状态",
+    },
     badge: "NOW LIVE · 现已上线",
     title: "DeepSeek Harness",
     accent: "Plugin Hub",
@@ -40,6 +46,12 @@ const copy = {
   },
   en: {
     status: "Live",
+    nav: {
+      plugins: "Plugins",
+      profiles: "Profiles",
+      guides: "Guides",
+      status: "Status",
+    },
     badge: "NOW LIVE",
     title: "DeepSeek Harness",
     accent: "Plugin Hub",
@@ -145,16 +157,22 @@ export default function HomePage({
         aria-hidden="true"
         width={760}
         height={760}
-        priority
       />
 
       <header className="site-header">
-        <a className="brand" href="#top" aria-label="Plugin Hub home">
+        <a className="brand" href="/" aria-label="Plugin Hub home">
           <span className="brand-mark">H</span>
           <span>
             DeepSeek Harness <strong>Plugin Hub</strong>
           </span>
         </a>
+
+        <nav className="site-nav" aria-label="Site">
+          <Link href="/plugins">{t.nav.plugins}</Link>
+          <Link href="/profiles">{t.nav.profiles}</Link>
+          <Link href="/guides">{t.nav.guides}</Link>
+          <Link href="/status">{t.nav.status}</Link>
+        </nav>
 
         <div className="header-actions">
           <Link className="hub-entry-link" href="/plugins">
@@ -171,7 +189,7 @@ export default function HomePage({
       <section className="hero" id="top">
         <p className="eyebrow">{t.badge}</p>
         <h1>
-          {t.title}
+          {t.title}{" "}
           <span>{t.accent}</span>
         </h1>
         <p className="intro">{t.intro}</p>
