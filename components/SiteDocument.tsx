@@ -1,3 +1,6 @@
+import AdPixels from "@/components/AdPixels";
+import AttributionCapture from "@/components/AttributionCapture";
+import { attributionBootstrapScript } from "@/lib/attribution";
 import { AuthKitProvider } from "@workos-inc/authkit-nextjs/components";
 import { Geist, Geist_Mono } from "next/font/google";
 
@@ -58,10 +61,21 @@ export default function SiteDocument({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <script
+          dangerouslySetInnerHTML={{ __html: attributionBootstrapScript() }}
+        />
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(websiteStructuredData),
           }}
+        />
+        <AttributionCapture />
+        <AdPixels
+          gaMeasurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}
+          googleAdsId={process.env.NEXT_PUBLIC_GOOGLE_ADS_ID}
+          installLabel={process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL_INSTALL}
+          signupLabel={process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL_SIGNUP}
+          chatgptPixelId={process.env.NEXT_PUBLIC_CHATGPT_PIXEL_ID}
         />
         <AuthKitProvider>{children}</AuthKitProvider>
       </body>

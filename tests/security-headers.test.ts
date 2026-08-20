@@ -19,3 +19,22 @@ test("security headers prevent framing and allow the Turnstile runtime", async (
   );
   assert.equal(await response.text(), "ok");
 });
+
+test("security headers allow optional Google and ChatGPT Ads pixels", async () => {
+  const response = withSecurityHeaders(new Response("ok"));
+  const csp = response.headers.get("content-security-policy") ?? "";
+
+  assert.match(csp, /script-src[^;]*https:\/\/www\.googletagmanager\.com/);
+  assert.match(csp, /script-src[^;]*https:\/\/www\.google-analytics\.com/);
+  assert.match(csp, /script-src[^;]*https:\/\/bzrcdn\.openai\.com/);
+  assert.match(csp, /connect-src[^;]*https:\/\/www\.google-analytics\.com/);
+  assert.match(csp, /connect-src[^;]*https:\/\/www\.googleadservices\.com/);
+  assert.match(csp, /connect-src[^;]*https:\/\/www\.googletagmanager\.com/);
+  assert.match(csp, /connect-src[^;]*https:\/\/bzr\.openai\.com/);
+  assert.match(csp, /connect-src[^;]*https:\/\/bzrcdn\.openai\.com/);
+  assert.match(csp, /img-src[^;]*https:\/\/www\.google-analytics\.com/);
+  assert.match(csp, /img-src[^;]*https:\/\/www\.googleadservices\.com/);
+  assert.match(csp, /img-src[^;]*https:\/\/www\.googletagmanager\.com/);
+  assert.match(csp, /img-src[^;]*https:\/\/bzr\.openai\.com/);
+  assert.match(csp, /img-src[^;]*https:\/\/www\.google\.com/);
+});
