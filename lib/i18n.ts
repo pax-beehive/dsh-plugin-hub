@@ -15,7 +15,7 @@ export const hubCopy = {
   zh: {
     languageName: "中文",
     alternateLanguageName: "EN",
-    nav: { plugins: "Plugins", profiles: "Profiles", publish: "发布", status: "状态" },
+    nav: { plugins: "Plugins", profiles: "Profiles", guides: "指南", publish: "发布", status: "状态" },
     common: {
       search: "搜索",
       claimed: "已认领",
@@ -114,7 +114,7 @@ export const hubCopy = {
   en: {
     languageName: "English",
     alternateLanguageName: "中文",
-    nav: { plugins: "Plugins", profiles: "Profiles", publish: "Publish", status: "Status" },
+    nav: { plugins: "Plugins", profiles: "Profiles", guides: "Guides", publish: "Publish", status: "Status" },
     common: {
       search: "Search",
       claimed: "Claimed",
