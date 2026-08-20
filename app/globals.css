@@ -2899,3 +2899,34 @@ body {
 .guide-detail-card {
   max-width: 720px;
 }
+
+/* ------------------------------------------------------------------ */
+/* Launch: hero CTA row (waitlist form removed)                        */
+/* ------------------------------------------------------------------ */
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 28px;
+}
+
+.hero-actions .hub-entry-link {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #4653e6;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-size: 14px;
+}
+
+.hero-secondary-link {
+  color: #4653e6;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.hero-secondary-link:hover {
+  text-decoration: underline;
+}

@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export const dynamic = "force-static";
 
-const sharedDisallow = ["/dashboard", "/api/", "/integrations/", "/unsubscribe"];
+const sharedDisallow = ["/dashboard", "/api/", "/integrations/"];
 
 export default function robots(): MetadataRoute.Robots {
   return {

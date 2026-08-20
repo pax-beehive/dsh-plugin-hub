@@ -2,9 +2,29 @@ import HubHeader from "@/components/HubHeader";
 import { hubCopy } from "@/lib/i18n";
 import { searchProfiles } from "@/lib/hub-api";
 import { getHubLocale } from "@/lib/i18n-server";
+import type { Metadata } from "next";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getHubLocale();
+  const title =
+    locale === "en"
+      ? "DSH Profiles — Reusable DeepSeek Harness Configurations"
+      : "DSH Profiles — 可复用的 DeepSeek Harness 配置组合";
+  const description =
+    locale === "en"
+      ? "Ordered, versioned DeepSeek Harness profiles: locked plugin versions and load order, applied with one dsh-hub command to reproduce the same Harness setup."
+      : "有序、带版本的 DeepSeek Harness Profile：锁定插件版本与加载顺序，一条 dsh-hub 命令在任何机器上复现同一套 Harness。";
+  return {
+    title,
+    description,
+    alternates: { canonical: "/profiles" },
+    openGraph: { title, description },
+    twitter: { title, description },
+  };
+}
 
 export default async function ProfilesPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const q = ((await searchParams).q ?? "").trim().slice(0, 120);

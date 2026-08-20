@@ -7,9 +7,29 @@ import {
 } from "@/lib/hub-api";
 import { hubCopy, localeTags } from "@/lib/i18n";
 import { getHubLocale } from "@/lib/i18n-server";
+import type { Metadata } from "next";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getHubLocale();
+  const title =
+    locale === "en"
+      ? "DeepSeek Harness Plugins — Verified DSH Plugin Catalog"
+      : "DeepSeek Harness 插件目录 — 经过校验的 DSH Plugins";
+  const description =
+    locale === "en"
+      ? "Browse the verified catalog of DeepSeek Harness (dsh) plugins: exact versions, compatibility ranges, HMR behavior, sources, and one-command installs."
+      : "浏览经过 manifest 校验的 DeepSeek Harness（dsh）插件目录：精确版本、兼容范围、HMR 行为、源码仓库与一键安装命令。";
+  return {
+    title,
+    description,
+    alternates: { canonical: "/plugins" },
+    openGraph: { title, description },
+    twitter: { title, description },
+  };
+}
 
 const pageSize = 30;
 const sortValues = ["popular", "updated", "name"] as const;

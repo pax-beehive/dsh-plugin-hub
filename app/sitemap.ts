@@ -10,6 +10,24 @@ const baseUrl = "https://dshpluginhub.ai";
 // `cloudflare:workers`, which breaks plain-Node render tests. Deferring keeps
 // the entry chunk clean. If the Hub API is unreachable we still serve the
 // static routes so the sitemap never 500s.
+// The registry API caps limit at 50 per request and paginates by cursor.
+// Walk the cursor chain so every published package appears in the sitemap
+// regardless of catalog size; the hard stop guards against a pathological
+// backend looping forever.
+async function listAllPackages(
+  searchPackages: typeof import("@/lib/hub-api").searchPackages,
+) {
+  const items: import("@/lib/hub-api").PluginSummary[] = [];
+  let cursor: string | undefined;
+  for (let page = 0; page < 200; page += 1) {
+    const result = await searchPackages("", { limit: 50, cursor });
+    items.push(...result.items);
+    if (!result.nextCursor || result.items.length === 0) break;
+    cursor = result.nextCursor;
+  }
+  return items;
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${baseUrl}/`, changeFrequency: "weekly", priority: 1 },
@@ -21,7 +39,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/report`, changeFrequency: "yearly", priority: 0.2 },
     ...guides.map((guide) => ({
       url: `${baseUrl}/guides/${guide.slug}`,
-      changeFrequency: "monthly" as const,
+      changeFrequency: "weekly" as const,
       priority: 0.5,
     })),
   ];
@@ -31,14 +49,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       "@/lib/hub-api"
     );
     const [plugins, profiles, categories] = await Promise.all([
-      searchPackages("", { limit: 100 }),
+      listAllPackages(searchPackages),
       searchProfiles("", 50),
       listCategories(50),
     ]);
 
     return [
       ...staticRoutes,
-      ...plugins.items.map((plugin) => ({
+      ...plugins.map((plugin) => ({
         url: `${baseUrl}/plugins/${plugin.slug}`,
         lastModified: plugin.updatedAt,
         changeFrequency: "daily" as const,

@@ -3,6 +3,7 @@ import HubHeader from "@/components/HubHeader";
 import { hubCopy } from "@/lib/i18n";
 import { getProfile } from "@/lib/hub-api";
 import { getHubLocale } from "@/lib/i18n-server";
+import { JsonLd, profileStructuredData } from "@/lib/structured-data";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -16,12 +17,21 @@ async function loadProfile(slug: string) {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const profile = await loadProfile((await params).slug);
   if (!profile || profile.visibility === "private") return {};
+  const locale = await getHubLocale();
   const latest = profile.versions.find((version) => version.version === profile.latestVersion) ?? profile.versions.at(-1)!;
-  const title = `${latest.name} — DSH Profile`;
-  const description = latest.description || `Ordered DSH profile by ${profile.owner}`;
+  const title =
+    locale === "en"
+      ? `${latest.name} — DSH Profile for DeepSeek Harness`
+      : `${latest.name} — DSH Profile（DeepSeek Harness 配置组合）`;
+  const fallback =
+    locale === "en"
+      ? `Ordered, versioned DeepSeek Harness profile by ${profile.owner}. Apply it with one dsh-hub command to reproduce the same Harness setup.`
+      : `由 ${profile.owner} 发布的有序、带版本的 DeepSeek Harness Profile，一条 dsh-hub 命令复现整套 Harness 配置。`;
+  const description = latest.description || fallback;
   return {
     title,
     description,
+    alternates: { canonical: `/profiles/${profile.slug}` },
     openGraph: { title, description, images: [] },
     twitter: { title, description, images: [] },
   };
@@ -36,6 +46,13 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
 
   return (
     <main className="hub-shell">
+      <JsonLd
+        data={profileStructuredData({
+          slug: profile.slug,
+          name: latest.name,
+          locale,
+        })}
+      />
       <HubHeader locale={locale} />
       <article className="profile-detail">
         <Link className="detail-back" href="/profiles">← Profiles</Link>

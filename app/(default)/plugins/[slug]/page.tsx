@@ -3,6 +3,7 @@ import PluginInstallCommand from "@/components/PluginInstallCommand";
 import { hubCopy, localeTags } from "@/lib/i18n";
 import { getPackageBySlug } from "@/lib/hub-api";
 import { getHubLocale } from "@/lib/i18n-server";
+import { JsonLd, pluginStructuredData } from "@/lib/structured-data";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -20,14 +21,23 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const plugin = await getPlugin((await params).slug);
   if (!plugin) return {};
-  const title = `${plugin.displayName} — DSH Plugin Hub`;
-  const description = plugin.summary;
+  const locale = await getHubLocale();
+  const title =
+    locale === "en"
+      ? `${plugin.displayName} — DSH Plugin for DeepSeek Harness`
+      : `${plugin.displayName} — DeepSeek Harness 插件（DSH Plugin）`;
+  const installCommand = `dsh plugin --profile web add ${plugin.packageName}@${plugin.latestVersion}`;
+  const description =
+    locale === "en"
+      ? `${plugin.summary} Install with: ${installCommand}. Verified manifest, exact versions and integrity on DSH Plugin Hub.`
+      : `${plugin.summary} 安装命令：${installCommand}。DSH Plugin Hub 提供校验过的 manifest、精确版本与 integrity 元数据。`;
   const images = plugin.screenshots[0]
     ? [{ url: plugin.screenshots[0].url, alt: plugin.screenshots[0].alt }]
     : [];
   return {
     title,
     description,
+    alternates: { canonical: `/plugins/${plugin.slug}` },
     openGraph: { title, description, images },
     twitter: { title, description, images: images.map((image) => image.url) },
   };
@@ -66,6 +76,7 @@ export default async function PluginDetailPage({
 
   return (
     <main className="hub-shell">
+      <JsonLd data={pluginStructuredData({ plugin, locale })} />
       <HubHeader locale={locale} />
       <article className="detail-layout">
         <section className="detail-main">

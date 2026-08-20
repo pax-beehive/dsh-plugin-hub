@@ -2,6 +2,7 @@ import HubHeader from "@/components/HubHeader";
 import { listCategories, searchPackages } from "@/lib/hub-api";
 import { hubCopy, localeTags } from "@/lib/i18n";
 import { getHubLocale } from "@/lib/i18n-server";
+import { JsonLd, categoryStructuredData } from "@/lib/structured-data";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -13,9 +14,19 @@ export async function generateMetadata({
   params: Promise<{ category: string }>;
 }): Promise<Metadata> {
   const category = decodeURIComponent((await params).category).slice(0, 60);
+  const locale = await getHubLocale();
+  const title =
+    locale === "en"
+      ? `${category} DSH Plugins — DeepSeek Harness Plugin Hub`
+      : `${category} 类 DSH 插件 — DeepSeek Harness Plugin Hub`;
+  const description =
+    locale === "en"
+      ? `Browse verified ${category} plugins for DeepSeek Harness (dsh): exact versions, compatibility, and one-command installs.`
+      : `浏览经过校验的 DeepSeek Harness（dsh）${category}类插件：精确版本、兼容范围与一键安装命令。`;
   return {
-    title: `${category} — DSH Plugin Hub`,
-    description: `DeepSeek Harness plugins in the ${category} category.`,
+    title,
+    description,
+    alternates: { canonical: `/categories/${encodeURIComponent(category)}` },
   };
 }
 
@@ -37,6 +48,9 @@ export default async function CategoryPage({
 
   return (
     <main className="hub-shell">
+      <JsonLd
+        data={categoryStructuredData({ category, plugins: items, locale })}
+      />
       <HubHeader locale={locale} />
       <section className="catalog-hero compact">
         <p className="catalog-eyebrow">CATEGORY</p>

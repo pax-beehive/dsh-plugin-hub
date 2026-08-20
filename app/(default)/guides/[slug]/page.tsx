@@ -1,6 +1,7 @@
 import LanguageSwitch from "@/components/LanguageSwitch";
 import { findGuide, guides } from "@/lib/guides";
 import { getHubLocale } from "@/lib/i18n-server";
+import { JsonLd, guideStructuredData } from "@/lib/structured-data";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -45,6 +46,14 @@ export default async function GuidePage({
 
   return (
     <main className="preference-page legal-page">
+      <JsonLd
+        data={guideStructuredData({
+          slug: guide.slug,
+          title: guide.title[locale],
+          description: guide.description[locale],
+          locale,
+        })}
+      />
       <article className="preference-card legal-card guide-detail-card">
         <div className="preference-heading-row">
           <Link className="preference-brand" href="/">

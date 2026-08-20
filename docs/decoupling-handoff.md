@@ -104,6 +104,8 @@ pnpm deploy:staging                  # staging
 
 ## 7. 已知遗留
 
+- **waitlist API 退役**：首页表单和 `/unsubscribe` 页面已经移除，但通用 `/api/*` 代理目前仍会把 `/api/waitlist` 转发到 Go API。发布后 TODO：前端对 waitlist 路径返回 `410 Gone`，确认历史数据保留策略后再下线后端端点与旧 secrets/binding。本次 2026-08-20 production 发布明确延后该项。
+- **生产 GitHub OAuth**：production Worker 仍缺 `GITHUB_CLIENT_ID`、`GITHUB_CLIENT_SECRET`、`GITHUB_OAUTH_STATE_SECRET`；目录浏览和 WorkOS 登录不受影响，GitHub 认领/连接功能待补齐密钥后验收。
 - **waitlist 历史数据**：2 条订阅记录在旧 OpenAI Sites 托管侧的 D1 里（本账号 D1 是空的），未抢救。旧的 2 封欢迎邮件也都是发送失败状态，损失可控。
 - **OpenAI Sites 托管已弃用**：apex 已从那边收回。`.openai/hosting.json`、`@openai/sites-vite-plugin` 仍在代码里（vite.config.ts 引用），暂未拆除。
 - **`tests/worker-runtime.integration.test.mjs`** 会直打已删除的 `/api/admin/waitlist/stats`，本地无后端时会失败——属已知问题，待改为指向 Go 后端或标记跳过。

@@ -23,7 +23,6 @@ export const config = {
     "/",
     "/en",
     "/privacy",
-    "/unsubscribe",
     "/auth/:path*",
     "/plugins/:path*",
     "/profiles/:path*",

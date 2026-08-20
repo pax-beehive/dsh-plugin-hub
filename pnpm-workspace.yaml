@@ -1,6 +1,11 @@
 packages:
   - packages/*
 
+allowBuilds:
+  esbuild: true
+  sharp: true
+  workerd: true
+
 catalog:
   '@types/node': 22.19.19
   '@types/semver': 7.8.0

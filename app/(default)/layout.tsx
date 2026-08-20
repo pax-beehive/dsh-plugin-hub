@@ -6,14 +6,14 @@ import "../globals.css";
 const siteUrl = new URL("https://dshpluginhub.ai");
 const localizedMetadata = {
   zh: {
-    title: "DeepSeek Harness Plugin Hub — 插件发现与分享社区",
-    description: "DeepSeek Harness Plugin Hub 是一个非官方独立社区项目，旨在帮助开发者发现、分享与安装 Harness 插件，并交流可复用的 Harness 配置。",
+    title: "DSH Plugin Hub — DeepSeek Harness 插件目录、Profiles 与安装社区",
+    description: "DeepSeek Harness（dsh）插件的社区注册表：发现经过 manifest 校验的 DSH 插件与可复用 Profiles，查看精确版本、兼容范围与一键安装命令，并用 dsh-hub CLI 复现整套 Harness 配置。非官方独立社区项目。",
     locale: "zh_CN",
     alternateLocale: ["en_US"],
   },
   en: {
-    title: "DeepSeek Harness Plugin Hub — Discover and share plugins",
-    description: "An independent, unofficial community hub for discovering, sharing, and installing DeepSeek Harness plugins and reusable Harness configurations.",
+    title: "DSH Plugin Hub — DeepSeek Harness Plugins, Profiles & Guides",
+    description: "The community registry for DeepSeek Harness (dsh) plugins: discover manifest-verified DSH plugins and reusable profiles, check exact versions, compatibility and integrity, and install with one command via the dsh-hub CLI. Independent and unofficial.",
     locale: "en_US",
     alternateLocale: ["zh_CN"],
   },
@@ -33,7 +33,12 @@ export async function generateMetadata(): Promise<Metadata> {
   keywords: [
     "DeepSeek Harness",
     "DeepSeek Harness plugins",
+    "dsh",
     "dsh plugin",
+    "dsh profile",
+    "dsh bundle",
+    "deepseek harness 插件",
+    "dsh 插件",
     "agent harness",
     "AI agent plugins",
     "Harness 插件",

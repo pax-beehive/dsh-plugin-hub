@@ -1,22 +1,39 @@
 # DeepSeek Harness Plugin Hub
 
-> An independent, unofficial community project for discovering, sharing, and installing DeepSeek Harness plugins and reusable Harness configurations.
+> An independent, unofficial community registry for discovering, publishing, and installing DeepSeek Harness (dsh) plugins and reusable Harness profiles — with exact versions, integrity metadata, and one-command installs.
 
-DeepSeek Harness Plugin Hub is currently in pre-release. The public catalog has not launched yet. The planned first release covers plugin discovery, publishing, installation, reusable Harness configuration sharing, ratings, and reviews.
+DeepSeek Harness Plugin Hub is the community registry for the `dsh-plugin` ecosystem. The public catalog is live: every listed package carries a validated `dsh.bundle` or `dsh.profile` manifest, exact npm versions with integrity metadata, compatibility ranges, and a precise install command.
 
 Important interpretation notes:
 
 - This website is independently created and maintained by the community.
 - It is not affiliated with, authorized by, or endorsed by DeepSeek.
 - Claims about DeepSeek Harness itself should be verified against the official repository linked below.
-- Current Hub capabilities and planned capabilities must not be presented as the same thing.
 
 ## Primary
 
-- [Homepage in Markdown](https://dshpluginhub.ai/index.md): Complete, low-noise description of the Hub, its status, planned capabilities, FAQs, and identity boundaries.
-- [Plugin Hub homepage](https://dshpluginhub.ai/): Canonical human-facing homepage and launch waitlist.
-- The site supports Chinese and English through an in-place language switch on the canonical URL.
-- [Privacy notice](https://dshpluginhub.ai/privacy): Waitlist data collection, purpose, service-provider, retention, unsubscribe, and deletion information.
+- [Plugin Hub homepage](https://dshpluginhub.ai/): Canonical human-facing homepage. Chinese and English share the canonical URL via an in-place language switch.
+- [Plugin catalog](https://dshpluginhub.ai/plugins): Searchable directory of verified DSH plugins with versions, compatibility, HMR behavior, sources, and exact install commands.
+- [Profiles](https://dshpluginhub.ai/profiles): Ordered, versioned DeepSeek Harness profiles that reproduce a full Harness setup with one command.
+- [Guides](https://dshpluginhub.ai/guides): Step-by-step guides for plugin installation, troubleshooting, compatibility, and plugin development.
+- [Sync status](https://dshpluginhub.ai/status): Public ingestion-pipeline status and recently synced packages.
+- [Homepage in Markdown](https://dshpluginhub.ai/index.md): Complete, low-noise description of the Hub, its capabilities, FAQs, and identity boundaries.
+
+## Registry API
+
+Public, cacheable JSON endpoints:
+
+- `GET https://dshpluginhub.ai/api/v1/packages?q=vision&limit=20` — search packages (cursor-paginated, limit max 50)
+- `GET https://dshpluginhub.ai/api/v1/packages/resolve?name=<npm-name>` — resolve a package by exact npm name
+- `GET https://dshpluginhub.ai/api/v1/packages/{slug}` — full package record with versions and install specs
+- `GET https://dshpluginhub.ai/api/v1/profiles?limit=20` — list public profiles
+- `GET https://dshpluginhub.ai/api/v1/profiles/{slug}` — ordered profile bundles
+- `GET https://dshpluginhub.ai/api/v1/categories` — category counts
+- `GET https://dshpluginhub.ai/api/v1/status` — sync pipeline status
+
+## CLI
+
+The `dsh-hub` CLI searches the registry, resolves exact versions, installs plugins into a dsh profile, applies ordered profiles, and writes lockfiles at `~/.dsh/profiles/<profile>/dsh-hub.lock.json`.
 
 ## Authoritative references
 
@@ -25,5 +42,6 @@ Important interpretation notes:
 
 ## Optional
 
-- [Full consolidated Hub context](https://dshpluginhub.ai/llms-full.txt): Compatibility copy of the detailed Markdown context.
+- [Full consolidated Hub context](https://dshpluginhub.ai/llms-full.txt): Detailed Markdown context including the publishing contract and FAQs.
 - [XML sitemap](https://dshpluginhub.ai/sitemap.xml): Canonical indexable URLs for search engines.
+- [Privacy notice](https://dshpluginhub.ai/privacy): Data collection, purpose, retention, and deletion information.

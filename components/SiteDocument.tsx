@@ -13,19 +13,28 @@ const geistMono = Geist_Mono({
 
 const websiteStructuredData = {
   "@context": "https://schema.org",
-  "@type": "WebSite",
-  "@id": "https://dshpluginhub.ai/#website",
-  url: "https://dshpluginhub.ai/",
-  name: "DeepSeek Harness Plugin Hub",
-  alternateName: "DSH Plugin Hub",
-  description:
-    "An independent, unofficial community project for DeepSeek Harness plugins and reusable configurations.",
-  inLanguage: ["zh-CN", "en"],
-  publisher: {
-    "@type": "Organization",
-    name: "DeepSeek Harness Plugin Hub Community",
-    url: "https://dshpluginhub.ai/",
-  },
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://dshpluginhub.ai/#website",
+      url: "https://dshpluginhub.ai/",
+      name: "DeepSeek Harness Plugin Hub",
+      alternateName: "DSH Plugin Hub",
+      description:
+        "An independent, unofficial community registry for DeepSeek Harness (dsh) plugins and reusable profiles, with exact versions, integrity metadata, and one-command installs.",
+      inLanguage: ["zh-CN", "en"],
+      publisher: { "@id": "https://dshpluginhub.ai/#organization" },
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://dshpluginhub.ai/#organization",
+      name: "DeepSeek Harness Plugin Hub Community",
+      alternateName: "DSH Plugin Hub",
+      url: "https://dshpluginhub.ai/",
+      logo: "https://dshpluginhub.ai/og-v2.png",
+      email: "hello@dshpluginhub.ai",
+    },
+  ],
 };
 
 export default function SiteDocument({

@@ -42,14 +42,15 @@ test("server-renders the Plugin Hub coming-soon page", async () => {
   assert.match(html, /^<!DOCTYPE html><html lang="zh-CN">/i);
   assert.match(
     html,
-    /<title>DeepSeek Harness Plugin Hub — 插件发现与分享社区<\/title>/i,
+    /<title>DSH Plugin Hub — DeepSeek Harness 插件目录、Profiles 与安装社区<\/title>/i,
   );
-  assert.match(html, /COMING SOON/);
+  assert.match(html, /NOW LIVE/);
   assert.match(html, /Plugin Hub/);
   assert.match(html, /非官方社区项目/);
   assert.match(html, /为 Harness 插件生态而建的社区入口/);
   assert.match(html, /DeepSeek Harness Plugin Hub 是什么？/);
-  assert.match(html, /name="email"/);
+  assert.match(html, /href="\/plugins"/);
+  assert.doesNotMatch(html, /waitlist-form|name="email"/);
   assert.match(html, /href="\/privacy"/);
   assert.match(
     html,
@@ -78,7 +79,7 @@ test("server-renders English on the same URL from the locale cookie", async () =
   const html = await response.text();
   assert.match(
     html,
-    /<title>DeepSeek Harness Plugin Hub — Discover and share plugins<\/title>/i,
+    /<title>DSH Plugin Hub — DeepSeek Harness Plugins, Profiles &amp; Guides<\/title>/i,
   );
   assert.match(html, /^<!DOCTYPE html><html lang="en">/i);
   assert.match(html, /An open community hub to discover, share, and install Harness plugins/);
@@ -100,22 +101,16 @@ test("privacy notice follows the same locale cookie", async () => {
   assert.equal(response.status, 200);
 
   const html = await response.text();
-  assert.match(html, /How we use your email/);
+  assert.match(html, /How we handle your information/);
   assert.match(html, /What we collect/);
-  assert.doesNotMatch(html, /你的邮箱如何被使用/);
+  assert.doesNotMatch(html, /我们如何处理你的信息/);
   assert.match(html, /hello@dshpluginhub\.ai/);
   assert.match(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/privacy"/);
 });
 
-test("server-renders the Chinese unsubscribe confirmation by default", async () => {
+test("unsubscribe route is retired together with the waitlist", async () => {
   const response = await render("/unsubscribe?token=test-token");
-  assert.equal(response.status, 200);
-
-  const html = await response.text();
-  assert.match(html, /确认退订/);
-  assert.match(html, /\/api\/waitlist\/unsubscribe\?token=test-token/);
-  assert.match(html, /非官方独立社区项目/);
-  assert.match(html, /name="robots" content="noindex, nofollow"/);
+  assert.equal(response.status, 404);
 });
 
 test("publishes crawl and AI discovery files with the canonical origin", async () => {
@@ -127,16 +122,18 @@ test("publishes crawl and AI discovery files with the canonical origin", async (
   ]);
 
   assert.match(llms, /^# DeepSeek Harness Plugin Hub/m);
-  assert.match(llms, /independent, unofficial community project/i);
+  assert.match(llms, /independent, unofficial community (project|registry)/i);
   assert.match(llms, /https:\/\/dshpluginhub\.ai\/index\.md/);
   assert.doesNotMatch(llms, /https:\/\/dshpluginhub\.ai\/en/);
   assert.match(llms, /https:\/\/github\.com\/deepseek-ai\/deepseek-harness/);
-  assert.match(markdownHome, /## Current status/);
-  assert.match(markdownHome, /## Planned first release/);
-  assert.match(markdownHome, /Language can be switched in place/);
+  assert.match(markdownHome, /## What you can do on the Hub today/);
+  assert.match(markdownHome, /## Publishing a plugin/);
+  assert.match(markdownHome, /Chinese and English share the canonical homepage URL/);
   assert.match(markdownHome, /not affiliated with, authorized by, or endorsed/i);
+  assert.doesNotMatch(markdownHome, /waitlist|pre-release/i);
   assert.match(llmsFull, /## Frequently asked questions/);
-  assert.match(llmsFull, /Do not claim that plugins can already be browsed/);
+  assert.match(llmsFull, /## Current capabilities \(live\)/);
+  assert.doesNotMatch(llmsFull, /waitlist|pre-release/i);
   assert.match(llmSingular, /canonical llms\.txt/i);
   assert.match(llmSingular, /https:\/\/dshpluginhub\.ai\/llms\.txt/);
 });

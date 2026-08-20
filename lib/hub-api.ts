@@ -98,6 +98,7 @@ async function expectOk(response: Response): Promise<unknown> {
 export type PackageSearchOptions = {
   limit?: number;
   page?: number;
+  cursor?: string;
   sort?: "popular" | "updated" | "name";
   category?: string;
 };
@@ -117,6 +118,7 @@ export async function searchPackages(
   // frontend degrades to a single-page listing.
   if (options?.page !== undefined && options.page > 1)
     params.set("page", String(options.page));
+  if (options?.cursor) params.set("cursor", options.cursor);
   if (options?.sort && options.sort !== "popular")
     params.set("sort", options.sort);
   if (options?.category) params.set("category", options.category);
