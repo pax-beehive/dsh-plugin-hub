@@ -39,13 +39,17 @@ export type TurnstileWidgetHandle = {
 type TurnstileWidgetProps = {
   siteKey: string;
   language: "en" | "zh";
+  action?: string;
   onTokenChange(token: string): void;
 };
 
 export const TurnstileWidget = forwardRef<
   TurnstileWidgetHandle,
   TurnstileWidgetProps
->(function TurnstileWidget({ siteKey, language, onTokenChange }, ref) {
+>(function TurnstileWidget(
+  { siteKey, language, action = "waitlist", onTokenChange },
+  ref,
+) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -55,7 +59,7 @@ export const TurnstileWidget = forwardRef<
 
     widgetIdRef.current = window.turnstile.render(containerRef.current, {
       sitekey: siteKey,
-      action: "waitlist",
+      action,
       theme: "light",
       size: "flexible",
       language,
@@ -66,7 +70,7 @@ export const TurnstileWidget = forwardRef<
         setLoadFailed(true);
       },
     });
-  }, [language, onTokenChange, siteKey]);
+  }, [action, language, onTokenChange, siteKey]);
 
   useImperativeHandle(ref, () => ({
     reset() {

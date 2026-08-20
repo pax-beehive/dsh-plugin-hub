@@ -49,6 +49,28 @@ Accepted packages are due again after one hour. Rejected packages are checked
 again after one day. The six-hour Cron queues up to 100 due candidates per run
 in addition to its fresh search results.
 
+## GitHub topic discovery
+
+The same cron run also executes `discoverGitHubPlugins`
+(`lib/github-discovery.ts`): it pages the GitHub search API for
+`topic:dsh-plugin` and `topic:deepseek-harness` and upserts public,
+non-fork, non-archived repositories into `github_source_listings`
+(`db/github-source-store.ts`).
+
+- Repositories without an npm package appear on `/plugins` as **source-only**
+  listings (GitHub badge, stars, license, language), linking out to the repo.
+- When the author later publishes an npm package whose manifest repository
+  matches the full name, `relinkAcceptedPlugins()` connects the records and
+  the verified registry card takes over.
+- Page cursors persist in `npm_discovery_cursors` under `github:topic:*`
+  keys, so each run processes at most 3 pages per topic and resumes across
+  runs. 403/429 responses pause discovery until the next cron.
+- Unauthenticated search allows ~10 requests/minute. Set the optional
+  `GITHUB_TOKEN` secret (read-only PAT) to raise the ceiling.
+
+Apply migration `0008_overconfident_husk.sql` before deploying the Worker
+version that contains GitHub discovery.
+
 ## Verification
 
 After a staging deploy, submit a known npm package from `/plugins`, then inspect

@@ -276,8 +276,8 @@ LIMIT 50;
 ## 已知限制
 
 - Production Registry D1、Queue、Cron、WorkOS key 和 rate-limit salt 尚未建立。
-- npm discovery 只轮转每个 query 的前 1,000 条结果。
-- 当前没有 sync metrics dashboard、dead-letter Queue 或管理员重放 UI。
+- npm discovery 只轮转每个 query 的前 1,000 条结果；GitHub topic discovery 每次 cron 每 topic 最多 3 页，无 token 时受 GitHub 未认证限流约束（配 `GITHUB_TOKEN` 可提高）。
+- 公开 `/status` 页已提供 sync 状态与最近收录；sync admin dashboard、dead-letter Queue 和管理员重放 UI 仍缺。
 - 作者认领依赖 GitHub repository access；npm owner proof 尚未提供。
 - 作者页面编辑目前覆盖 plugins，profiles 的 author-edit UI 待补。
 - GitHub webhooks 尚未启用，installation revocation 依靠下次交互发现。

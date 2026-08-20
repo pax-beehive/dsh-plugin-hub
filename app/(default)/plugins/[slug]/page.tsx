@@ -129,11 +129,23 @@ export default async function PluginDetailPage({
             <div><dt>Surface</dt><dd>{latest.compatibility.surfaces.join(", ")}</dd></div>
             <div><dt>{t.plugins.license}</dt><dd>{plugin.license ?? t.common.undeclared}</dd></div>
             <div><dt>{t.plugins.source}</dt><dd>{latest.source.kind}</dd></div>
+            {plugin.github ? (
+              <div><dt>GitHub</dt><dd>★ {plugin.github.stars}</dd></div>
+            ) : null}
+            {plugin.github?.pushedAt ? (
+              <div>
+                <dt>{t.plugins.lastPush}</dt>
+                <dd>{new Date(plugin.github.pushedAt).toLocaleDateString(localeTags[locale])}</dd>
+              </div>
+            ) : null}
           </dl>
           <a href={`https://github.com/${plugin.repository}`} target="_blank" rel="noreferrer">
             {t.common.viewSource}
           </a>
           {plugin.homepage ? <a href={plugin.homepage} target="_blank" rel="noreferrer">{t.common.homepage}</a> : null}
+          <Link href={`/report?package=${encodeURIComponent(plugin.packageName)}`} className="detail-report-link">
+            {t.common.reportIssue}
+          </Link>
         </aside>
       </article>
     </main>

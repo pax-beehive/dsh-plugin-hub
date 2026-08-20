@@ -106,6 +106,24 @@ test(
       assert.match(englishCatalogHtml, /Discover verified DSH plugins/);
       assert.doesNotMatch(englishCatalogHtml, /发现可验证的 DSH Plugins/);
 
+      const robotsResponse = await fetch(`${origin}/robots.txt`);
+      assert.equal(robotsResponse.status, 200);
+      const robots = await robotsResponse.text();
+      assert.match(robots, /Disallow: \/dashboard/);
+      assert.match(robots, /Disallow: \/api\//);
+      assert.match(robots, /Disallow: \/integrations\//);
+      assert.match(robots, /Sitemap: https:\/\/dshpluginhub\.ai\/sitemap\.xml/);
+
+      const sitemapResponse = await fetch(`${origin}/sitemap.xml`);
+      assert.equal(sitemapResponse.status, 200);
+      const sitemap = await sitemapResponse.text();
+      assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/<\/loc>/);
+      assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/plugins<\/loc>/);
+      assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/profiles<\/loc>/);
+      assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/status<\/loc>/);
+      assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/privacy<\/loc>/);
+      assert.doesNotMatch(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/en<\/loc>/);
+
       const unauthorizedResponse = await fetch(
         `${origin}/api/admin/waitlist/stats`,
       );

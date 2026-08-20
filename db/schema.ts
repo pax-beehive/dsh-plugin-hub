@@ -237,3 +237,53 @@ export const npmDiscoveryCursors = sqliteTable("npm_discovery_cursors", {
   lastRunAt: text("last_run_at"),
   updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
+
+// GitHub topic discovery: public repositories carrying a DSH ecosystem topic.
+// These are source-only candidates — installable only after the author
+// publishes an npm package with a DSH manifest, at which point
+// linked_package_name connects the listing to the registry record.
+// Abuse / takedown reports submitted from the public report form.
+// Rate limiting reuses waitlist_rate_limits with a "report:" key prefix.
+export const abuseReports = sqliteTable(
+  "abuse_reports",
+  {
+    id: text("id").primaryKey(),
+    packageName: text("package_name"),
+    reportedUrl: text("reported_url"),
+    category: text("category").notNull(),
+    description: text("description").notNull(),
+    reporterEmail: text("reporter_email"),
+    status: text("status").notNull().default("open"),
+    resolutionNote: text("resolution_note"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("idx_abuse_reports_status").on(table.status),
+    index("idx_abuse_reports_package_name").on(table.packageName),
+    index("idx_abuse_reports_created_at").on(table.createdAt),
+  ],
+);
+
+export const githubSourceListings = sqliteTable(
+  "github_source_listings",
+  {
+    fullName: text("full_name").primaryKey(),
+    description: text("description").notNull().default(""),
+    stars: integer("stars").notNull().default(0),
+    language: text("language"),
+    license: text("license"),
+    topicsJson: text("topics_json").notNull().default("[]"),
+    homepage: text("homepage"),
+    pushedAt: text("pushed_at"),
+    linkedPackageName: text("linked_package_name"),
+    discoveryTopic: text("discovery_topic").notNull().default("dsh-plugin"),
+    firstSeenAt: text("first_seen_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    lastSeenAt: text("last_seen_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("idx_github_source_listings_stars").on(table.stars),
+    index("idx_github_source_listings_linked").on(table.linkedPackageName),
+  ],
+);

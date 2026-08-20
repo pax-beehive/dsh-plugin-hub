@@ -15,6 +15,7 @@ export default function HubHeader({ locale }: { locale: HubLocale }) {
       <nav className="hub-nav" aria-label="Hub navigation">
         <Link href="/plugins">{t.nav.plugins}</Link>
         <Link href="/profiles">{t.nav.profiles}</Link>
+        <Link href="/status">{t.nav.status}</Link>
         <Link className="hub-publish-link" href="/dashboard">
           {t.nav.publish}
         </Link>

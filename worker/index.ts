@@ -2,9 +2,11 @@
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
 import { drizzle } from "drizzle-orm/d1";
+import { D1GithubSourceStore } from "../db/github-source-store";
 import { D1NpmSyncStore } from "../db/npm-sync-store";
 import { D1PublicationStore } from "../db/publication-store";
 import * as schema from "../db/schema";
+import { discoverGitHubPlugins } from "../lib/github-discovery";
 import {
   NpmSyncError,
   scheduleNpmSync,
@@ -17,6 +19,7 @@ interface Env {
   ASSETS: Fetcher;
   DB: D1Database;
   NPM_SYNC_QUEUE?: Queue<NpmSyncQueueMessage>;
+  GITHUB_TOKEN?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -57,15 +60,42 @@ const worker = {
   },
 
   async scheduled(
-    _controller: ScheduledController,
+    controller: ScheduledController,
     env: Env,
     ctx: ExecutionContext,
   ): Promise<void> {
+    console.log(JSON.stringify({
+      event: "scheduled_triggered",
+      cron: controller.cron,
+      scheduledTime: new Date(controller.scheduledTime).toISOString(),
+    }));
+    const db = drizzle(env.DB, { schema });
+
+    // GitHub topic discovery runs inline: it only writes listing rows, so it
+    // does not need the queue. Runs before the npm queue check so a missing
+    // queue binding never blocks GitHub discovery.
+    ctx.waitUntil(
+      discoverGitHubPlugins({
+        store: new D1GithubSourceStore(db),
+        token: env.GITHUB_TOKEN,
+      }).then((result) => {
+        console.log(JSON.stringify({
+          event: "github_discovery_completed",
+          discovered: result.discovered,
+          rateLimited: result.rateLimited,
+        }));
+      }).catch((error) => {
+        console.error(JSON.stringify({
+          event: "github_discovery_failed",
+          error: error instanceof Error ? error.message : "unknown",
+        }));
+      }),
+    );
+
     if (!env.NPM_SYNC_QUEUE) {
       console.warn(JSON.stringify({ event: "npm_sync_queue_unavailable" }));
       return;
     }
-    const db = drizzle(env.DB, { schema });
     ctx.waitUntil(scheduleNpmSync({
       syncStore: new D1NpmSyncStore(db),
       queue: env.NPM_SYNC_QUEUE,

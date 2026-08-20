@@ -1,4 +1,4 @@
-import { asc, eq, lte, sql } from "drizzle-orm";
+import { asc, desc, eq, lte, sql } from "drizzle-orm";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
 import * as schema from "./schema.ts";
 import { npmDiscoveryCursors, npmSyncPackages } from "./schema.ts";
@@ -13,10 +13,26 @@ export class D1NpmSyncStore {
     this.db = db;
   }
 
-  async recordCandidate(packageName: string, source: NpmDiscoverySource) {
+  async recordCandidate(
+    packageName: string,
+    source: NpmDiscoverySource,
+    now?: number,
+  ) {
+    // When the caller supplies a clock (cron/tests), persist the due time
+    // explicitly in ISO form instead of relying on the CURRENT_TIMESTAMP
+    // default, so due-ness never depends on wall-clock rollover between
+    // candidate recording and the due query in the same run.
+    const values: typeof npmSyncPackages.$inferInsert = {
+      packageName,
+      discoverySource: source,
+      status: "pending",
+    };
+    if (now !== undefined) {
+      values.nextSyncAt = new Date(now).toISOString();
+    }
     await this.db
       .insert(npmSyncPackages)
-      .values({ packageName, discoverySource: source, status: "pending" })
+      .values(values)
       .onConflictDoUpdate({
         target: npmSyncPackages.packageName,
         set: {
@@ -133,5 +149,41 @@ export class D1NpmSyncStore {
       .where(eq(npmSyncPackages.packageName, packageName))
       .limit(1);
     return rows[0] ?? null;
+  }
+
+  // Public transparency views for the /status page.
+  async statusSummary(): Promise<Array<{ status: string; count: number }>> {
+    const rows = await this.db.all<{ status: unknown; count: unknown }>(sql`
+      SELECT status, COUNT(*) AS count
+      FROM npm_sync_packages
+      GROUP BY status
+      ORDER BY count DESC
+    `);
+    return rows
+      .filter((row): row is { status: string; count: number } =>
+        typeof row.status === "string")
+      .map((row) => ({ status: row.status, count: Number(row.count) }));
+  }
+
+  async recentlySynced(limit = 20): Promise<Array<{
+    packageName: string;
+    status: string;
+    packageKind: string | null;
+    lastSyncedAt: string | null;
+    lastError: string | null;
+  }>> {
+    const rows = await this.db
+      .select({
+        packageName: npmSyncPackages.packageName,
+        status: npmSyncPackages.status,
+        packageKind: npmSyncPackages.packageKind,
+        lastSyncedAt: npmSyncPackages.lastSyncedAt,
+        lastError: npmSyncPackages.lastError,
+      })
+      .from(npmSyncPackages)
+      .where(sql`${npmSyncPackages.lastSyncedAt} IS NOT NULL`)
+      .orderBy(desc(npmSyncPackages.lastSyncedAt))
+      .limit(Math.min(Math.max(limit, 1), 100));
+    return rows;
   }
 }
