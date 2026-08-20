@@ -1,8 +1,9 @@
-import HubHeader from "@/components/HubHeader";
+import HubHeader, { HubFooter } from "@/components/HubHeader";
 import { listCategories, searchPackages } from "@/lib/hub-api";
 import { hubCopy, localeTags } from "@/lib/i18n";
 import { getHubLocale } from "@/lib/i18n-server";
 import { JsonLd, categoryStructuredData } from "@/lib/structured-data";
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -23,11 +24,11 @@ export async function generateMetadata({
     locale === "en"
       ? `Browse verified ${category} plugins for DeepSeek Harness (dsh): exact versions, compatibility, and one-command installs.`
       : `浏览经过校验的 DeepSeek Harness（dsh）${category}类插件：精确版本、兼容范围与一键安装命令。`;
-  return {
+  return pageMetadata({
+    path: `/categories/${encodeURIComponent(category)}`,
     title,
     description,
-    alternates: { canonical: `/categories/${encodeURIComponent(category)}` },
-  };
+  });
 }
 
 export default async function CategoryPage({
@@ -118,6 +119,7 @@ export default async function CategoryPage({
           </div>
         )}
       </section>
+      <HubFooter locale={locale} />
     </main>
   );
 }

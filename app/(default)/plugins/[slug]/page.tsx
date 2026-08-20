@@ -1,9 +1,10 @@
-import HubHeader from "@/components/HubHeader";
+import HubHeader, { HubFooter } from "@/components/HubHeader";
 import PluginInstallCommand from "@/components/PluginInstallCommand";
 import { hubCopy, localeTags } from "@/lib/i18n";
 import { getPackageBySlug } from "@/lib/hub-api";
 import { getHubLocale } from "@/lib/i18n-server";
 import { JsonLd, pluginStructuredData } from "@/lib/structured-data";
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -34,13 +35,12 @@ export async function generateMetadata({
   const images = plugin.screenshots[0]
     ? [{ url: plugin.screenshots[0].url, alt: plugin.screenshots[0].alt }]
     : [];
-  return {
+  return pageMetadata({
+    path: `/plugins/${plugin.slug}`,
     title,
     description,
-    alternates: { canonical: `/plugins/${plugin.slug}` },
-    openGraph: { title, description, images },
-    twitter: { title, description, images: images.map((image) => image.url) },
-  };
+    images,
+  });
 }
 
 export default async function PluginDetailPage({
@@ -158,6 +158,7 @@ export default async function PluginDetailPage({
           </Link>
         </aside>
       </article>
+      <HubFooter locale={locale} />
     </main>
   );
 }
