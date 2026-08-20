@@ -1,15 +1,33 @@
 "use client";
 
+import { trackHubEvent } from "@/lib/ads-client";
 import { useState } from "react";
 import type { HubLocale } from "@/lib/i18n";
 
-export default function CopyCommand({ command, locale = "zh" }: { command: string; locale?: HubLocale }) {
+export default function CopyCommand({
+  command,
+  locale = "zh",
+  packageName,
+  profile,
+}: {
+  command: string;
+  locale?: HubLocale;
+  packageName?: string;
+  profile?: string;
+}) {
   const [copied, setCopied] = useState(false);
 
   async function copy() {
     await navigator.clipboard.writeText(command);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
+    void trackHubEvent("copy_install", {
+      props: {
+        package: packageName,
+        profile,
+        command,
+      },
+    });
   }
 
   return (

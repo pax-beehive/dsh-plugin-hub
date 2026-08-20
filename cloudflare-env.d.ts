@@ -17,5 +17,24 @@ declare namespace Cloudflare {
     GITHUB_TOKEN?: string;
     HUB_API_ORIGIN?: string;
     HUB_INTERNAL_TOKEN?: string;
+    NEXT_PUBLIC_GA_MEASUREMENT_ID?: string;
+    NEXT_PUBLIC_GOOGLE_ADS_ID?: string;
+    NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL_INSTALL?: string;
+    NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL_SIGNUP?: string;
+    NEXT_PUBLIC_CHATGPT_PIXEL_ID?: string;
+    CHATGPT_PIXEL_ID?: string;
+    CHATGPT_CAPI_API_KEY?: string;
+  }
+}
+
+declare namespace NodeJS {
+  interface ProcessEnv {
+    NEXT_PUBLIC_GA_MEASUREMENT_ID?: string;
+    NEXT_PUBLIC_GOOGLE_ADS_ID?: string;
+    NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL_INSTALL?: string;
+    NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL_SIGNUP?: string;
+    NEXT_PUBLIC_CHATGPT_PIXEL_ID?: string;
+    CHATGPT_PIXEL_ID?: string;
+    CHATGPT_CAPI_API_KEY?: string;
   }
 }

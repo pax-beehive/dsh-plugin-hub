@@ -9,6 +9,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       { userAgent: "*", allow: "/", disallow: sharedDisallow },
       { userAgent: "OAI-SearchBot", allow: "/", disallow: sharedDisallow },
+      { userAgent: "OAI-AdsBot", allow: "/", disallow: sharedDisallow },
+      { userAgent: "AdsBot-Google", allow: "/", disallow: sharedDisallow },
       { userAgent: "Claude-SearchBot", allow: "/", disallow: sharedDisallow },
       { userAgent: "PerplexityBot", allow: "/", disallow: sharedDisallow },
     ],
