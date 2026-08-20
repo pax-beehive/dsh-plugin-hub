@@ -218,6 +218,16 @@ export const pluginRecordSchema = z
     summary: z.string().min(1).max(300),
     description: z.string().max(20_000).default(""),
     repository: z.string().regex(/^[^/\s]+\/[^/\s]+$/),
+    // GitHub-side trust signals, attached when the repository is present in
+    // github_source_listings. Optional: source-only discovery may lag or a
+    // package may come from a repository outside the discovered topics.
+    github: z
+      .object({
+        stars: z.number().int().nonnegative(),
+        pushedAt: z.iso.datetime().optional(),
+      })
+      .strict()
+      .optional(),
     homepage: z.url().optional(),
     license: z.string().max(100).optional(),
     categories: z.array(z.string().min(1)).default([]),
@@ -301,6 +311,10 @@ export const registrySearchResponseSchema = z
   .object({
     items: z.array(pluginRecordSchema.omit({ versions: true })),
     nextCursor: z.string().nullable(),
+    // Present only when the backend supports numbered pagination
+    // (page/sort params). Older backends omit it and the frontend falls back
+    // to cursor-only rendering.
+    total: z.number().int().nonnegative().optional(),
   })
   .strict();
 

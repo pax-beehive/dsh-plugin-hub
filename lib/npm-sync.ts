@@ -179,7 +179,7 @@ export async function scheduleNpmSync(input: {
         typeof name === "string" && npmPackageNameSchema.safeParse(name).success,
       );
     for (const packageName of names) {
-      await input.syncStore.recordCandidate(packageName, "search");
+      await input.syncStore.recordCandidate(packageName, "search", now);
       queued.set(packageName, { type: "sync-package", packageName, trigger: "discovery" });
     }
     const total = Number.isSafeInteger(body.total) ? Number(body.total) : 0;

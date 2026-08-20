@@ -16,10 +16,23 @@ import type {
   ProfileSummary,
   RegistryStore,
 } from "@/lib/registry-service";
-import { and, asc, eq, gt, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, or, sql } from "drizzle-orm";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
 import * as schema from "./schema.ts";
-import { pluginVersions, plugins, profileVersions, profiles } from "./schema.ts";
+import {
+  githubSourceListings,
+  pluginVersions,
+  plugins,
+  profileVersions,
+  profiles,
+} from "./schema.ts";
+
+// GitHub signal columns joined onto plugin queries; null when the repository
+// has not been seen by topic discovery.
+interface GithubSignalRow {
+  githubStars: number | null;
+  githubPushedAt: string | null;
+}
 
 export class D1RegistryStore implements RegistryStore {
   private readonly db: DrizzleD1Database<typeof schema>;
@@ -49,16 +62,92 @@ export class D1RegistryStore implements RegistryStore {
       ? and(searchCondition, cursorCondition)
       : searchCondition ?? cursorCondition;
     const query = this.db
-      .select()
+      .select({
+        plugin: plugins,
+        githubStars: githubSourceListings.stars,
+        githubPushedAt: githubSourceListings.pushedAt,
+      })
       .from(plugins)
+      .leftJoin(
+        githubSourceListings,
+        eq(plugins.repository, githubSourceListings.fullName),
+      )
       .orderBy(asc(plugins.slug))
       .limit(input.limit + 1);
     const rows = where ? await query.where(where) : await query;
     const hasNext = rows.length > input.limit;
     const visible = rows.slice(0, input.limit);
     return {
-      items: visible.map(toPluginSummary),
-      nextCursor: hasNext ? visible.at(-1)?.slug ?? null : null,
+      items: visible.map((row) =>
+        toPluginSummary(row.plugin, {
+          githubStars: row.githubStars,
+          githubPushedAt: row.githubPushedAt,
+        })),
+      nextCursor: hasNext ? visible.at(-1)?.plugin.slug ?? null : null,
+    };
+  }
+
+  // Offset-based paging with total count and sorting for the public catalog
+  // page (numbered pagination). The cursor-based search() above stays for the
+  // Registry API.
+  async searchPage(input: {
+    query: string;
+    sort: "popular" | "updated" | "name";
+    page: number;
+    limit: number;
+  }): Promise<{ items: PluginSummary[]; total: number }> {
+    const pattern = `%${escapeLike(input.query)}%`;
+    const where = input.query
+      ? or(
+          sql<boolean>`${plugins.packageName} LIKE ${pattern} ESCAPE '\\'`,
+          sql<boolean>`${plugins.displayName} LIKE ${pattern} ESCAPE '\\'`,
+          sql<boolean>`${plugins.summary} LIKE ${pattern} ESCAPE '\\'`,
+          sql<boolean>`${plugins.keywordsJson} LIKE ${pattern} ESCAPE '\\'`,
+        )
+      : undefined;
+    const limit = Math.min(Math.max(input.limit, 1), 100);
+    const page = Math.max(input.page, 1);
+
+    const countRows = await this.db
+      .select({ count: sql<number>`count(*)` })
+      .from(plugins)
+      .where(where);
+    const total = Number(countRows[0]?.count ?? 0);
+
+    const orderBy = input.sort === "updated"
+      ? [desc(plugins.updatedAt), asc(plugins.slug)]
+      : input.sort === "name"
+        ? [asc(plugins.slug)]
+        : [
+            // popular: repositories seen by GitHub discovery first, by stars;
+            // unseen packages keep slug order at the end.
+            sql`${githubSourceListings.stars} DESC NULLS LAST`,
+            asc(plugins.slug),
+          ];
+
+    const rows = await this.db
+      .select({
+        plugin: plugins,
+        githubStars: githubSourceListings.stars,
+        githubPushedAt: githubSourceListings.pushedAt,
+      })
+      .from(plugins)
+      .leftJoin(
+        githubSourceListings,
+        eq(plugins.repository, githubSourceListings.fullName),
+      )
+      .where(where)
+      .orderBy(...orderBy)
+      .limit(limit)
+      .offset((page - 1) * limit);
+
+    return {
+      items: rows.map((row) =>
+        toPluginSummary(row.plugin, {
+          githubStars: row.githubStars,
+          githubPushedAt: row.githubPushedAt,
+        })),
+      total,
     };
   }
 
@@ -72,19 +161,31 @@ export class D1RegistryStore implements RegistryStore {
 
   private async findPackageWhere(condition: ReturnType<typeof eq>): Promise<PluginRecord | null> {
     const rows = await this.db
-      .select()
+      .select({
+        plugin: plugins,
+        githubStars: githubSourceListings.stars,
+        githubPushedAt: githubSourceListings.pushedAt,
+      })
       .from(plugins)
+      .leftJoin(
+        githubSourceListings,
+        eq(plugins.repository, githubSourceListings.fullName),
+      )
       .where(condition)
       .limit(1);
-    const plugin = rows[0];
-    if (!plugin) return null;
+    const row = rows[0];
+    if (!row) return null;
+    const plugin = row.plugin;
     const versions = await this.db
       .select()
       .from(pluginVersions)
       .where(eq(pluginVersions.pluginId, plugin.id))
       .orderBy(asc(pluginVersions.publishedAt));
     return pluginRecordSchema.parse({
-      ...toPluginSummary(plugin),
+      ...toPluginSummary(plugin, {
+        githubStars: row.githubStars,
+        githubPushedAt: row.githubPushedAt,
+      }),
       versions: versions.map(toPluginVersion),
     });
   }
@@ -136,6 +237,51 @@ export class D1RegistryStore implements RegistryStore {
       createdAt: asIso(profile.createdAt),
       updatedAt: asIso(profile.updatedAt),
     }));
+  }
+
+  // Distinct publisher-declared categories with listing counts, most used
+  // first. Powers category landing pages and the browse-by-category rail.
+  async listCategories(limit = 24): Promise<Array<{ name: string; count: number }>> {
+    const rows = await this.db.all<{ value: unknown; count: number }>(sql`
+      SELECT value, COUNT(*) AS count
+      FROM plugins, json_each(plugins.categories_json)
+      GROUP BY value
+      ORDER BY count DESC, value ASC
+      LIMIT ${Math.min(Math.max(limit, 1), 100)}
+    `);
+    return rows
+      .filter((row): row is { value: string; count: number } => typeof row.value === "string")
+      .map((row) => ({ name: row.value, count: Number(row.count) }));
+  }
+
+  // Plugins carrying an exact category value (publisher-declared taxonomy),
+  // GitHub signals attached like in search().
+  async listByCategory(category: string, limit = 30): Promise<PluginSummary[]> {
+    const rows = await this.db
+      .select({
+        plugin: plugins,
+        githubStars: githubSourceListings.stars,
+        githubPushedAt: githubSourceListings.pushedAt,
+      })
+      .from(plugins)
+      .leftJoin(
+        githubSourceListings,
+        eq(plugins.repository, githubSourceListings.fullName),
+      )
+      .where(sql<boolean>`EXISTS (
+        SELECT 1 FROM json_each(plugins.categories_json)
+        WHERE json_each.value = ${category}
+      )`)
+      .orderBy(
+        sql`${githubSourceListings.stars} DESC NULLS LAST`,
+        asc(plugins.slug),
+      )
+      .limit(Math.min(Math.max(limit, 1), 100));
+    return rows.map((row) =>
+      toPluginSummary(row.plugin, {
+        githubStars: row.githubStars,
+        githubPushedAt: row.githubPushedAt,
+      }));
   }
 
   async searchProfiles(query: string, limit: number): Promise<ProfileCatalogItem[]> {
@@ -194,7 +340,16 @@ export class D1RegistryStore implements RegistryStore {
   }
 }
 
-function toPluginSummary(row: typeof plugins.$inferSelect): PluginSummary {
+function toPluginSummary(
+  row: typeof plugins.$inferSelect,
+  github?: GithubSignalRow,
+): PluginSummary {
+  const githubSignals = github && github.githubStars !== null
+    ? {
+      stars: github.githubStars,
+      pushedAt: github.githubPushedAt ? asIso(github.githubPushedAt) : undefined,
+    }
+    : null;
   const record = {
     id: row.id,
     slug: row.slug,
@@ -203,6 +358,7 @@ function toPluginSummary(row: typeof plugins.$inferSelect): PluginSummary {
     summary: row.summary,
     description: row.description,
     repository: row.repository,
+    ...(githubSignals ? { github: githubSignals } : {}),
     homepage: row.homepage ?? undefined,
     license: row.license ?? undefined,
     categories: parseJson(row.categoriesJson, "plugin categories"),

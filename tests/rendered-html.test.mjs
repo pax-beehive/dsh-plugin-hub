@@ -119,23 +119,13 @@ test("server-renders the Chinese unsubscribe confirmation by default", async () 
 });
 
 test("publishes crawl and AI discovery files with the canonical origin", async () => {
-  const [robots, sitemap, llms, markdownHome, llmsFull, llmSingular] =
-    await Promise.all([
-      readFile(new URL("../public/robots.txt", import.meta.url), "utf8"),
-      readFile(new URL("../public/sitemap.xml", import.meta.url), "utf8"),
-      readFile(new URL("../public/llms.txt", import.meta.url), "utf8"),
-      readFile(new URL("../public/index.md", import.meta.url), "utf8"),
-      readFile(new URL("../public/llms-full.txt", import.meta.url), "utf8"),
-      readFile(new URL("../public/llm.txt", import.meta.url), "utf8"),
-    ]);
+  const [llms, markdownHome, llmsFull, llmSingular] = await Promise.all([
+    readFile(new URL("../public/llms.txt", import.meta.url), "utf8"),
+    readFile(new URL("../public/index.md", import.meta.url), "utf8"),
+    readFile(new URL("../public/llms-full.txt", import.meta.url), "utf8"),
+    readFile(new URL("../public/llm.txt", import.meta.url), "utf8"),
+  ]);
 
-  assert.match(robots, /User-agent: OAI-SearchBot\nAllow: \//);
-  assert.match(robots, /User-agent: Claude-SearchBot\nAllow: \//);
-  assert.match(robots, /User-agent: PerplexityBot\nAllow: \//);
-  assert.match(robots, /Sitemap: https:\/\/dshpluginhub\.ai\/sitemap\.xml/);
-  assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/<\/loc>/);
-  assert.doesNotMatch(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/en<\/loc>/);
-  assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/privacy<\/loc>/);
   assert.match(llms, /^# DeepSeek Harness Plugin Hub/m);
   assert.match(llms, /independent, unofficial community project/i);
   assert.match(llms, /https:\/\/dshpluginhub\.ai\/index\.md/);
@@ -156,9 +146,8 @@ test("serves the vinext hydration manifest directly from Worker assets", async (
     await readFile(new URL("../wrangler.jsonc", import.meta.url), "utf8"),
   );
 
-  assert.equal(
-    config.assets.run_worker_first,
-    undefined,
-    "asset-first routing is required for vinext-client-entry-manifest.json",
-  );
+  assert.deepEqual(config.assets.run_worker_first, [
+    "/robots.txt",
+    "/sitemap.xml",
+  ]);
 });

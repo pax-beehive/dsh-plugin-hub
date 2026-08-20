@@ -14,6 +14,7 @@ declare namespace Cloudflare {
     GITHUB_OAUTH_STATE_SECRET?: string;
     GITHUB_PRIVATE_KEY?: string;
     GITHUB_REDIRECT_URI?: string;
+    GITHUB_TOKEN?: string;
     HUB_API_ORIGIN?: string;
     HUB_INTERNAL_TOKEN?: string;
   }

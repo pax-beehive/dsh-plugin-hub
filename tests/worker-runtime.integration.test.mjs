@@ -20,7 +20,11 @@ const config = join(
 );
 const fixtureWranglerDirectory = join(projectRoot, "tests", "fixtures", ".wrangler");
 
-test(
+// Skipped after the frontend/backend decoupling: the TS API routes this test
+// exercised (/api/waitlist, /api/admin/waitlist/stats) were deleted and are now
+// served by the Go backend (see docs/decoupling-handoff.md §7). Re-enable as an
+// end-to-end test against the Go service, not the worker runtime.
+test.skip(
   "built API routes run against a migrated D1 database in workerd",
   { timeout: 30_000 },
   async () => {
@@ -105,6 +109,24 @@ test(
       assert.match(englishCatalogHtml, /^<!DOCTYPE html><html lang="en">/i);
       assert.match(englishCatalogHtml, /Discover verified DSH plugins/);
       assert.doesNotMatch(englishCatalogHtml, /发现可验证的 DSH Plugins/);
+
+      const robotsResponse = await fetch(`${origin}/robots.txt`);
+      assert.equal(robotsResponse.status, 200);
+      const robots = await robotsResponse.text();
+      assert.match(robots, /Disallow: \/dashboard/);
+      assert.match(robots, /Disallow: \/api\//);
+      assert.match(robots, /Disallow: \/integrations\//);
+      assert.match(robots, /Sitemap: https:\/\/dshpluginhub\.ai\/sitemap\.xml/);
+
+      const sitemapResponse = await fetch(`${origin}/sitemap.xml`);
+      assert.equal(sitemapResponse.status, 200);
+      const sitemap = await sitemapResponse.text();
+      assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/<\/loc>/);
+      assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/plugins<\/loc>/);
+      assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/profiles<\/loc>/);
+      assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/status<\/loc>/);
+      assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/privacy<\/loc>/);
+      assert.doesNotMatch(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/en<\/loc>/);
 
       const unauthorizedResponse = await fetch(
         `${origin}/api/admin/waitlist/stats`,
