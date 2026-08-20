@@ -1,80 +1,58 @@
-import { guides } from "@/lib/guides";
+import {
+  allSitemapEntries,
+  buildSitemapShards,
+  entriesForShard,
+  listAllPackages,
+  sitemapShardIds,
+  staticSitemapEntries,
+  type SitemapCategory,
+  type SitemapProfile,
+} from "@/lib/sitemap";
 import type { MetadataRoute } from "next";
 
 export const dynamic = "force-dynamic";
-
-const baseUrl = "https://dshpluginhub.ai";
 
 // hub-api is imported lazily: vinext eagerly evaluates metadata route modules
 // when building the server entry, and hub-api statically imports
 // `cloudflare:workers`, which breaks plain-Node render tests. Deferring keeps
 // the entry chunk clean. If the Hub API is unreachable we still serve the
 // static routes so the sitemap never 500s.
-// The registry API caps limit at 50 per request and paginates by cursor.
-// Walk the cursor chain so every published package appears in the sitemap
-// regardless of catalog size; the hard stop guards against a pathological
-// backend looping forever.
-async function listAllPackages(
-  searchPackages: typeof import("@/lib/hub-api").searchPackages,
-) {
-  const items: import("@/lib/hub-api").PluginSummary[] = [];
-  let cursor: string | undefined;
-  for (let page = 0; page < 200; page += 1) {
-    const result = await searchPackages("", { limit: 50, cursor });
-    items.push(...result.items);
-    if (!result.nextCursor || result.items.length === 0) break;
-    cursor = result.nextCursor;
-  }
-  return items;
+async function loadCatalog(): Promise<{
+  plugins: Awaited<ReturnType<typeof listAllPackages>>;
+  profiles: SitemapProfile[];
+  categories: SitemapCategory[];
+}> {
+  const { listCategories, searchPackages, searchProfiles } = await import(
+    "@/lib/hub-api"
+  );
+  const [plugins, profiles, categories] = await Promise.all([
+    listAllPackages(searchPackages),
+    searchProfiles("", 50),
+    listCategories(50),
+  ]);
+  return { plugins, profiles, categories };
 }
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticRoutes: MetadataRoute.Sitemap = [
-    { url: `${baseUrl}/`, changeFrequency: "weekly", priority: 1 },
-    { url: `${baseUrl}/plugins`, changeFrequency: "hourly", priority: 0.9 },
-    { url: `${baseUrl}/profiles`, changeFrequency: "hourly", priority: 0.8 },
-    { url: `${baseUrl}/status`, changeFrequency: "hourly", priority: 0.4 },
-    { url: `${baseUrl}/guides`, changeFrequency: "weekly", priority: 0.6 },
-    { url: `${baseUrl}/privacy`, changeFrequency: "yearly", priority: 0.2 },
-    { url: `${baseUrl}/report`, changeFrequency: "yearly", priority: 0.2 },
-    ...guides.map((guide) => ({
-      url: `${baseUrl}/guides/${guide.slug}`,
-      changeFrequency: "weekly" as const,
-      priority: 0.5,
-    })),
-  ];
-
+async function loadShards() {
   try {
-    const { listCategories, searchPackages, searchProfiles } = await import(
-      "@/lib/hub-api"
-    );
-    const [plugins, profiles, categories] = await Promise.all([
-      listAllPackages(searchPackages),
-      searchProfiles("", 50),
-      listCategories(50),
-    ]);
-
-    return [
-      ...staticRoutes,
-      ...plugins.map((plugin) => ({
-        url: `${baseUrl}/plugins/${plugin.slug}`,
-        lastModified: plugin.updatedAt,
-        changeFrequency: "daily" as const,
-        priority: 0.7,
-      })),
-      ...profiles.map((profile) => ({
-        url: `${baseUrl}/profiles/${profile.slug}`,
-        lastModified: profile.updatedAt,
-        changeFrequency: "daily" as const,
-        priority: 0.6,
-      })),
-      ...categories.map((category) => ({
-        url: `${baseUrl}/categories/${encodeURIComponent(category.name)}`,
-        changeFrequency: "daily" as const,
-        priority: 0.5,
-      })),
-    ];
+    return buildSitemapShards(await loadCatalog());
   } catch {
-    return staticRoutes;
+    return buildSitemapShards({});
   }
+}
+
+export async function generateSitemaps() {
+  return sitemapShardIds(await loadShards());
+}
+
+export default async function sitemap(props?: {
+  id?: number | string;
+}): Promise<MetadataRoute.Sitemap> {
+  const shards = await loadShards();
+  if (props?.id === undefined) {
+    return allSitemapEntries(shards);
+  }
+  const id = Number(props.id);
+  if (!Number.isFinite(id)) return staticSitemapEntries();
+  return entriesForShard(shards, id);
 }

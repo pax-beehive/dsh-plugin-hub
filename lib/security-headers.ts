@@ -1,4 +1,6 @@
-export function withSecurityHeaders(response: Response) {
+import { applyCacheHeaders } from "./cache-control.ts";
+
+export function withSecurityHeaders(response: Response, request?: Request) {
   const headers = new Headers(response.headers);
   headers.set(
     "content-security-policy",
@@ -21,6 +23,9 @@ export function withSecurityHeaders(response: Response) {
   headers.set("referrer-policy", "strict-origin-when-cross-origin");
   headers.set("x-content-type-options", "nosniff");
   headers.set("x-frame-options", "DENY");
+  if (request) {
+    applyCacheHeaders(headers, request);
+  }
 
   return new Response(response.body, {
     status: response.status,

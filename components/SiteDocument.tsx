@@ -52,11 +52,6 @@ export default function SiteDocument({
       {/* The root document owns these non-metadata link relations. */}
       {/* eslint-disable-next-line @next/next/no-head-element */}
       <head>
-        <link
-          rel="alternate"
-          type="text/markdown"
-          href="https://dshpluginhub.ai/index.md"
-        />
         <link rel="describedby" href="https://dshpluginhub.ai/llms.txt" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
