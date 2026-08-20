@@ -54,9 +54,9 @@ test("server-renders the Plugin Hub coming-soon page", async () => {
   assert.match(html, /href="\/privacy"/);
   assert.match(
     html,
-    /rel="canonical" href="https:\/\/dshpluginhub\.ai\/?"/,
+    /rel="canonical" href="https:\/\/dshpluginhub\.ai\/"/,
   );
-  assert.match(html, /property="og:url" content="https:\/\/dshpluginhub\.ai\/?"/);
+  assert.match(html, /property="og:url" content="https:\/\/dshpluginhub\.ai\/"/);
   assert.match(html, /"@type":"WebSite"/);
   assert.match(html, /"@type":"FAQPage"/);
   assert.match(html, /rel="shortcut icon" href="\/favicon\.ico"/);
@@ -84,7 +84,7 @@ test("server-renders English on the same URL from the locale cookie", async () =
   assert.match(html, /^<!DOCTYPE html><html lang="en">/i);
   assert.match(html, /An open community hub to discover, share, and install Harness plugins/);
   assert.match(html, /What is DeepSeek Harness Plugin Hub\?/);
-  assert.match(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/?"/);
+  assert.match(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/"/);
   assert.match(html, /aria-pressed="true"[^>]*>EN<\/button>/i);
   assert.match(html, /"@id":"https:\/\/dshpluginhub\.ai\/#webpage"/);
 });
@@ -94,6 +94,21 @@ test("legacy English URL stores the preference and redirects to the canonical UR
   assert.equal(response.status, 308);
   assert.equal(response.headers.get("location"), "http://localhost/");
   assert.match(response.headers.get("set-cookie") ?? "", /dsh-hub-locale=en/);
+});
+
+test("legacy English URL preserves paid-click query string", async () => {
+  const response = await render("/en?gclid=abc&utm_source=google&oppref=op_1");
+  assert.equal(response.status, 308);
+  const location = response.headers.get("location") ?? "";
+  assert.match(location, /https?:\/\/localhost\/\?/);
+  assert.match(location, /gclid=abc/);
+  assert.match(location, /utm_source=google/);
+  assert.match(location, /oppref=op_1/);
+  const cookies = typeof response.headers.getSetCookie === "function"
+    ? response.headers.getSetCookie()
+    : [response.headers.get("set-cookie") ?? ""];
+  assert.ok(cookies.some((value) => /dsh-hub-locale=en/.test(value)));
+  assert.ok(cookies.some((value) => /dsh-hub-attribution=/.test(value)));
 });
 
 test("privacy notice follows the same locale cookie", async () => {
@@ -146,5 +161,67 @@ test("serves the vinext hydration manifest directly from Worker assets", async (
   assert.deepEqual(config.assets.run_worker_first, [
     "/robots.txt",
     "/sitemap.xml",
+    "/sitemap/*",
   ]);
+});
+
+test("homepage H1 includes the space and a site nav", async () => {
+  const html = await (await render()).text();
+  assert.match(html, /<h1>DeepSeek Harness\s+<span>Plugin Hub<\/span><\/h1>/);
+  assert.match(html, /<nav class="site-nav"[^>]*>/);
+  assert.match(html, /href="\/guides"/);
+  assert.match(html, /href="\/profiles"/);
+  assert.match(html, /href="\/status"/);
+  assert.match(html, /class="brand" href="\/"/);
+  assert.doesNotMatch(html, /class="brand" href="#top"/);
+  assert.doesNotMatch(html, /DeepSeek HarnessPlugin Hub/);
+});
+
+test("status page self-canonicals and does not reuse the homepage og:url", async () => {
+  const response = await render("/status");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/status"/);
+  assert.match(html, /property="og:url" content="https:\/\/dshpluginhub\.ai\/status"/);
+  assert.doesNotMatch(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/"/);
+  assert.doesNotMatch(
+    html,
+    /rel="alternate" type="text\/markdown" href="https:\/\/dshpluginhub\.ai\/index\.md"/,
+  );
+});
+
+test("guides page does not advertise the homepage markdown alternate", async () => {
+  const html = await (await render("/guides")).text();
+  assert.match(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/guides"/);
+  assert.match(html, /property="og:url" content="https:\/\/dshpluginhub\.ai\/guides"/);
+  assert.doesNotMatch(
+    html,
+    /rel="alternate" type="text\/markdown" href="https:\/\/dshpluginhub\.ai\/index\.md"/,
+  );
+  assert.match(html, /rel="describedby" href="https:\/\/dshpluginhub\.ai\/llms\.txt"/);
+});
+
+test("404 metadata is noindex only and does not reuse the homepage", async () => {
+  const response = await render("/about");
+  assert.equal(response.status, 404);
+  const html = await response.text();
+  assert.match(html, /name="robots" content="[^"]*noindex/);
+  assert.doesNotMatch(html, /content="index, follow"/);
+  assert.doesNotMatch(html, /content="index,follow"/);
+  assert.doesNotMatch(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/"/);
+  assert.doesNotMatch(
+    html,
+    /<title>DSH Plugin Hub — DeepSeek Harness 插件目录、Profiles 与安装社区<\/title>/,
+  );
+  assert.doesNotMatch(html, /property="og:url" content="https:\/\/dshpluginhub\.ai\/"/);
+});
+
+test("indexable pages send a short public cache and auth stays no-store", async () => {
+  const home = await render("/");
+  assert.match(
+    home.headers.get("cache-control") ?? "",
+    /public,\s*s-maxage=60/,
+  );
+  const dashboard = await render("/dashboard");
+  assert.match(dashboard.headers.get("cache-control") ?? "", /no-store/);
 });
