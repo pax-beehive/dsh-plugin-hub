@@ -1,4 +1,4 @@
-import HubHeader from "@/components/HubHeader";
+import HubHeader, { HubFooter } from "@/components/HubHeader";
 import SubmitNpmPackageForm from "@/components/SubmitNpmPackageForm";
 import {
   listCategories,
@@ -7,6 +7,7 @@ import {
 } from "@/lib/hub-api";
 import { hubCopy, localeTags } from "@/lib/i18n";
 import { getHubLocale } from "@/lib/i18n-server";
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -22,13 +23,11 @@ export async function generateMetadata(): Promise<Metadata> {
     locale === "en"
       ? "Browse the verified catalog of DeepSeek Harness (dsh) plugins: exact versions, compatibility ranges, HMR behavior, sources, and one-command installs."
       : "浏览经过 manifest 校验的 DeepSeek Harness（dsh）插件目录：精确版本、兼容范围、HMR 行为、源码仓库与一键安装命令。";
-  return {
+  return pageMetadata({
+    path: "/plugins",
     title,
     description,
-    alternates: { canonical: "/plugins" },
-    openGraph: { title, description },
-    twitter: { title, description },
-  };
+  });
 }
 
 const pageSize = 30;
@@ -276,6 +275,7 @@ export default async function PluginsPage({
           </div>
         </section>
       ) : null}
+      <HubFooter locale={locale} />
     </main>
   );
 }
