@@ -83,13 +83,13 @@ pnpm dev
 ## 5. 部署
 
 ```bash
-pnpm build && npx wrangler deploy    # 生产
-pnpm deploy:staging                  # staging
+pnpm deploy:production  # 生产
+pnpm deploy:staging     # staging
 ```
 
 ### 部署相关的坑（都踩过，别再踩）
 
-1. **`nodejs_compat` 只能有一个来源**：只能写在 `vite.config.ts` 的 cloudflare 插件 config 里。wrangler.jsonc 里再写一份会导致 versions API 报 10021 "flag specified multiple times"；两处都不写则报 "No such module node:async_hooks"。
+1. **`nodejs_compat` 需要覆盖 build 和 upload 两段**：`vite.config.ts` 的 Cloudflare 插件 config 负责 build；两个 deploy script 通过 `--compatibility-flag nodejs_compat` 负责 Wrangler upload。不要再把它写进 `wrangler.jsonc`，否则 Vite 合并配置时可能重复；upload 漏掉 CLI flag 会报 10021 `No such module node:async_hooks`。
 2. **不要在 wrangler.jsonc 里声明生产 routes**：apex `dshpluginhub.ai` 的 custom domain 是通过 Cloudflare API 挂的，zone 里曾有外部 DNS 记录，wrangler 声明 `custom_domain` 会报 100117。当前 wrangler.jsonc 无生产 routes 是对的，deploy 不会动域名。
 3. **wrangler 凭证**：`.env` 里的 `CLOUDFLARE_API_TOKEN` 是窄权限 token（只读）。部署/写 secret 需要另一个 token（存在 `dsh-plugin-hub-api/.env.prod`，权限 Workers Scripts:Edit + D1:Edit + Zone DNS:Edit）。OAuth 登录态在 `~/Library/Preferences/.wrangler`，已过期；也可用项目级隔离登录：`WRANGLER_HOME=$PWD/.wrangler-auth npx wrangler login`（目录已 gitignore）。
 4. **域名切换后的 1034**：custom domain 刚挂载时边缘节点会短暂返回 403 error code 1034，等 2-5 分钟自愈，不是代码问题。
