@@ -1,12 +1,14 @@
 import LanguageSwitch from "@/components/LanguageSwitch";
 import { guides } from "@/lib/guides";
 import { getHubLocale } from "@/lib/i18n-server";
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getHubLocale();
-  return {
+  return pageMetadata({
+    path: "/guides",
     title:
       locale === "en"
         ? "Guides — DeepSeek Harness Plugin Hub"
@@ -15,8 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
       locale === "en"
         ? "Troubleshooting guides and tutorials for DSH plugin development and usage."
         : "DSH 插件开发和使用的故障排查指南与教程。",
-    alternates: { canonical: "/guides" },
-  };
+  });
 }
 
 export default async function GuidesPage() {

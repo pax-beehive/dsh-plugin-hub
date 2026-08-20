@@ -1,13 +1,16 @@
 import LanguageSwitch from "@/components/LanguageSwitch";
 import ReportForm from "@/components/ReportForm";
 import { getHubLocale } from "@/lib/i18n-server";
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getHubLocale();
-  return {
+  return pageMetadata({
+    path: "/report",
+    index: false,
     title:
       locale === "en"
         ? "Report an Issue — DeepSeek Harness Plugin Hub"
@@ -16,8 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
       locale === "en"
         ? "Report malicious code, copyright violations, or security issues in DSH plugins."
         : "报告 DSH 插件中的恶意代码、版权侵权或安全问题。",
-    alternates: { canonical: "/report" },
-  };
+  });
 }
 
 export default async function ReportPage() {

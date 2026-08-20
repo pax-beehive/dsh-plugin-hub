@@ -15,6 +15,7 @@ export default function HubHeader({ locale }: { locale: HubLocale }) {
       <nav className="hub-nav" aria-label="Hub navigation">
         <Link href="/plugins">{t.nav.plugins}</Link>
         <Link href="/profiles">{t.nav.profiles}</Link>
+        <Link href="/guides">{t.nav.guides}</Link>
         <Link href="/status">{t.nav.status}</Link>
         <Link className="hub-publish-link" href="/dashboard">
           {t.nav.publish}
@@ -22,5 +23,15 @@ export default function HubHeader({ locale }: { locale: HubLocale }) {
         <LanguageSwitch locale={locale} />
       </nav>
     </header>
+  );
+}
+
+export function HubFooter({ locale }: { locale: HubLocale }) {
+  return (
+    <footer className="hub-footer">
+      <Link href="/privacy">
+        {locale === "en" ? "Privacy" : "隐私说明"}
+      </Link>
+    </footer>
   );
 }

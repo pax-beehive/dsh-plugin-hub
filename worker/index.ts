@@ -39,10 +39,10 @@ const worker = {
           return result.response();
         },
       }, allowedWidths);
-      return withSecurityHeaders(response);
+      return withSecurityHeaders(response, request);
     }
 
-    return withSecurityHeaders(await handler.fetch(request, env, ctx));
+    return withSecurityHeaders(await handler.fetch(request, env, ctx), request);
   },
 };
 
