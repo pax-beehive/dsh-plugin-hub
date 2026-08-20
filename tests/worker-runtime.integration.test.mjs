@@ -121,12 +121,26 @@ test.skip(
       const sitemapResponse = await fetch(`${origin}/sitemap.xml`);
       assert.equal(sitemapResponse.status, 200);
       const sitemap = await sitemapResponse.text();
-      assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/<\/loc>/);
-      assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/plugins<\/loc>/);
-      assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/profiles<\/loc>/);
-      assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/status<\/loc>/);
-      assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/privacy<\/loc>/);
+      assert.doesNotMatch(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/report<\/loc>/);
       assert.doesNotMatch(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/en<\/loc>/);
+      if (sitemap.includes("<sitemapindex")) {
+        assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/sitemap\/0\.xml<\/loc>/);
+        const staticResponse = await fetch(`${origin}/sitemap/0.xml`);
+        assert.equal(staticResponse.status, 200);
+        const staticSitemap = await staticResponse.text();
+        assert.match(staticSitemap, /<loc>https:\/\/dshpluginhub\.ai\/<\/loc>/);
+        assert.match(staticSitemap, /<loc>https:\/\/dshpluginhub\.ai\/plugins<\/loc>/);
+        assert.match(staticSitemap, /<loc>https:\/\/dshpluginhub\.ai\/profiles<\/loc>/);
+        assert.match(staticSitemap, /<loc>https:\/\/dshpluginhub\.ai\/status<\/loc>/);
+        assert.match(staticSitemap, /<loc>https:\/\/dshpluginhub\.ai\/privacy<\/loc>/);
+        assert.doesNotMatch(staticSitemap, /<loc>https:\/\/dshpluginhub\.ai\/report<\/loc>/);
+      } else {
+        assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/<\/loc>/);
+        assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/plugins<\/loc>/);
+        assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/profiles<\/loc>/);
+        assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/status<\/loc>/);
+        assert.match(sitemap, /<loc>https:\/\/dshpluginhub\.ai\/privacy<\/loc>/);
+      }
 
       const unauthorizedResponse = await fetch(
         `${origin}/api/admin/waitlist/stats`,
