@@ -53,7 +53,7 @@
 | 变量 | 生产值 | 说明 |
 |---|---|---|
 | `HUB_API_ORIGIN` | `https://api.dshpluginhub.ai` | 后端 origin。**本地开发**在 `.env` 设 `http://localhost:8080` |
-| `WORKOS_CLIENT_ID` | `client_01M09HAMFBJJ6T8M0ZYY69M9HP` | WorkOS AuthKit client |
+| `WORKOS_CLIENT_ID` | `client_01M09HAMW290EESBWR59D2EEAP` | WorkOS Production AuthKit client；staging 使用独立 Client ID |
 | `NEXT_PUBLIC_WORKOS_REDIRECT_URI` | `https://dshpluginhub.ai/callback` | |
 | `GITHUB_APP_ID` / `GITHUB_APP_SLUG` | `4631702` / `pax-dsh-hub` | |
 | `GITHUB_REDIRECT_URI` | `https://dshpluginhub.ai/integrations/github/oauth/callback` | |

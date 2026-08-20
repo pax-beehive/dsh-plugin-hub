@@ -24,7 +24,7 @@
   },
   "vars": {
     "HUB_API_ORIGIN": "https://api.dshpluginhub.ai",
-    "WORKOS_CLIENT_ID": "client_01M09HAMFBJJ6T8M0ZYY69M9HP",
+    "WORKOS_CLIENT_ID": "client_01M09HAMW290EESBWR59D2EEAP",
     "NEXT_PUBLIC_WORKOS_REDIRECT_URI": "https://dshpluginhub.ai/callback",
     "GITHUB_APP_ID": "4631702",
     "GITHUB_APP_SLUG": "pax-dsh-hub",
