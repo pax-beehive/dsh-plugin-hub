@@ -1,7 +1,8 @@
 # ADR 0004: Optimize Mainland China access within one deployment
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-08-21
+- Updated: 2026-08-21
 
 ## Context
 
@@ -58,25 +59,60 @@ The following invariants apply:
 - No optimization may make WorkOS session data, Dashboard content, callbacks,
   reports, integration routes, or browser mutations publicly cacheable.
 
+## Progress (2026-08-21)
+
+The decision is accepted. Code and cache batches are on `origin/main` and
+production. Remaining measurement and JavaScript work is paused, not cancelled.
+
+Shipped:
+
+- Phase 1.1–1.3: `prefetch={false}` on catalog, category, profile, pagination,
+  and guide cards; plugin icons lazy-load with fixed dimensions and low fetch
+  priority offscreen; Gravatar stays on the same-origin proxy.
+- Phase 1.4–1.5: `AuthKitProvider` lives on the Dashboard document only;
+  public pages keep first-party attribution and load gtag/oaiq with
+  `lazyOnload`.
+- Phase 2: route-specific TTLs (`stable-html` 300s+3600s SWR, `search-html`
+  120s+600s, Hub GET 300s, Hub 404 30s, icons 30d), `x-dsh-cache-policy`, and
+  HTML cache key namespace `__dsh_cache=v2`. No country vary.
+- Phase 0.3–0.4 diagnostics and bypass assertions landed with the cache work.
+
+Paused until explicitly resumed:
+
+- Phase 0.1–0.2: repeatable Beijing / Shanghai / Shenzhen probe matrix
+  (peak and off-peak).
+- Phase 3: further public-page JavaScript / chunk reduction and a CI budget.
+- Phase 4 China re-probes after those batches.
+- Acceptance items that need a CN median load ≤4.5s or ≥30% faster, and
+  `/plugins` ≤40 resources, stay open until the paused work runs.
+
+Cloudflare China Network remains deferred, not rejected.
+
 ## Delivery plan
 
 ### Phase 0: Establish the measurement and safety boundary
 
+Status: partial. Diagnostics and cache-bypass assertions shipped. The China
+probe matrix is paused.
+
 1. Record repeatable production baselines for `/`, `/plugins`, one plugin
    detail page, `/sign-in`, and `/report` from Beijing, Shanghai, and Shenzhen.
    Capture DNS, HTTP status, TTFB, complete load time, resource count, failed
-   resources, and slow resources.
+   resources, and slow resources. **Paused.**
 2. Repeat probes during peak and off-peak China hours. A single successful test
-   is evidence of reachability, not proof of reliable availability.
+   is evidence of reachability, not proof of reliable availability. **Paused.**
 3. Preserve `x-dsh-edge-cache`, `x-dsh-hub-cache`, and `Server-Timing`
    diagnostics. Add a cache-policy identifier when route-specific TTLs land so
-   production responses reveal the policy that was applied.
+   production responses reveal the policy that was applied. **Shipped**
+   (`x-dsh-cache-policy`).
 4. Add regression assertions before changing behavior: anonymous locale
    variants cache independently; authenticated, RSC, prefetch, and mutation
    requests bypass; unsuccessful or cookie-setting responses never populate
-   the public cache.
+   the public cache. **Shipped.**
 
 ### Phase 1: Eliminate eager and speculative browser work
+
+Status: shipped on production.
 
 1. Set `prefetch={false}` on high-cardinality catalog links, including plugin
    cards and repeated category, profile, pagination, and guide cards. Keep
@@ -101,6 +137,8 @@ The following invariants apply:
    install-command copying, or form readiness.
 
 ### Phase 2: Adopt route-specific cache freshness
+
+Status: shipped on production.
 
 Replace the single public 60-second policy with explicit policies:
 
@@ -132,6 +170,8 @@ Implementation requirements:
 
 ### Phase 3: Reduce public-page JavaScript
 
+Status: paused.
+
 1. Keep catalog browsing, searching, sorting, pagination, and plugin detail
    content server-rendered and usable without hydration.
 2. Hydrate only true interaction islands: language switching, package
@@ -146,12 +186,15 @@ Implementation requirements:
 
 ### Phase 4: Roll out and observe
 
+Status: partial. Batches 1–3 shipped. Batch 4 (JS/chunk reductions) and the
+China re-probe matrix are paused.
+
 Ship the work as independently reversible batches:
 
-1. prefetch and icon loading;
-2. cache-policy and cache-key changes;
-3. AuthKit and measurement boundary changes; and
-4. remaining JavaScript/chunk reductions.
+1. prefetch and icon loading; **shipped**
+2. cache-policy and cache-key changes; **shipped**
+3. AuthKit and measurement boundary changes; **shipped**
+4. remaining JavaScript/chunk reductions. **Paused.**
 
 After each batch, run `pnpm check`, deploy the exact tested revision, verify
 production cache headers and auth bypass behavior, and repeat the Mainland China
@@ -172,10 +215,12 @@ The proposal is complete when all of the following are true:
 - Offscreen plugin icons are not eagerly fetched, and icon failure does not
   require a third-party browser request.
 - Initial `/plugins` resource count falls from the observed 67 to at most 40,
-  with no increase in HTML failures or missing catalog content.
+  with no increase in HTML failures or missing catalog content. **Open; blocked
+  on paused Phase 3.**
 - Three consecutive Beijing, Shanghai, and Shenzhen probe rounds have zero
   critical failures and a median complete load time no greater than 4.5 seconds
   or at least 30 percent below the Phase 0 median, whichever target is stricter.
+  **Open; blocked on paused Phase 0 probes.**
 - The change does not introduce a second production deployment, database,
   domain, locale route tree, or release workflow.
 
