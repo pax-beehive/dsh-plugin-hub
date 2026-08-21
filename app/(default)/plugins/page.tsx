@@ -3,7 +3,6 @@ import PluginIcon from "@/components/PluginIcon";
 import PluginRecommend from "@/components/PluginRecommend";
 import {
   listCategories,
-  listSourceOnlyListings,
   searchPackages,
 } from "@/lib/hub-api";
 import { formatCompactCount, isHotWeeklyDownloads } from "@/lib/format-count";
@@ -89,15 +88,8 @@ export default async function PluginsPage({
       ? await searchPackages(q, { sort, page, limit: pageSize })
       : result;
 
-  const isFirstPage = page === 1;
-  const [sourceOnly, categories] = await Promise.all([
-    // Source-only and category rails belong to the first page only. Both
-    // degrade to [] when the backend doesn't serve those endpoints yet.
-    isFirstPage
-      ? listSourceOnlyListings({ query: q || undefined, limit: 12 })
-      : Promise.resolve([]),
-    listCategories(12),
-  ]);
+  // Category rail degrades to [] when the backend doesn't serve that endpoint yet.
+  const categories = await listCategories(12);
 
   const pageHref = (target: { page?: number; sort?: Sort }) => {
     const search = new URLSearchParams();
@@ -236,44 +228,6 @@ export default async function PluginsPage({
           </nav>
         ) : null}
       </section>
-      {sourceOnly.length ? (
-        <section className="catalog-section source-only-section" aria-label={t.plugins.sourceOnlyTitle}>
-          <div className="catalog-section-heading">
-            <h2>{t.plugins.sourceOnlyTitle}</h2>
-            <span>{t.plugins.count(sourceOnly.length)}</span>
-          </div>
-          <p className="source-only-intro">{t.plugins.sourceOnlyIntro}</p>
-          <div className="plugin-grid">
-            {sourceOnly.map((repo) => (
-              <a
-                className="plugin-card source-card"
-                href={`https://github.com/${repo.fullName}`}
-                key={repo.fullName}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <div className="plugin-card-topline">
-                  <span className="plugin-icon source-icon" aria-hidden="true">
-                    {repo.fullName.split("/")[1]?.slice(0, 1).toUpperCase() ?? "G"}
-                  </span>
-                  <span className="plugin-version">★ {repo.stars}</span>
-                </div>
-                <h3>
-                  {repo.fullName.split("/")[1] ?? repo.fullName}
-                  <span className="source-badge">{t.plugins.sourceOnlyBadge}</span>
-                </h3>
-                <code>{repo.fullName}</code>
-                <p>{repo.description}</p>
-                <div className="plugin-tags">
-                  {repo.language ? <span>{repo.language}</span> : null}
-                  {repo.license ? <span>{repo.license}</span> : null}
-                  <span>{t.plugins.sourceOnlyCta} ↗</span>
-                </div>
-              </a>
-            ))}
-          </div>
-        </section>
-      ) : null}
     </main>
   );
 }
