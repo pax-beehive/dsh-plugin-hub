@@ -18,23 +18,22 @@ const registrySearchEnvelopeSchema = z
 
 // A single malformed catalog record should not turn the whole search page
 // into a 500. Keep the response envelope strict, but quarantine bad items.
+// A bad card must not hide pagination for 3800 other plugins.
 export function parseRegistrySearchResponse(payload: unknown): {
   items: PluginSummary[];
   nextCursor: string | null;
   total?: number;
 } {
   const envelope = registrySearchEnvelopeSchema.parse(payload);
-  let quarantined = false;
   const items = envelope.items.flatMap((item) => {
     const parsed = pluginSummarySchema.safeParse(item);
     if (parsed.success) return [parsed.data];
-    quarantined = true;
     return [];
   });
 
   return {
     items,
     nextCursor: envelope.nextCursor,
-    ...(quarantined || envelope.total === undefined ? {} : { total: envelope.total }),
+    ...(typeof envelope.total === "number" ? { total: envelope.total } : {}),
   };
 }

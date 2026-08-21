@@ -22,7 +22,7 @@ test("quarantines malformed search items without rejecting the page", () => {
   });
 
   assert.deepEqual(result.items.map((item) => item.slug), ["hello-dsh"]);
-  assert.equal(result.total, undefined);
+  assert.equal(result.total, 2);
   assert.equal(result.nextCursor, null);
 });
 
@@ -35,6 +35,16 @@ test("preserves totals when every search item is valid", () => {
 
   assert.equal(result.total, 1);
   assert.equal(result.items[0]?.weeklyDownloads, 42);
+});
+
+test("omits total when the envelope does not include it", () => {
+  const result = parseRegistrySearchResponse({
+    items: [validItem],
+    nextCursor: null,
+  });
+
+  assert.equal(result.total, undefined);
+  assert.deepEqual(result.items.map((item) => item.slug), ["hello-dsh"]);
 });
 
 test("keeps the response envelope strict", () => {
