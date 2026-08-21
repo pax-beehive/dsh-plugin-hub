@@ -42,3 +42,18 @@ test("keeps the response envelope strict", () => {
     parseRegistrySearchResponse({ items: [], nextCursor: null, unexpected: true }),
   );
 });
+
+test("keeps weeklyDownloads on valid items and defaults missing to 0", () => {
+  const withField = parseRegistrySearchResponse({
+    items: [{ ...validItem, weeklyDownloads: 78643 }],
+    nextCursor: null,
+    total: 1,
+  });
+  assert.equal(withField.items[0]?.weeklyDownloads, 78643);
+  const withoutField = parseRegistrySearchResponse({
+    items: [validItem],
+    nextCursor: null,
+    total: 1,
+  });
+  assert.equal(withoutField.items[0]?.weeklyDownloads, 0);
+});

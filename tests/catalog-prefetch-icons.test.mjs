@@ -6,6 +6,7 @@ const files = {
   icon: new URL("../components/PluginIcon.tsx", import.meta.url),
   header: new URL("../components/HubHeader.tsx", import.meta.url),
   plugins: new URL("../app/(default)/plugins/page.tsx", import.meta.url),
+  categoriesIndex: new URL("../app/(default)/categories/page.tsx", import.meta.url),
   category: new URL("../app/(default)/categories/[category]/page.tsx", import.meta.url),
   profiles: new URL("../app/(default)/profiles/page.tsx", import.meta.url),
   docs: new URL("../app/(default)/docs/page.tsx", import.meta.url),
@@ -32,7 +33,7 @@ function assertPrefetchDisabled(tags, label) {
 }
 
 test("catalog plugin cards, category chips, and pagination disable prefetch", async () => {
-  const [plugins, category] = await Promise.all([source("plugins"), source("category")]);
+  const [plugins, category, categoriesIndex] = await Promise.all([source("plugins"), source("category"), source("categoriesIndex")]);
 
   assertPrefetchDisabled(linksContaining(plugins, "plugin-card"), "plugin-card");
   assertPrefetchDisabled(linksContaining(category, "plugin-card"), "category plugin-card");
@@ -44,6 +45,11 @@ test("catalog plugin cards, category chips, and pagination disable prefetch", as
   assertPrefetchDisabled(
     linksContaining(category, "/categories/${encodeURIComponent(entry.name)}"),
     "category chip",
+  );
+  assertPrefetchDisabled(linksContaining(categoriesIndex, "plugin-card"), "index plugin-card");
+  assertPrefetchDisabled(
+    linksContaining(categoriesIndex, "/categories/${encodeURIComponent(entry.name)}"),
+    "index category heading",
   );
 });
 
