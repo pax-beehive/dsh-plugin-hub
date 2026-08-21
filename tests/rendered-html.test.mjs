@@ -99,7 +99,8 @@ test("catalog header includes the shared sign-in action", async () => {
   assert.match(header, /className="hub-signin-link" href="\/sign-in"/);
   assert.match(header, /t\.nav\.signIn/);
   assert.match(logo, /src="\/deepseek-whale-black\.svg"/);
-  assert.match(styles, /padding: 13px max\(20px, calc\(50% - 450px\)\)/);
+  assert.match(styles, /padding: 13px max\(20px, calc\(50% - 590px\)\)/);
+  assert.match(styles, /\.catalog-section \{\s+width: min\(1180px, calc\(100% - 40px\)\)/);
 });
 
 test("homepage hero entry animates without forcing motion", async () => {

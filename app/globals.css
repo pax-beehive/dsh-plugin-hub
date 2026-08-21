@@ -2236,7 +2236,7 @@ body {
   z-index: 20;
   top: 0;
   width: 100%;
-  padding: 13px max(20px, calc(50% - 450px));
+  padding: 13px max(20px, calc(50% - 590px));
   border-bottom: 1px solid var(--line);
   background: rgb(250 251 253 / 85%);
   backdrop-filter: saturate(160%) blur(12px);
