@@ -58,6 +58,13 @@ a {
   mask-image: radial-gradient(900px 520px at 50% 8%, #000 30%, transparent 75%);
 }
 
+.hero-wave {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
 .whale-watermark {
   position: absolute;
   z-index: 0;

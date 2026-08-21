@@ -1,3 +1,4 @@
+import HeroWave from "@/components/HeroWave";
 import HubHeader from "@/components/HubHeader";
 import Image from "next/image";
 import Link from "next/link";
@@ -155,6 +156,7 @@ export default function HomePage({
           __html: JSON.stringify(pageStructuredData(language)),
         }}
       />
+      <HeroWave />
       <div className="grid-glow" aria-hidden="true" />
       <Image
         className="whale-watermark"
