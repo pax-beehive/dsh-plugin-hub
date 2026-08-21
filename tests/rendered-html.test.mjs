@@ -39,16 +39,16 @@ test("server-renders the Plugin Hub coming-soon page", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /^<!DOCTYPE html><html lang="zh-CN">/i);
+  assert.match(html, /^<!DOCTYPE html><html lang="en">/i);
   assert.match(
     html,
-    /<title>DSH Plugin Hub — DeepSeek Harness 插件目录、Profiles 与安装社区<\/title>/i,
+    /<title>DSH plugin registry — exact versions, manifests, one-command installs<\/title>/i,
   );
   assert.match(html, /NOW LIVE/);
   assert.match(html, /Plugin Hub/);
-  assert.match(html, /非官方社区项目/);
-  assert.match(html, /为 Harness 插件生态而建的社区入口/);
-  assert.match(html, /DeepSeek Harness Plugin Hub 是什么？/);
+  assert.match(html, /unofficial community project/i);
+  assert.match(html, /A community entry point for the Harness plugin ecosystem/);
+  assert.match(html, /What is the DSH plugin registry?/);
   assert.match(html, /href="\/plugins"/);
   assert.match(html, /class="hub-header"/);
   assert.match(html, /href="\/sign-in" class="hub-signin-link">登录<\/a>/);
@@ -77,6 +77,33 @@ test("server-renders the Plugin Hub coming-soon page", async () => {
   assert.doesNotMatch(html, /codex-preview|Building your site/i);
 });
 
+test("server-renders Chinese when Accept-Language prefers Chinese", async () => {
+  const response = await render("/", { "accept-language": "zh-CN,zh;q=0.9,en;q=0.8" });
+  assert.equal(response.status, 200);
+
+  const html = await response.text();
+  assert.match(html, /^<!DOCTYPE html><html lang="zh-CN">/i);
+  assert.match(
+    html,
+    /<title>DSH 插件注册表 — 精确版本、manifest 与一键安装<\/title>/i,
+  );
+  assert.match(html, /非官方社区项目/);
+  assert.match(html, /为 Harness 插件生态而建的社区入口/);
+  assert.match(html, /DSH 插件注册表是什么？/);
+});
+
+test("server-renders Chinese when the locale cookie is zh", async () => {
+  const response = await render("/", {
+    cookie: "dsh-hub-locale=zh",
+    "accept-language": "en-US,en;q=0.9",
+  });
+  assert.equal(response.status, 200);
+
+  const html = await response.text();
+  assert.match(html, /^<!DOCTYPE html><html lang="zh-CN">/i);
+  assert.match(html, /DSH 插件注册表是什么？/);
+});
+
 test("server-renders English on the same URL from the locale cookie", async () => {
   const response = await render("/", { cookie: "dsh-hub-locale=en" });
   assert.equal(response.status, 200);
@@ -84,11 +111,11 @@ test("server-renders English on the same URL from the locale cookie", async () =
   const html = await response.text();
   assert.match(
     html,
-    /<title>DSH Plugin Hub — DeepSeek Harness Plugins, Profiles &amp; Docs<\/title>/i,
+    /<title>DSH plugin registry — exact versions, manifests, one-command installs<\/title>/i,
   );
   assert.match(html, /^<!DOCTYPE html><html lang="en">/i);
-  assert.match(html, /An open community hub to discover, share, and install Harness plugins/);
-  assert.match(html, /What is DeepSeek Harness Plugin Hub\?/);
+  assert.match(html, /Exact versions, verified manifests, and one-command installs for DeepSeek Harness plugins/);
+  assert.match(html, /What is the DSH plugin registry?/);
   assert.match(html, /class="hub-header"/);
   assert.match(html, /href="\/sign-in" class="hub-signin-link">Sign in<\/a>/);
   assert.match(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/?"/);
@@ -157,11 +184,12 @@ test("homepage hero entry animates without forcing motion", async () => {
 });
 
 test("plugin catalog and details render backend-provided icon URLs", async () => {
-  const [component, catalog, category, detail] = await Promise.all([
+  const [component, catalog, category, categoriesIndex, detail] = await Promise.all([
     readFile(new URL("../components/PluginIcon.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/(default)/plugins/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/(default)/categories/[category]/page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/(default)/plugins/[slug]/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/(default)/categories/page.tsx", import.meta.url), "utf8"),
+        readFile(new URL("../app/(default)/plugins/[slug]/page.tsx", import.meta.url), "utf8"),
   ]);
 
   assert.match(component, /const src = pluginIconUrl\(iconUrl\)/);
@@ -172,7 +200,7 @@ test("plugin catalog and details render backend-provided icon URLs", async () =>
   assert.match(component, /width=\{size\}/);
   assert.match(component, /height=\{size\}/);
   assert.doesNotMatch(component, /gravatar\.com/);
-  for (const source of [catalog, category, detail]) {
+  for (const source of [catalog, category, categoriesIndex, detail]) {
     assert.match(source, /<PluginIcon/);
     assert.match(source, /iconUrl=\{plugin\.iconUrl\}/);
   }
@@ -267,6 +295,7 @@ test("serves the vinext hydration manifest directly from Worker assets", async (
     "/robots.txt",
     "/sitemap.xml",
     "/sitemap/*",
+    "/status",
   ]);
 });
 
@@ -274,17 +303,31 @@ test("homepage H1 includes the space and a site nav", async () => {
   const html = await (await render()).text();
   assert.match(
     html,
-    /<h1>DeepSeek Harness(?:<!-- -->)?\s+<span>Plugin Hub<\/span><\/h1>/,
+    /<h1>DeepSeek Harness(?:<!-- -->)?\s+<span>plugin registry<\/span><\/h1>/,
   );
   assert.match(html, /<nav class="hub-nav"[^>]*>/);
   assert.match(html, /href="\/docs"/);
+  assert.match(html, /href="\/status"/);
   assert.match(html, /href="\/profiles"/);
   assert.match(
     html,
     /<a(?=[^>]*class="brand")(?=[^>]*href="\/")[^>]*>/,
   );
   assert.doesNotMatch(html, /class="brand" href="#top"/);
-  assert.doesNotMatch(html, /DeepSeek HarnessPlugin Hub/);
+  assert.doesNotMatch(html, /DeepSeek Harnessplugin registry/);
+});
+
+test("status page self-canonicals and does not reuse the homepage og:url", async () => {
+  const response = await render("/status");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/status"/);
+  assert.match(html, /property="og:url" content="https:\/\/dshpluginhub\.ai\/status"/);
+  assert.doesNotMatch(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/"/);
+  assert.doesNotMatch(
+    html,
+    /rel="alternate" type="text\/markdown" href="https:\/\/dshpluginhub\.ai\/index\.md"/,
+  );
 });
 
 test("docs page does not advertise the homepage markdown alternate", async () => {
@@ -321,7 +364,7 @@ test("404 metadata is noindex only and does not reuse the homepage", async () =>
   assert.doesNotMatch(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/"/);
   assert.doesNotMatch(
     html,
-    /<title>DSH Plugin Hub — DeepSeek Harness 插件目录、Profiles 与安装社区<\/title>/,
+    /<title>DSH 插件注册表 — 精确版本、manifest 与一键安装<\/title>/,
   );
   assert.doesNotMatch(html, /property="og:url" content="https:\/\/dshpluginhub\.ai\/"/);
 });
@@ -330,8 +373,20 @@ test("indexable pages send a short public cache and auth stays no-store", async 
   const home = await render("/");
   assert.match(
     home.headers.get("cache-control") ?? "",
-    /public,\s*s-maxage=60/,
+    /public,\s*s-maxage=300/,
   );
   const dashboard = await render("/dashboard");
   assert.match(dashboard.headers.get("cache-control") ?? "", /no-store/);
+});
+
+test("file-reading: categories index and homepage titles exist", async () => {
+  const [categoriesIndex, homePage, sitemapLib] = await Promise.all([
+    readFile(new URL("../app/(default)/categories/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/(default)/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../lib/sitemap.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(categoriesIndex, /CategoriesIndexPage/);
+  assert.match(categoriesIndex, /listCategories/);
+  assert.match(sitemapLib, /absoluteUrl\("\/categories"\)/);
+  assert.match(homePage, /plugin registry — exact versions/);
 });
