@@ -1,7 +1,6 @@
 import AdPixels from "@/components/AdPixels";
 import AttributionCapture from "@/components/AttributionCapture";
 import { attributionBootstrapScript } from "@/lib/attribution";
-import { AuthKitProvider } from "@workos-inc/authkit-nextjs/components";
 import { Geist, Geist_Mono } from "next/font/google";
 
 const geistSans = Geist({
@@ -85,7 +84,7 @@ export default function SiteDocument({
           signupLabel={process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL_SIGNUP}
           chatgptPixelId={process.env.NEXT_PUBLIC_CHATGPT_PIXEL_ID}
         />
-        <AuthKitProvider>{children}</AuthKitProvider>
+        {children}
       </body>
     </html>
   );
