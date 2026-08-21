@@ -17,6 +17,13 @@ export const dynamic = "force-dynamic";
 
 const PREVIEW_LIMIT = 4;
 
+function categoryTitle(entry: CategoryCount, locale: "zh" | "en"): string {
+  if (locale === "zh") {
+    return entry.displayNameZh || entry.displayName || entry.name;
+  }
+  return entry.displayName || entry.name;
+}
+
 async function safeSearchPackages(
   query: string,
   options?: { limit?: number; category?: string },
@@ -107,7 +114,7 @@ export default async function CategoriesIndexPage() {
                 <div className="catalog-section-heading">
                   <h2>
                     <Link href={`/categories/${encodeURIComponent(entry.name)}`} prefetch={false}>
-                      {entry.name}
+                      {categoryTitle(entry, locale)}
                     </Link>
                   </h2>
                   <span>{t.plugins.count(entry.count)}</span>

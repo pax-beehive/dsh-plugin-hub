@@ -37,6 +37,19 @@ test("static sitemap omits /report and uses the trailing-slash homepage", () => 
   );
 });
 
+test("sitemap includes /categories and each taxonomy child URL", () => {
+  const shards = buildSitemapShards({
+    categories: [
+      { name: "agents-orchestration" },
+      { name: "memory-context" },
+    ],
+  });
+  const urls = allSitemapEntries(shards).map((entry) => entry.url);
+  assert.ok(urls.includes("https://dshpluginhub.ai/categories"));
+  assert.ok(urls.includes("https://dshpluginhub.ai/categories/agents-orchestration"));
+  assert.ok(urls.includes("https://dshpluginhub.ai/categories/memory-context"));
+});
+
 test("lists every catalog page using the same page/total contract as /plugins", async () => {
   const total = 67;
   const search: PackageSearch = async (_query, options) => {
