@@ -12,6 +12,7 @@ import {
 import { z } from "zod";
 import { fetchHub } from "./cloudflare-fetch";
 import {
+  categoryLabel,
   parseCategoryCountResponse,
   type CategoryCount,
 } from "./category-count-response";
@@ -21,6 +22,7 @@ import {
 } from "./registry-search-response";
 
 export type { CategoryCount, PluginSummary };
+export { categoryLabel };
 
 const ownedPluginSummarySchema = z
   .object({

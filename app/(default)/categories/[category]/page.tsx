@@ -1,6 +1,6 @@
 import HubHeader from "@/components/HubHeader";
 import PluginIcon from "@/components/PluginIcon";
-import { listCategories, searchPackages } from "@/lib/hub-api";
+import { categoryLabel, listCategories, searchPackages } from "@/lib/hub-api";
 import { formatCompactCount, isHotWeeklyDownloads } from "@/lib/format-count";
 import { hubCopy, localeTags } from "@/lib/i18n";
 import { getHubLocale } from "@/lib/i18n-server";
@@ -18,14 +18,17 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const category = decodeURIComponent((await params).category).slice(0, 60);
   const locale = await getHubLocale();
+  const categories = await listCategories(50);
+  const current = categories.find((entry) => entry.name === category);
+  const label = categoryLabel(current ?? { name: category, count: 0 }, locale);
   const title =
     locale === "en"
-      ? `${category} DSH plugins — verified manifests and exact versions`
-      : `${category} 类 DSH 插件 — 已校验 manifest 与精确版本`;
+      ? `${label} DSH plugins — verified manifests and exact versions`
+      : `${label} 类 DSH 插件 — 已校验 manifest 与精确版本`;
   const description =
     locale === "en"
-      ? `Browse verified ${category} plugins for DeepSeek Harness (dsh): exact versions, compatibility, and one-command installs.`
-      : `浏览经过校验的 DeepSeek Harness（dsh）${category}类插件：精确版本、兼容范围与一键安装命令。`;
+      ? `Browse verified ${label} plugins for DeepSeek Harness (dsh): exact versions, compatibility, and one-command installs.`
+      : `浏览经过校验的 DeepSeek Harness（dsh）${label}类插件：精确版本、兼容范围与一键安装命令。`;
   return pageMetadata({
     path: `/categories/${encodeURIComponent(category)}`,
     title,
@@ -48,6 +51,8 @@ export default async function CategoryPage({
     listCategories(50),
   ]);
   const items = result.items;
+  const current = categories.find((entry) => entry.name === category);
+  const label = categoryLabel(current ?? { name: category, count: 0 }, locale);
 
   return (
     <main className="hub-shell">
@@ -57,7 +62,7 @@ export default async function CategoryPage({
       <HubHeader locale={locale} />
       <section className="catalog-hero compact">
         <p className="catalog-eyebrow">CATEGORY</p>
-        <h1>{t.plugins.categoryResult(category)}</h1>
+        <h1>{t.plugins.categoryResult(label)}</h1>
         <p>{t.plugins.categoryIntro}</p>
         <nav className="category-rail" aria-label={t.plugins.allCategories}>
           <Link href="/categories" prefetch={false}>
@@ -71,13 +76,13 @@ export default async function CategoryPage({
               key={entry.name}
               prefetch={false}
             >
-              {entry.name}
+              {categoryLabel(entry, locale)}
               <span>{entry.count}</span>
             </Link>
           ))}
         </nav>
       </section>
-      <section className="catalog-section" aria-label={t.plugins.categoryResult(category)}>
+      <section className="catalog-section" aria-label={t.plugins.categoryResult(label)}>
         <div className="catalog-section-heading">
           <h2>{t.plugins.all}</h2>
           <span>{t.plugins.count(items.length)}</span>

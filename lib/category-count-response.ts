@@ -25,3 +25,13 @@ export type CategoryCount = z.infer<typeof categoryItemSchema>;
 export function parseCategoryCountResponse(payload: unknown): CategoryCount[] {
   return categoryCountSchema.parse(payload).items;
 }
+
+export function categoryLabel(
+  entry: Pick<CategoryCount, "name" | "displayName" | "displayNameZh">,
+  locale: "zh" | "en",
+): string {
+  if (locale === "zh") {
+    return entry.displayNameZh || entry.displayName || entry.name;
+  }
+  return entry.displayName || entry.name;
+}
