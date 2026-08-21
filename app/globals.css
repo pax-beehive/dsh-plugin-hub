@@ -3832,6 +3832,45 @@ body {
 .site-shell--ocean .whale-watermark {
   opacity: 0.11;
   filter: invert(1);
+  animation: whale-swim 24s ease-in-out infinite;
+}
+
+/* Mid-hero cruise: left-of-center ↔ right-of-center, sine-like bob, slight bank.
+   Swim offsets are baked into translate(-50%, -54%) so centering is not overwritten. */
+@keyframes whale-swim {
+  0% {
+    transform: translate(calc(-50% - 11vw), calc(-54% + 0px)) rotate(-4deg);
+  }
+  12.5% {
+    transform: translate(calc(-50% - 6vw), calc(-54% - 22px)) rotate(-6deg);
+  }
+  25% {
+    transform: translate(calc(-50% + 0vw), calc(-54% + 4px)) rotate(-1deg);
+  }
+  37.5% {
+    transform: translate(calc(-50% + 6vw), calc(-54% + 20px)) rotate(4deg);
+  }
+  50% {
+    transform: translate(calc(-50% + 11vw), calc(-54% - 2px)) rotate(6deg);
+  }
+  62.5% {
+    transform: translate(calc(-50% + 6vw), calc(-54% - 22px)) rotate(3deg);
+  }
+  75% {
+    transform: translate(calc(-50% + 0vw), calc(-54% + 6px)) rotate(-2deg);
+  }
+  87.5% {
+    transform: translate(calc(-50% - 6vw), calc(-54% + 20px)) rotate(-5deg);
+  }
+  100% {
+    transform: translate(calc(-50% - 11vw), calc(-54% + 0px)) rotate(-4deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-shell--ocean .whale-watermark {
+    animation: none;
+  }
 }
 
 .site-shell--ocean .grid-glow {
