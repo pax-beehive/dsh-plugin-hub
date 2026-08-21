@@ -24,8 +24,8 @@ export async function fetchHub(
         cf: {
           cacheEverything: true,
           cacheTtlByStatus: {
-            "200-299": 60,
-            "404": 10,
+            "200-299": 300,
+            "404": 30,
             "500-599": 0,
           },
         },

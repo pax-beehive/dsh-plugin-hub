@@ -1,6 +1,7 @@
 import HomePage from "@/components/HomePage";
 import { getHubLocale } from "@/lib/i18n-server";
 import { homePageMetadata } from "@/lib/page-metadata";
+import { SITE_HOME } from "@/lib/site-url";
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -21,5 +22,13 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  return <HomePage initialLanguage={await getHubLocale()} />;
+  return (
+    <>
+      {/* Vinext's metadata URL formatter strips the homepage trailing slash.
+          Emit the tags as raw document metadata so the slash cannot disappear. */}
+      <link rel="canonical" href={SITE_HOME} />
+      <meta property="og:url" content={SITE_HOME} />
+      <HomePage initialLanguage={await getHubLocale()} />
+    </>
+  );
 }

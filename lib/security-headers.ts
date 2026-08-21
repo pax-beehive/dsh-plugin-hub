@@ -24,7 +24,7 @@ export function withSecurityHeaders(response: Response, request?: Request) {
   headers.set("x-content-type-options", "nosniff");
   headers.set("x-frame-options", "DENY");
   if (request) {
-    applyCacheHeaders(headers, request);
+    applyCacheHeaders(headers, request, response.status);
   }
 
   return new Response(response.body, {
