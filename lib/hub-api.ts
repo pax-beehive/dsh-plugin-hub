@@ -123,9 +123,6 @@ export async function searchPackages(
 }> {
   const params = new URLSearchParams({ q: query });
   if (options?.limit !== undefined) params.set("limit", String(options.limit));
-  // page/sort/category are newer capabilities: backends that don't support
-  // them ignore the params and omit `total` from the response, and the
-  // frontend degrades to a single-page listing.
   if (options?.page !== undefined && options.page > 1)
     params.set("page", String(options.page));
   if (options?.cursor) params.set("cursor", options.cursor);
@@ -146,8 +143,6 @@ const categoryCountSchema = z
 
 export type CategoryCount = z.infer<typeof categoryCountSchema>["items"][number];
 
-// Category rail. Endpoint may not exist on older backends — degrade to an
-// empty rail rather than breaking the catalog page.
 export async function listCategories(limit = 12): Promise<CategoryCount[]> {
   try {
     const response = await hubFetch(`/api/v1/categories?limit=${limit}`);
@@ -175,8 +170,6 @@ const sourceOnlyResponseSchema = z
 
 export type SourceOnlyListing = z.infer<typeof sourceOnlyListingSchema>;
 
-// GitHub source-only listings (repos with ecosystem topics but no npm package
-// yet). Same degradation contract as listCategories.
 export async function listSourceOnlyListings(input?: {
   query?: string;
   limit?: number;
@@ -190,6 +183,43 @@ export async function listSourceOnlyListings(input?: {
     return sourceOnlyResponseSchema.parse(await response.json()).items;
   } catch {
     return [];
+  }
+}
+
+const syncStatusSchema = z
+  .object({
+    summary: z.array(
+      z
+        .object({
+          status: z.string(),
+          count: z.number().int().nonnegative(),
+        })
+        .strict(),
+    ),
+    recent: z.array(
+      z
+        .object({
+          packageName: z.string(),
+          status: z.string(),
+          packageKind: z.string().nullable(),
+          lastSyncedAt: z.string().nullable(),
+          lastError: z.string().nullable(),
+        })
+        .strict(),
+    ),
+    sourceOnlyCount: z.number().int().nonnegative(),
+  })
+  .strict();
+
+export type SyncStatus = z.infer<typeof syncStatusSchema>;
+
+export async function getSyncStatus(): Promise<SyncStatus | null> {
+  try {
+    const response = await hubFetch("/api/v1/status");
+    if (!response.ok) return null;
+    return syncStatusSchema.parse(await response.json());
+  } catch {
+    return null;
   }
 }
 
