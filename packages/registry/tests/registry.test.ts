@@ -10,6 +10,8 @@ import {
   detectEntryIdConflicts,
   orderProfileBundles,
   resolvePluginVersion,
+  resolveProfile,
+  validateProfileBundleOrder,
 } from "../src/index.ts";
 
 function version(value: string, yanked = false): PluginVersion {
@@ -98,6 +100,18 @@ test("rejects cyclic profile layer constraints", () => {
   );
 });
 
+test("validates a published Profile sequence without reordering it", () => {
+  const bundles: ProfileBundle[] = [
+    { packageName: "dsh-search", selector: "latest", before: ["dsh-memory"], after: [] },
+    { packageName: "dsh-memory", selector: "latest", before: [], after: [] },
+  ];
+  assert.deepEqual(validateProfileBundleOrder(bundles).map((bundle) => bundle.packageName), ["dsh-search", "dsh-memory"]);
+  assert.throws(
+    () => validateProfileBundleOrder([...bundles].reverse()),
+    (error) => error instanceof RegistryResolutionError && error.code === "ORDER_CONSTRAINT",
+  );
+});
+
 test("reports duplicate Cordis entry ids before a profile is applied", () => {
   const first = version("1.0.0");
   first.entryIds = ["storage", "memory"];
@@ -111,4 +125,15 @@ test("reports duplicate Cordis entry ids before a profile is applied", () => {
     ]),
     [{ entryId: "storage", packages: ["dsh-a", "dsh-b"] }],
   );
+});
+
+test("resolves installation-owned DSH bundles without Registry records", () => {
+  const resolved = resolveProfile({
+    schemaVersion: 1, version: "1.0.0", name: "Web", description: "", dsh: "^0.1.0",
+    runtime: { range: "^0.1.0", version: "0.1.0-rc.7" },
+    bundles: [{ packageName: "@deepseek-ai/dsh-base", selector: "builtin", version: "0.1.0-rc.7", sourceKind: "builtin", before: [], after: [] }],
+    patch: [], inputs: [], publishedAt: "2026-08-21T00:00:00.000Z",
+  }, new Map());
+  assert.equal(resolved.bundles[0]?.sourceKind, "builtin");
+  assert.equal(resolved.bundles[0]?.version, "0.1.0-rc.7");
 });

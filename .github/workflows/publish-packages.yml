@@ -26,3 +26,4 @@ jobs:
       - run: pnpm --filter @dsh-plugin-hub/schemas publish --access public --provenance --no-git-checks
       - run: pnpm --filter @dsh-plugin-hub/registry publish --access public --provenance --no-git-checks
       - run: pnpm --filter @dsh-plugin-hub/cli publish --access public --provenance --no-git-checks
+      - run: pnpm --filter @dsh-plugin-hub/dsh-plugin publish --access public --provenance --no-git-checks
