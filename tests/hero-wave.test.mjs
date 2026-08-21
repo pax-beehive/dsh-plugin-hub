@@ -43,8 +43,15 @@ test("HeroWave is a WebGL2 client island with reduced-motion and power caps", ()
   assert.match(wave, /\bfbm\b/);
   assert.match(wave, /curl/i);
   assert.match(wave, /FLOW_SCALE = 4/);
+  assert.match(wave, /\* 16\.0/);
+  assert.match(wave, /flow \* 0\.55/);
+  assert.match(wave, /brush \*= 0\.93/);
+  assert.match(wave, /\(x - mouse\.x\) \* 6/);
+  assert.match(wave, /width: ["']100%["']/);
+  assert.match(wave, /height: ["']100%["']/);
   assert.doesNotMatch(wave, /from ["']three(?:\/.+)?["']/);
   assert.doesNotMatch(wave, /THREE\./);
+  assert.doesNotMatch(wave, /Windows|userAgent|win32/);
 });
 
 test("hero-wave CSS is a full-bleed inert layer", () => {

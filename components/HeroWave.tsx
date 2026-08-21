@@ -20,15 +20,20 @@ out vec4 fragColor;
 
 void main() {
   vec2 uv = gl_FragCoord.xy * uTexel;
-  vec2 prev = texture(uPrev, uv).xy * 2.0 - 1.0;
-  vec2 next = prev * uDecay;
+  vec4 prevTex = texture(uPrev, uv);
+  float presence = prevTex.r * uDecay;
+  vec2 vel = prevTex.gb * 2.0 - 1.0;
+  vel *= uDecay;
   if (uBrush > 0.001) {
     vec2 delta = uv - uMouse.xy;
-    float falloff = exp(-dot(delta, delta) * 52.0);
-    next += uMouse.zw * falloff * uBrush;
+    float falloff = exp(-dot(delta, delta) * 16.0);
+    float stamp = falloff * uBrush;
+    presence = max(presence, stamp);
+    vel += uMouse.zw * stamp * 1.85;
   }
-  next = clamp(next, vec2(-1.0), vec2(1.0));
-  fragColor = vec4(next * 0.5 + 0.5, 0.5, 1.0);
+  vel = clamp(vel, vec2(-1.0), vec2(1.0));
+  presence = clamp(presence, 0.0, 1.0);
+  fragColor = vec4(presence, vel * 0.5 + 0.5, 1.0);
 }
 `;
 
@@ -79,9 +84,14 @@ vec2 curlFbm(vec2 p, float t) {
 void main() {
   vec2 uv = gl_FragCoord.xy / uResolution;
   vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
-  vec2 flow = texture(uFlow, uv).xy * 2.0 - 1.0;
+  vec4 flowTex = texture(uFlow, uv);
+  float presence = flowTex.r;
+  vec2 flow = flowTex.gb * 2.0 - 1.0;
   vec2 p = uv * aspect;
-  p += flow * 0.24;
+  p += flow * 0.55;
+  float mag = length(flow);
+  vec2 swirl = vec2(-flow.y, flow.x) * presence * mag;
+  p += swirl * 0.20;
   vec2 curl = curlFbm(p * 1.65, uTime);
   p += curl * 0.05;
   float field = fbm(p * 2.35 + vec2(uTime * 0.032, -uTime * 0.021));
@@ -97,6 +107,7 @@ void main() {
   color += (tint - wash) * luma * bloom * 0.28;
   float crest = smoothstep(0.55, 0.78, field);
   color += mist * crest * luma * 0.08;
+  color += brand * luma * presence * (0.24 + mag * 0.38);
   float falloff = mix(0.42, 1.0, smoothstep(1.05, 0.28, uv.y));
   color = mix(wash, color, falloff);
   fragColor = vec4(color, 1.0);
@@ -256,7 +267,7 @@ export default function HeroWave() {
       const swap = flowA;
       flowA = flowB;
       flowB = swap;
-      brush *= 0.86;
+      brush *= 0.93;
       mouse.vx *= 0.82;
       mouse.vy *= 0.82;
 
@@ -285,8 +296,8 @@ export default function HeroWave() {
       if (rect.width === 0 || rect.height === 0) return;
       const x = (event.clientX - rect.left) / rect.width;
       const y = 1 - (event.clientY - rect.top) / rect.height;
-      mouse.vx = x - mouse.x;
-      mouse.vy = y - mouse.y;
+      mouse.vx = Math.max(-1, Math.min(1, (x - mouse.x) * 6));
+      mouse.vy = Math.max(-1, Math.min(1, (y - mouse.y) * 6));
       mouse.x = x;
       mouse.y = y;
       brush = 1;
