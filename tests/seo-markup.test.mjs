@@ -36,6 +36,6 @@ test("markdown alternate is not sitewide in SiteDocument", () => {
 test("sitemap shards plugin URLs and drops /report", () => {
   assert.match(sitemap, /generateSitemaps/);
   assert.match(sitemap, /listAllPackages/);
-  assert.doesNotMatch(sitemap, /absoluteUrl\(\"\/report\"\)|\/report`/);
+  assert.doesNotMatch(sitemap, /absoluteUrl\("\/report"\)|\/report`/);
   assert.match(wrangler, /\/sitemap\/\*/);
 });

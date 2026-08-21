@@ -1,4 +1,5 @@
 import HubHeader, { HubFooter } from "@/components/HubHeader";
+import PluginIcon from "@/components/PluginIcon";
 import PluginInstallCommand from "@/components/PluginInstallCommand";
 import { hubCopy, localeTags } from "@/lib/i18n";
 import { getPackageBySlug } from "@/lib/hub-api";
@@ -82,9 +83,11 @@ export default async function PluginDetailPage({
         <section className="detail-main">
           <Link className="detail-back" href="/plugins">← Plugins</Link>
           <div className="detail-title-row">
-            <span className="detail-icon" aria-hidden="true">
-              {plugin.displayName.slice(0, 1).toUpperCase()}
-            </span>
+            <PluginIcon
+              className="detail-icon"
+              displayName={plugin.displayName}
+              iconUrl={plugin.iconUrl}
+            />
             <div>
               <p className="detail-package-name">{plugin.packageName}</p>
               <h1>

@@ -2,7 +2,7 @@ import { env } from "cloudflare:workers";
 import type { AdsEnv } from "./collect.ts";
 
 function read(name: string): string | undefined {
-  const fromWorker = (env as Record<string, string | undefined>)[name];
+  const fromWorker = (env as unknown as Record<string, string | undefined>)[name];
   return fromWorker || process.env[name];
 }
 

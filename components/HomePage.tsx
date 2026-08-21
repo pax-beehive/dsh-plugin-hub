@@ -1,3 +1,4 @@
+import BrandLogo from "@/components/BrandLogo";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import Image from "next/image";
 import Link from "next/link";
@@ -16,6 +17,7 @@ const copy = {
     accent: "Plugin Hub",
     intro: "一个集中发现、分享与安装 Harness 插件的开放社区。",
     exploreHub: "进入 Hub",
+    signIn: "登录",
     publishCta: "发布插件",
     disclaimer:
       "非官方社区项目，由社区独立创建和维护，与 DeepSeek 官方无隶属、授权或背书关系。",
@@ -57,6 +59,7 @@ const copy = {
     accent: "Plugin Hub",
     intro: "An open community hub to discover, share, and install Harness plugins.",
     exploreHub: "Explore Hub",
+    signIn: "Sign in",
     publishCta: "Publish a plugin",
     disclaimer:
       "An independent, unofficial community project. Not affiliated with, authorized by, or endorsed by DeepSeek.",
@@ -160,12 +163,12 @@ export default function HomePage({
       />
 
       <header className="site-header">
-        <a className="brand" href="/" aria-label="Plugin Hub home">
-          <span className="brand-mark">H</span>
+        <Link className="brand" href="/" aria-label="Plugin Hub home">
+          <BrandLogo />
           <span>
             DeepSeek Harness <strong>Plugin Hub</strong>
           </span>
-        </a>
+        </Link>
 
         <nav className="site-nav" aria-label="Site">
           <Link href="/plugins">{t.nav.plugins}</Link>
@@ -177,6 +180,9 @@ export default function HomePage({
         <div className="header-actions">
           <Link className="hub-entry-link" href="/plugins">
             {t.exploreHub}
+          </Link>
+          <Link className="header-signin-link" href="/sign-in">
+            {t.signIn}
           </Link>
           <span className="launch-status">
             <span aria-hidden="true" />

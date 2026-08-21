@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BrandLogo from "./BrandLogo";
 import LanguageSwitch from "./LanguageSwitch";
 import { hubCopy, type HubLocale } from "@/lib/i18n";
 
@@ -7,7 +8,7 @@ export default function HubHeader({ locale }: { locale: HubLocale }) {
   return (
     <header className="hub-header">
       <Link className="brand" href="/">
-        <span className="brand-mark">H</span>
+        <BrandLogo />
         <span>
           DeepSeek Harness <strong>Plugin Hub</strong>
         </span>
@@ -17,6 +18,9 @@ export default function HubHeader({ locale }: { locale: HubLocale }) {
         <Link href="/profiles">{t.nav.profiles}</Link>
         <Link href="/guides">{t.nav.guides}</Link>
         <Link href="/status">{t.nav.status}</Link>
+        <Link className="hub-signin-link" href="/sign-in">
+          {t.nav.signIn}
+        </Link>
         <Link className="hub-publish-link" href="/dashboard">
           {t.nav.publish}
         </Link>

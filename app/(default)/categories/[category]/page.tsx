@@ -1,4 +1,5 @@
 import HubHeader, { HubFooter } from "@/components/HubHeader";
+import PluginIcon from "@/components/PluginIcon";
 import { listCategories, searchPackages } from "@/lib/hub-api";
 import { hubCopy, localeTags } from "@/lib/i18n";
 import { getHubLocale } from "@/lib/i18n-server";
@@ -81,9 +82,11 @@ export default async function CategoryPage({
             {items.map((plugin) => (
               <Link className="plugin-card" href={`/plugins/${plugin.slug}`} key={plugin.id}>
                 <div className="plugin-card-topline">
-                  <span className="plugin-icon" aria-hidden="true">
-                    {plugin.displayName.slice(0, 1).toUpperCase()}
-                  </span>
+                  <PluginIcon
+                    className="plugin-icon"
+                    displayName={plugin.displayName}
+                    iconUrl={plugin.iconUrl}
+                  />
                   <span className="plugin-version">v{plugin.latestVersion}</span>
                 </div>
                 <h3>
