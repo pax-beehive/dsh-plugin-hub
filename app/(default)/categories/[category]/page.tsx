@@ -65,6 +65,7 @@ export default async function CategoryPage({
               className={entry.name === category ? "active" : undefined}
               href={`/categories/${encodeURIComponent(entry.name)}`}
               key={entry.name}
+              prefetch={false}
             >
               {entry.name}
               <span>{entry.count}</span>
@@ -80,7 +81,7 @@ export default async function CategoryPage({
         {items.length ? (
           <div className="plugin-grid">
             {items.map((plugin) => (
-              <Link className="plugin-card" href={`/plugins/${plugin.slug}`} key={plugin.id}>
+              <Link className="plugin-card" href={`/plugins/${plugin.slug}`} key={plugin.id} prefetch={false}>
                 <div className="plugin-card-topline">
                   <PluginIcon
                     className="plugin-icon"
