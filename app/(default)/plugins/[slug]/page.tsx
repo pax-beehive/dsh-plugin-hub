@@ -162,6 +162,7 @@ export default async function PluginDetailPage({
             {plugin.github ? (
               <div><dt>GitHub</dt><dd>★ {plugin.github.stars}</dd></div>
             ) : null}
+            <div><dt>{t.plugins.weeklyDownloads}</dt><dd>{new Intl.NumberFormat(localeTags[locale]).format(plugin.weeklyDownloads)}</dd></div>
             {plugin.github?.pushedAt ? (
               <div>
                 <dt>{t.plugins.lastPush}</dt>
