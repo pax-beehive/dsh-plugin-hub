@@ -1,4 +1,4 @@
-import HubHeader, { HubFooter } from "@/components/HubHeader";
+import HubHeader from "@/components/HubHeader";
 import PluginIcon from "@/components/PluginIcon";
 import SubmitNpmPackageForm from "@/components/SubmitNpmPackageForm";
 import {
@@ -278,7 +278,6 @@ export default async function PluginsPage({
           </div>
         </section>
       ) : null}
-      <HubFooter locale={locale} />
     </main>
   );
 }

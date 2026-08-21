@@ -20,11 +20,14 @@ test("homepage H1 keeps a space between Harness and Plugin Hub", () => {
   assert.doesNotMatch(home, /priority/);
 });
 
-test("hub chrome links Guides and puts Privacy in the footer", () => {
+test("hub chrome exposes the complete public-site footer", () => {
   assert.match(header, /href="\/guides"/);
   assert.match(header, /t\.nav\.guides/);
   assert.match(header, /export function HubFooter/);
   assert.match(header, /href="\/privacy"/);
+  assert.match(header, /mailto:hello@dshpluginhub\.ai/);
+  assert.match(header, /github\.com\/pax-beehive\/dsh-plugin-hub/);
+  assert.match(header, /github\.com\/deepseek-ai\/deepseek-harness/);
 });
 
 test("markdown alternate is not sitewide in SiteDocument", () => {

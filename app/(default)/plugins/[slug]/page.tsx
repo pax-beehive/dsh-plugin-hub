@@ -1,4 +1,4 @@
-import HubHeader, { HubFooter } from "@/components/HubHeader";
+import HubHeader from "@/components/HubHeader";
 import PluginIcon from "@/components/PluginIcon";
 import PluginInstallCommand from "@/components/PluginInstallCommand";
 import { hubCopy, localeTags } from "@/lib/i18n";
@@ -178,7 +178,6 @@ export default async function PluginDetailPage({
           </Link>
         </aside>
       </article>
-      <HubFooter locale={locale} />
     </main>
   );
 }

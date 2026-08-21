@@ -1,5 +1,5 @@
 import CopyCommand from "@/components/CopyCommand";
-import HubHeader, { HubFooter } from "@/components/HubHeader";
+import HubHeader from "@/components/HubHeader";
 import { hubCopy } from "@/lib/i18n";
 import { getProfile } from "@/lib/hub-api";
 import { getHubLocale } from "@/lib/i18n-server";
@@ -86,7 +86,6 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
         </section> : null}
         {latest.contentHash ? <p className="profile-content-hash"><span>CONTENT ID</span><code>{latest.contentHash}</code></p> : null}
       </article>
-      <HubFooter locale={locale} />
     </main>
   );
 }

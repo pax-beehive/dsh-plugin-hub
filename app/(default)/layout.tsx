@@ -1,4 +1,5 @@
 import SiteDocument from "@/components/SiteDocument";
+import { HubFooter } from "@/components/HubHeader";
 import { getHubLocale } from "@/lib/i18n-server";
 import {
   OG_IMAGE_HEIGHT,
@@ -72,5 +73,10 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const locale = await getHubLocale();
-  return <SiteDocument language={locale === "en" ? "en" : "zh-CN"}>{children}</SiteDocument>;
+  return (
+    <SiteDocument language={locale === "en" ? "en" : "zh-CN"}>
+      {children}
+      <HubFooter locale={locale} />
+    </SiteDocument>
+  );
 }

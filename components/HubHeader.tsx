@@ -69,11 +69,81 @@ export function DashboardHeader({
 }
 
 export function HubFooter({ locale }: { locale: HubLocale }) {
+  const copy = locale === "en" ? {
+    description:
+      "Discover, verify, and share plugins and reproducible profiles for DeepSeek Harness.",
+    explore: "Explore",
+    community: "Community",
+    resources: "Resources",
+    plugins: "Plugins",
+    profiles: "Profiles",
+    guides: "Guides",
+    publish: "Publish a plugin",
+    contact: "Contact",
+    report: "Report an issue",
+    source: "Plugin Hub on GitHub",
+    harness: "DeepSeek Harness",
+    privacy: "Privacy notice",
+    disclaimer:
+      "Independent and unofficial. Not affiliated with, authorized by, or endorsed by DeepSeek.",
+    label: "Site footer",
+  } : {
+    description: "发现、验证并分享 DeepSeek Harness 插件与可复现的 Profile。",
+    explore: "探索",
+    community: "社区",
+    resources: "相关链接",
+    plugins: "插件目录",
+    profiles: "Profiles",
+    guides: "使用指南",
+    publish: "发布插件",
+    contact: "联系我们",
+    report: "报告问题",
+    source: "Plugin Hub GitHub",
+    harness: "DeepSeek Harness 官方项目",
+    privacy: "隐私说明",
+    disclaimer: "独立、非官方社区项目，与 DeepSeek 官方无隶属、授权或背书关系。",
+    label: "网站页脚",
+  };
+
   return (
-    <footer className="hub-footer">
-      <Link href="/privacy">
-        {locale === "en" ? "Privacy" : "隐私说明"}
-      </Link>
+    <footer className="hub-footer" aria-label={copy.label}>
+      <div className="hub-footer-inner">
+        <div className="hub-footer-grid">
+          <div className="hub-footer-brand">
+            <Link href="/" className="hub-footer-logo">
+              <BrandLogo />
+              <span>DeepSeek Harness <strong>Plugin Hub</strong></span>
+            </Link>
+            <p>{copy.description}</p>
+          </div>
+
+          <nav className="hub-footer-column" aria-label={copy.explore}>
+            <h2>{copy.explore}</h2>
+            <Link href="/plugins">{copy.plugins}</Link>
+            <Link href="/profiles">{copy.profiles}</Link>
+            <Link href="/guides">{copy.guides}</Link>
+          </nav>
+
+          <nav className="hub-footer-column" aria-label={copy.community}>
+            <h2>{copy.community}</h2>
+            <Link href="/dashboard">{copy.publish}</Link>
+            <a href="mailto:hello@dshpluginhub.ai">{copy.contact}</a>
+            <Link href="/report">{copy.report}</Link>
+          </nav>
+
+          <nav className="hub-footer-column" aria-label={copy.resources}>
+            <h2>{copy.resources}</h2>
+            <a href="https://github.com/pax-beehive/dsh-plugin-hub">{copy.source}</a>
+            <a href="https://github.com/deepseek-ai/deepseek-harness">{copy.harness}</a>
+            <Link href="/privacy">{copy.privacy}</Link>
+          </nav>
+        </div>
+
+        <div className="hub-footer-bottom">
+          <span>© 2026 DeepSeek Harness Plugin Hub</span>
+          <p>{copy.disclaimer}</p>
+        </div>
+      </div>
     </footer>
   );
 }

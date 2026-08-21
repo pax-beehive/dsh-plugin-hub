@@ -221,13 +221,6 @@ export default function HomePage({
         </div>
       </section>
 
-      <footer className="site-footer">
-        <span>© 2026 DeepSeek Harness Plugin Hub</span>
-        <div className="footer-notes">
-          <a href="/privacy">{language === "en" ? "Privacy notice" : "隐私说明"}</a>
-          <span className="community-note">{t.disclaimer}</span>
-        </div>
-      </footer>
     </main>
   );
 }

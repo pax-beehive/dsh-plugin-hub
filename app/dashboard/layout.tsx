@@ -1,4 +1,5 @@
 import SiteDocument from "@/components/SiteDocument";
+import { HubFooter } from "@/components/HubHeader";
 import { getHubLocale } from "@/lib/i18n-server";
 import { siteIcons } from "@/lib/site-icons";
 import type { Metadata } from "next";
@@ -14,5 +15,10 @@ export default async function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const locale = await getHubLocale();
-  return <SiteDocument language={locale === "en" ? "en" : "zh-CN"}>{children}</SiteDocument>;
+  return (
+    <SiteDocument language={locale === "en" ? "en" : "zh-CN"}>
+      {children}
+      <HubFooter locale={locale} />
+    </SiteDocument>
+  );
 }

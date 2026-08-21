@@ -457,6 +457,137 @@ a {
   gap: 18px;
 }
 
+/* Shared public-site footer. */
+.hub-footer {
+  width: 100%;
+  border-top: 1px solid var(--line);
+  background: #f4f6fa;
+  color: var(--muted);
+}
+
+.hub-footer-inner {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 52px 0 24px;
+}
+
+.hub-footer-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.45fr) repeat(3, minmax(130px, 0.7fr));
+  gap: clamp(28px, 5vw, 72px);
+}
+
+.hub-footer-brand {
+  max-width: 330px;
+}
+
+.hub-footer-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.hub-footer-logo strong {
+  color: var(--blue-dark);
+}
+
+.hub-footer-brand p {
+  margin: 16px 0 0;
+  color: var(--quiet);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.hub-footer-column {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.hub-footer-column h2 {
+  margin: 2px 0 5px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hub-footer-column a {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+  text-decoration: none;
+}
+
+.hub-footer-column a:hover,
+.hub-footer-column a:focus-visible {
+  color: var(--blue-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.hub-footer-bottom {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 28px;
+  margin-top: 42px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  color: var(--quiet);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.hub-footer-bottom p {
+  max-width: 600px;
+  margin: 0;
+  text-align: right;
+}
+
+@media (max-width: 820px) {
+  .hub-footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hub-footer-brand {
+    max-width: 520px;
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 520px) {
+  .hub-footer-inner {
+    width: min(100% - 40px, 1180px);
+    padding-top: 38px;
+  }
+
+  .hub-footer-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .hub-footer-brand {
+    grid-column: auto;
+  }
+
+  .hub-footer-bottom {
+    align-items: flex-start;
+    flex-direction: column;
+    margin-top: 34px;
+  }
+
+  .hub-footer-bottom p {
+    text-align: left;
+  }
+}
+
 .preference-page {
   display: grid;
   min-height: 100svh;

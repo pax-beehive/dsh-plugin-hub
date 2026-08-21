@@ -1,4 +1,4 @@
-import HubHeader, { HubFooter } from "@/components/HubHeader";
+import HubHeader from "@/components/HubHeader";
 import { hubCopy } from "@/lib/i18n";
 import { searchProfiles } from "@/lib/hub-api";
 import { getHubLocale } from "@/lib/i18n-server";
@@ -59,7 +59,6 @@ export default async function ProfilesPage({ searchParams }: { searchParams: Pro
           <div className="catalog-empty"><h2>{t.profiles.emptyTitle}</h2><p>{t.profiles.emptyBody}</p></div>
         )}
       </section>
-      <HubFooter locale={locale} />
     </main>
   );
 }

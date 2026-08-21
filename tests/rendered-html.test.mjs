@@ -54,6 +54,9 @@ test("server-renders the Plugin Hub coming-soon page", async () => {
   assert.match(html, /href="\/sign-in" class="hub-signin-link">登录<\/a>/);
   assert.doesNotMatch(html, /waitlist-form|name="email"/);
   assert.match(html, /href="\/privacy"/);
+  assert.match(html, /class="hub-footer"/);
+  assert.match(html, /href="mailto:hello@dshpluginhub\.ai"/);
+  assert.match(html, /href="https:\/\/github\.com\/pax-beehive\/dsh-plugin-hub"/);
   assert.match(
     html,
     /rel="canonical" href="https:\/\/dshpluginhub\.ai\/?"/,

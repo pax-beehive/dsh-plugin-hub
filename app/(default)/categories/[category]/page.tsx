@@ -1,4 +1,4 @@
-import HubHeader, { HubFooter } from "@/components/HubHeader";
+import HubHeader from "@/components/HubHeader";
 import PluginIcon from "@/components/PluginIcon";
 import { listCategories, searchPackages } from "@/lib/hub-api";
 import { hubCopy, localeTags } from "@/lib/i18n";
@@ -122,7 +122,6 @@ export default async function CategoryPage({
           </div>
         )}
       </section>
-      <HubFooter locale={locale} />
     </main>
   );
 }
