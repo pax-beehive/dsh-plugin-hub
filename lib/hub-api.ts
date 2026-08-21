@@ -12,11 +12,15 @@ import {
 import { z } from "zod";
 import { fetchHub } from "./cloudflare-fetch";
 import {
+  parseCategoryCountResponse,
+  type CategoryCount,
+} from "./category-count-response";
+import {
   parseRegistrySearchResponse,
   type PluginSummary,
 } from "./registry-search-response";
 
-export type { PluginSummary };
+export type { CategoryCount, PluginSummary };
 
 const ownedPluginSummarySchema = z
   .object({
@@ -133,21 +137,11 @@ export async function searchPackages(
   return parseRegistrySearchResponse(payload);
 }
 
-const categoryCountSchema = z
-  .object({
-    items: z.array(
-      z.object({ name: z.string(), count: z.number().int().nonnegative() }).strict(),
-    ),
-  })
-  .strict();
-
-export type CategoryCount = z.infer<typeof categoryCountSchema>["items"][number];
-
 export async function listCategories(limit = 12): Promise<CategoryCount[]> {
   try {
     const response = await hubFetch(`/api/v1/categories?limit=${limit}`);
     if (!response.ok) return [];
-    return categoryCountSchema.parse(await response.json()).items;
+    return parseCategoryCountResponse(await response.json());
   } catch {
     return [];
   }
