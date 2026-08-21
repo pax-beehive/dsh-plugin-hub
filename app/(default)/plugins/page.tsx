@@ -187,7 +187,7 @@ export default async function PluginsPage({
                       ★ {plugin.github.stars}
                     </span>
                   ) : null}
-                  <span className={isHotWeeklyDownloads(plugin.weeklyDownloads) ? "tag-signal tag-signal-hot" : "tag-signal"} title={t.plugins.weeklyDownloadsTitle}>{isHotWeeklyDownloads(plugin.weeklyDownloads) ? "\u{1F525} " : ""}\u2193 {formatCompactCount(plugin.weeklyDownloads)}</span>
+                  <span className={isHotWeeklyDownloads(plugin.weeklyDownloads) ? "tag-signal tag-signal-hot" : "tag-signal"} title={t.plugins.weeklyDownloadsTitle}>{isHotWeeklyDownloads(plugin.weeklyDownloads) ? "🔥 " : ""}↓ {formatCompactCount(plugin.weeklyDownloads)}</span>
                 </div>
                 <div className="plugin-card-meta">
                   <span>{t.plugins.updatedLabel} {new Date(plugin.updatedAt).toLocaleDateString(localeTags[locale])}</span>
@@ -264,7 +264,7 @@ export default async function PluginsPage({
                 <div className="plugin-tags">
                   {repo.language ? <span>{repo.language}</span> : null}
                   {repo.license ? <span>{repo.license}</span> : null}
-                  <span>{t.plugins.sourceOnlyCta} \u2197</span>
+                  <span>{t.plugins.sourceOnlyCta} ↗</span>
                 </div>
               </a>
             ))}
