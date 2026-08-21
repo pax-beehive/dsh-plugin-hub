@@ -60,6 +60,9 @@ export default async function CategoryPage({
         <h1>{t.plugins.categoryResult(category)}</h1>
         <p>{t.plugins.categoryIntro}</p>
         <nav className="category-rail" aria-label={t.plugins.allCategories}>
+          <Link href="/categories" prefetch={false}>
+            {t.plugins.allCategories}
+          </Link>
           {categories.map((entry) => (
             <Link
               aria-current={entry.name === category ? "page" : undefined}
