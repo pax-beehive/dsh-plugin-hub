@@ -126,7 +126,7 @@ export const hubCopy = {
       firstPage: "返回第一页",
       totalCount: (count: number) => `共 ${count} 个`,
       sortLabel: "排序",
-      sortPopular: "最受欢迎",
+      sortPopular: "下载最多",
       sortUpdated: "最近更新",
       browseCategories: "按分类浏览",
       recommend: {
@@ -136,7 +136,7 @@ export const hubCopy = {
         helpLink: "没找到您的 plugin？帮助我们",
         examples: ["查天气", "格式化 diff", "读网页"],
         resultsHeading: "为您推荐",
-        empty: "没有找到合适的插件。",
+      empty: "目录由实时 registry 提供，这里没有可展示的同步记录。",
         loading: "正在推荐，接口可能较慢…",
         modal: {
           body: "粘贴 npm 包名，我们会加入验证队列；manifest 通过后会出现在目录中。",
@@ -194,6 +194,7 @@ export const hubCopy = {
     status: {
       title: "收录流水线状态",
       intro: "npm 同步与 GitHub 发现的公开运行状态。每 6 小时自动执行一轮。",
+      introLive: "目录由实时 registry 提供，不依赖本页流水线记录。",
       pipeline: "npm 同步流水线",
       githubDiscovery: "GitHub 发现",
       sourceOnlyCount: (count: number) => `${count} 个 source-only 仓库`,
@@ -203,7 +204,7 @@ export const hubCopy = {
       kind: "类型",
       syncedAt: "同步时间",
       lastError: "最近错误",
-      empty: "流水线还没有运行记录。",
+      empty: "目录由实时 registry 提供，这里没有可展示的同步记录。",
       states: {
         pending: "待处理",
         syncing: "同步中",
@@ -283,7 +284,7 @@ export const hubCopy = {
       firstPage: "Back to first page",
       totalCount: (count: number) => `${count} ${count === 1 ? "plugin" : "plugins"}`,
       sortLabel: "Sort",
-      sortPopular: "Most popular",
+      sortPopular: "Most downloaded",
       sortUpdated: "Recently updated",
       browseCategories: "Browse by category",
       recommend: {
@@ -293,7 +294,7 @@ export const hubCopy = {
         helpLink: "Can't find your plugin? Help us",
         examples: ["check weather", "format diffs", "read a webpage"],
         resultsHeading: "Recommended for you",
-        empty: "No matching plugins for that need.",
+      empty: "目录由实时 registry 提供，这里没有可展示的同步记录。",
         loading: "Finding matches \u2014 this may take a moment\u2026",
         modal: {
           title: "Submit an npm package",
@@ -351,6 +352,7 @@ export const hubCopy = {
     status: {
       title: "Ingestion pipeline status",
       intro: "Public view of npm sync and GitHub discovery. Runs automatically every six hours.",
+      introLive: "The catalog is served from the live registry.",
       pipeline: "npm sync pipeline",
       githubDiscovery: "GitHub discovery",
       sourceOnlyCount: (count: number) => `${count} source-only ${count === 1 ? "repository" : "repositories"}`,
@@ -360,7 +362,7 @@ export const hubCopy = {
       kind: "Kind",
       syncedAt: "Synced at",
       lastError: "Last error",
-      empty: "The pipeline has not recorded any runs yet.",
+      empty: "The catalog is served from the live registry. No ingestion-pipeline runs are shown here.",
       states: {
         pending: "Pending",
         syncing: "Syncing",

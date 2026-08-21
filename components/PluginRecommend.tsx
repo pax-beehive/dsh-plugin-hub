@@ -2,6 +2,7 @@
 
 import SubmitNpmPackageModal from "@/components/SubmitNpmPackageModal";
 import { formatCompactCount, isHotWeeklyDownloads } from "@/lib/format-count";
+import PluginCardHeading from "@/components/PluginCardHeading";
 import { hubCopy, localeTags, type HubLocale } from "@/lib/i18n";
 import {
   RECOMMEND_TIMEOUT_MS,
@@ -201,16 +202,13 @@ function RecommendCard({
           <span className="plugin-version">v{plugin.latestVersion}</span>
         ) : null}
       </div>
-      <h3>
-        {plugin.displayName}
-        {plugin.verified ? (
-          <span className="verified-badge" title="Verified">
-            ✓
-          </span>
-        ) : null}
-        {plugin.claimed ? <span className="claimed-badge">{t.common.claimed}</span> : null}
-      </h3>
-      {plugin.packageName ? <code>{plugin.packageName}</code> : null}
+      <PluginCardHeading
+        claimed={plugin.claimed}
+        claimedLabel={t.common.claimed}
+        displayName={plugin.displayName}
+        packageName={plugin.packageName}
+        verified={plugin.verified}
+      />
       {plugin.summary ? <p>{plugin.summary}</p> : null}
       {plugin.reason ? <p className="reason">{plugin.reason}</p> : null}
       <div className="plugin-tags">

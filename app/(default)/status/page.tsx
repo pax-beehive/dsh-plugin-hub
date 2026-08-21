@@ -21,6 +21,11 @@ export default async function StatusPage() {
   const locale = await getHubLocale();
   const t = hubCopy[locale];
   const status = await getSyncStatus();
+  const hasPipeline = Boolean(
+    status &&
+      (status.recent.length > 0 || status.summary.some((entry) => entry.count > 0)),
+  );
+  const intro = hasPipeline ? t.status.intro : t.status.introLive;
 
   // The Go backend may not serve /api/v1/status yet — render a placeholder
   // instead of crashing so the URL stays valid and lights up automatically
@@ -32,7 +37,7 @@ export default async function StatusPage() {
         <section className="catalog-hero compact">
           <p className="catalog-eyebrow">STATUS</p>
           <h1>{t.status.title}</h1>
-          <p>{t.status.intro}</p>
+          <p>{intro}</p>
         </section>
         <section className="status-section">
           <div className="catalog-empty">
@@ -58,7 +63,7 @@ export default async function StatusPage() {
       <section className="catalog-hero compact">
         <p className="catalog-eyebrow">STATUS</p>
         <h1>{t.status.title}</h1>
-        <p>{t.status.intro}</p>
+        <p>{intro}</p>
       </section>
 
       <section className="status-section" aria-label={t.status.pipeline}>

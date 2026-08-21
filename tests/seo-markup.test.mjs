@@ -79,3 +79,9 @@ test("homepage titles own the registry job and categories is in the sitemap", ()
   assert.match(sitemapLib, /absoluteUrl\("\/categories"\)/);
   assert.match(homePage, /plugin registry — exact versions/);
 });
+
+test("homepage official-source arrow is a JS string, not literal JSX text", () => {
+  assert.match(home, /officialSource/);
+  assert.match(home, /\{\s*["'] \\u2197["']\s*\}/);
+  assert.doesNotMatch(home, /> \\u2197</);
+});

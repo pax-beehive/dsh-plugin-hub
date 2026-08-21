@@ -3,6 +3,9 @@ import PluginIcon from "@/components/PluginIcon";
 import PluginInstallCommand from "@/components/PluginInstallCommand";
 import { hubCopy, localeTags } from "@/lib/i18n";
 import { getPackageBySlug } from "@/lib/hub-api";
+import { descriptionsAreDuplicate } from "@/lib/catalog-display";
+import { pinInstallSpec } from "@/lib/install-command";
+import { partitionVersionRows, versionChannelLabel } from "@/lib/version-channel";
 import { getHubLocale } from "@/lib/i18n-server";
 import { JsonLd, pluginStructuredData } from "@/lib/structured-data";
 import { pageMetadata } from "@/lib/page-metadata";
@@ -74,18 +77,22 @@ export default async function PluginDetailPage({
           ? latest.unpackedSize / 1_048_576
           : latest.unpackedSize / 1024,
       );
-  const versionRows = plugin.versions.slice().reverse().map((version) => (
+  const newestFirst = plugin.versions.slice().reverse();
+  const { visible, hidden } = partitionVersionRows(newestFirst, plugin.latestVersion);
+  const renderVersion = (version: (typeof newestFirst)[number]) => (
     <div className="version-row" key={version.version}>
       <div>
         <strong>{version.version}</strong>
-        <span>{version.channel}</span>
+        <span>{versionChannelLabel(version.version)}</span>
       </div>
       <time dateTime={version.publishedAt}>
         {new Date(version.publishedAt).toLocaleDateString(localeTags[locale])}
       </time>
     </div>
-  ));
-  const hiddenVersionCount = Math.max(0, versionRows.length - 3);
+  );
+  const versionRows = visible.map(renderVersion);
+  const hiddenVersionRows = hidden.map(renderVersion);
+  const hiddenVersionCount = hiddenVersionRows.length;
 
   return (
     <main className="hub-shell">
@@ -110,7 +117,7 @@ export default async function PluginDetailPage({
             </div>
           </div>
           <p className="detail-summary">{plugin.summary}</p>
-          <PluginInstallCommand installSpec={latest.source.installSpec} locale={locale} />
+          <PluginInstallCommand installSpec={pinInstallSpec(plugin.packageName, latest.version)} locale={locale} />
 
           {plugin.screenshots.length ? (
             <div className="screenshot-grid">
@@ -122,14 +129,16 @@ export default async function PluginDetailPage({
             </div>
           ) : null}
 
-          <section className="detail-description">
-            <h2>{t.plugins.description}</h2>
-            <p>{plugin.description || plugin.summary}</p>
-          </section>
+          {descriptionsAreDuplicate(plugin.description, plugin.summary) ? null : (
+            <section className="detail-description">
+              <h2>{t.plugins.description}</h2>
+              <p>{plugin.description || plugin.summary}</p>
+            </section>
+          )}
 
           <section className="version-list">
             <h2>{t.plugins.versions}</h2>
-            {versionRows.slice(0, 3)}
+            {versionRows}
             {hiddenVersionCount > 0 ? (
               <details className="version-overflow">
                 <summary>
@@ -141,7 +150,7 @@ export default async function PluginDetailPage({
                   </span>
                 </summary>
                 <div className="version-overflow-rows">
-                  {versionRows.slice(3)}
+                  {hiddenVersionRows}
                 </div>
               </details>
             ) : null}

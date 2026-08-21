@@ -229,9 +229,9 @@ const syncStatusSchema = z
         })
         .strict(),
     ),
-    sourceOnlyCount: z.number().int().nonnegative(),
+    sourceOnlyCount: z.number().int().nonnegative().optional().default(0),
   })
-  .strict();
+  .passthrough();
 
 export type SyncStatus = z.infer<typeof syncStatusSchema>;
 

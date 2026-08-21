@@ -5,6 +5,8 @@ import {
   listCategories,
   searchPackages,
 } from "@/lib/hub-api";
+import { altPackageHint, sortByWeeklyDownloads } from "@/lib/catalog-display";
+import PluginCardHeading from "@/components/PluginCardHeading";
 import { formatCompactCount, isHotWeeklyDownloads } from "@/lib/format-count";
 import { hubCopy, localeTags } from "@/lib/i18n";
 import { getHubLocale } from "@/lib/i18n-server";
@@ -88,6 +90,11 @@ export default async function PluginsPage({
       ? await searchPackages(q, { sort, page, limit: pageSize })
       : result;
 
+  const catalogItems =
+    sort === "popular"
+      ? sortByWeeklyDownloads(pageResult.items)
+      : pageResult.items;
+
   const categories = await listCategories(12);
 
   const pageHref = (target: { page?: number; sort?: Sort }) => {
@@ -135,7 +142,7 @@ export default async function PluginsPage({
           <span>
             {paginated
               ? t.plugins.totalCount(result.total!)
-              : t.plugins.count(pageResult.items.length)}
+              : t.plugins.count(catalogItems.length)}
           </span>
         </div>
         <nav className="sort-tabs" aria-label={t.plugins.sortLabel}>
@@ -150,9 +157,9 @@ export default async function PluginsPage({
             </Link>
           ))}
         </nav>
-        {pageResult.items.length ? (
+        {catalogItems.length ? (
           <div className="plugin-grid">
-            {pageResult.items.map((plugin) => (
+            {catalogItems.map((plugin) => (
               <Link className="plugin-card" href={`/plugins/${plugin.slug}`} key={plugin.id} prefetch={false}>
                 <div className="plugin-card-topline">
                   <PluginIcon
@@ -162,12 +169,14 @@ export default async function PluginsPage({
                   />
                   <span className="plugin-version">v{plugin.latestVersion}</span>
                 </div>
-                <h3>
-                  {plugin.displayName}
-                  {plugin.verified ? <span className="verified-badge" title="Verified">✓</span> : null}
-                  {plugin.claimed ? <span className="claimed-badge">{t.common.claimed}</span> : null}
-                </h3>
-                <code>{plugin.packageName}</code>
+                <PluginCardHeading
+                  altHint={altPackageHint(catalogItems, plugin)}
+                  claimed={plugin.claimed}
+                  claimedLabel={t.common.claimed}
+                  displayName={plugin.displayName}
+                  packageName={plugin.packageName}
+                  verified={plugin.verified}
+                />
                 <p>{plugin.summary}</p>
                 <div className="plugin-tags">
                   {plugin.categories.slice(0, 3).map((category) => (

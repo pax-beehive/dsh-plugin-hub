@@ -41,5 +41,5 @@ The `dsh-hub` CLI searches the registry, resolves exact versions, installs plugi
 ## Optional
 
 - [Full consolidated Hub context](https://dshpluginhub.ai/llms-full.txt): Detailed Markdown context including the publishing contract and FAQs.
-- [XML sitemap](https://dshpluginhub.ai/sitemap.xml): Canonical indexable URLs for search engines.
+- [XML sitemap](https://dshpluginhub.ai/sitemap.xml): Canonical indexable URLs for search engines. Large urlset; allow extra time for the full response.
 - [Privacy notice](https://dshpluginhub.ai/privacy): Data collection, purpose, retention, and deletion information.

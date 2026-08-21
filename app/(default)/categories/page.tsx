@@ -1,5 +1,7 @@
 import HubHeader from "@/components/HubHeader";
 import PluginIcon from "@/components/PluginIcon";
+import PluginCardHeading from "@/components/PluginCardHeading";
+import { altPackageHint } from "@/lib/catalog-display";
 import {
   listCategories,
   searchPackages,
@@ -73,20 +75,18 @@ export default async function CategoriesIndexPage() {
     listCategories(50),
     safeSearchPackages("", { limit: 60 }),
   ]);
-  const total =
-    catalog.total ??
-    (categories.length
-      ? categories.reduce((sum, entry) => sum + entry.count, 0)
-      : catalog.items.length);
+  // One source of truth: registry search `total`. Category counts sum lower
+  // because uncategorized packages exist; do not substitute that sum.
+  const total = catalog.total;
   const previews = previewByCategory(categories, catalog.items);
-  const heading = total > 0 ? t.plugins.browseAll(total) : t.plugins.browseAllUnknown;
+  const heading = typeof total === "number" && total > 0 ? t.plugins.browseAll(total) : t.plugins.browseAllUnknown;
 
   return (
     <main className="hub-shell">
       <JsonLd
         data={categoriesIndexStructuredData({
           categories,
-          total,
+          total: total ?? 0,
           locale,
         })}
       />
@@ -136,15 +136,13 @@ export default async function CategoriesIndexPage() {
                           />
                           <span className="plugin-version">v{plugin.latestVersion}</span>
                         </div>
-                        <h3>
-                          {plugin.displayName}
-                          {plugin.verified ? (
-                            <span className="verified-badge" title="Verified">
-                              {"\u2713"}
-                            </span>
-                          ) : null}
-                        </h3>
-                        <code>{plugin.packageName}</code>
+                        <PluginCardHeading
+                          altHint={altPackageHint(preview, plugin)}
+                          claimedLabel={t.common.claimed}
+                          displayName={plugin.displayName}
+                          packageName={plugin.packageName}
+                          verified={plugin.verified}
+                        />
                         <p>{plugin.summary}</p>
                       </Link>
                     ))}

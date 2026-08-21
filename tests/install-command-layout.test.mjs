@@ -22,7 +22,11 @@ test("keeps the copy action visible while only the command text scrolls", () => 
   const scrollRule = rule(".install-command-scroll");
   assert.match(scrollRule, /flex:\s*1/);
   assert.match(scrollRule, /min-width:\s*0/);
-  assert.match(scrollRule, /overflow-x:\s*auto/);
+  assert.match(scrollRule, /overflow-wrap:\s*anywhere/);
+
+  const codeRule = rule(".install-command code");
+  assert.match(codeRule, /white-space:\s*pre-wrap/);
+  assert.match(codeRule, /overflow-wrap:\s*anywhere/);
 
   assert.match(rule(".install-command button"), /flex:\s*0\s+0\s+auto/);
 });

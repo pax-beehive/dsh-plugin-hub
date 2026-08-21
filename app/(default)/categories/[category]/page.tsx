@@ -1,5 +1,7 @@
 import HubHeader from "@/components/HubHeader";
 import PluginIcon from "@/components/PluginIcon";
+import PluginCardHeading from "@/components/PluginCardHeading";
+import { altPackageHint } from "@/lib/catalog-display";
 import { categoryLabel, listCategories, searchPackages } from "@/lib/hub-api";
 import { formatCompactCount, isHotWeeklyDownloads } from "@/lib/format-count";
 import { hubCopy, localeTags } from "@/lib/i18n";
@@ -99,12 +101,14 @@ export default async function CategoryPage({
                   />
                   <span className="plugin-version">v{plugin.latestVersion}</span>
                 </div>
-                <h3>
-                  {plugin.displayName}
-                  {plugin.verified ? <span className="verified-badge" title="Verified">✓</span> : null}
-                  {plugin.claimed ? <span className="claimed-badge">{t.common.claimed}</span> : null}
-                </h3>
-                <code>{plugin.packageName}</code>
+                <PluginCardHeading
+                  altHint={altPackageHint(items, plugin)}
+                  claimed={plugin.claimed}
+                  claimedLabel={t.common.claimed}
+                  displayName={plugin.displayName}
+                  packageName={plugin.packageName}
+                  verified={plugin.verified}
+                />
                 <p>{plugin.summary}</p>
                 <div className="plugin-tags">
                   {plugin.categories.slice(0, 3).map((tag) => (

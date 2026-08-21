@@ -1107,6 +1107,7 @@ a {
 }
 
 .hub-shell {
+  overflow-x: hidden;
   min-height: 100svh;
   background:
     radial-gradient(1100px 520px at 50% -220px, rgb(77 107 254 / 16%), transparent 72%),
@@ -1319,8 +1320,11 @@ a {
 }
 
 .plugin-card {
+  min-width: 0;
+  max-width: 100%;
   min-height: 270px;
   padding: 24px;
+  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 18px;
   background: #fff;
@@ -1372,8 +1376,34 @@ a {
 }
 
 .plugin-card h3 {
-  margin: 22px 0 5px;
-  font-size: 19px;
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.plugin-package-name {
+  display: block;
+  margin: 16px 0 0;
+  color: var(--ink);
+  font: 650 14.5px/1.4 var(--font-geist-mono), monospace;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.plugin-alt-hint {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 7px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--quiet);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  vertical-align: 2px;
 }
 
 .verified-badge {
@@ -1411,10 +1441,13 @@ a {
 .detail-package-name {
   color: var(--blue-dark);
   font: 12px var(--font-geist-mono), monospace;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .plugin-card > p {
   margin: 18px 0 0;
+  overflow-wrap: anywhere;
   color: var(--muted);
   font-size: 14px;
   line-height: 1.65;
@@ -1509,9 +1542,10 @@ a {
 
 .install-command {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 20px;
+  gap: 12px 20px;
   margin-top: 28px;
   padding: 17px 20px;
   overflow: hidden;
@@ -1524,8 +1558,8 @@ a {
 .install-command-scroll {
   flex: 1;
   min-width: 0;
-  overflow-x: auto;
-  scrollbar-width: thin;
+  overflow-x: visible;
+  overflow-wrap: anywhere;
 }
 
 .install-command-scroll:focus-visible {
@@ -1535,8 +1569,10 @@ a {
 
 .install-command code {
   display: block;
-  width: max-content;
-  white-space: nowrap;
+  width: auto;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .install-command button {
@@ -2001,7 +2037,9 @@ a {
   }
 
   .hero h1 {
-    font-size: clamp(42px, 12vw, 62px);
+    max-width: 100%;
+    font-size: clamp(28px, 8.4vw, 42px);
+    overflow-wrap: anywhere;
   }
 
   .intro {
@@ -2292,9 +2330,12 @@ body {
 }
 
 .plugin-card h3 {
-  margin: 16px 0 4px;
-  font-size: 16.5px;
-  letter-spacing: -0.01em;
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
 }
 
 .plugin-card > p {
@@ -3339,8 +3380,10 @@ body {
 
 .hero-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 20px;
+  justify-content: center;
+  gap: 12px 16px;
   margin-top: 28px;
 }
 
@@ -3828,7 +3871,14 @@ body {
 }
 
 .site-shell--ocean .hero-secondary-link {
-  color: rgb(198 216 236 / 90%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 18px;
+  border: 1px solid rgb(230 238 248 / 72%);
+  border-radius: 8px;
+  color: #eef4fb;
+  font-weight: 650;
 }
 
 .site-shell--ocean .hero-secondary-link:hover {

@@ -47,35 +47,42 @@ test("the Worker caches anonymous public HTML by locale", async () => {
     NEXT_PUBLIC_WORKOS_REDIRECT_URI: "http://localhost/callback",
   };
 
-  const fetchPage = (cookie) =>
+  const fetchPage = (headers = {}) =>
     worker.fetch(
       new Request("http://localhost/", {
         headers: {
           accept: "text/html",
-          ...(cookie ? { cookie } : {}),
+          ...headers,
         },
       }),
       env,
       context,
     );
 
-  const firstChinese = await fetchPage();
-  assert.equal(firstChinese.headers.get("x-dsh-edge-cache"), "MISS");
-  await Promise.all(pending.splice(0));
-
-  const secondChinese = await fetchPage();
-  assert.equal(secondChinese.headers.get("x-dsh-edge-cache"), "HIT");
-  assert.match(await secondChinese.text(), /lang="zh-CN"/);
-
-  const firstEnglish = await fetchPage("dsh-hub-locale=en");
+  const firstEnglish = await fetchPage({ "accept-language": "en-US,en;q=0.9" });
   assert.equal(firstEnglish.headers.get("x-dsh-edge-cache"), "MISS");
   await Promise.all(pending.splice(0));
 
-  const secondEnglish = await fetchPage("dsh-hub-locale=en");
+  const secondEnglish = await fetchPage({ "accept-language": "en-US,en;q=0.9" });
   assert.equal(secondEnglish.headers.get("x-dsh-edge-cache"), "HIT");
   assert.match(await secondEnglish.text(), /lang="en"/);
 
-  const signedIn = await fetchPage("wos-session=sealed");
+  const firstChinese = await fetchPage({ "accept-language": "zh-CN,zh;q=0.9" });
+  assert.equal(firstChinese.headers.get("x-dsh-edge-cache"), "MISS");
+  await Promise.all(pending.splice(0));
+
+  const secondChinese = await fetchPage({ "accept-language": "zh-CN,zh;q=0.9" });
+  assert.equal(secondChinese.headers.get("x-dsh-edge-cache"), "HIT");
+  assert.match(await secondChinese.text(), /lang="zh-CN"/);
+
+  const cookieWins = await fetchPage({
+    cookie: "dsh-hub-locale=en",
+    "accept-language": "zh-CN,zh;q=0.9",
+  });
+  assert.equal(cookieWins.headers.get("x-dsh-edge-cache"), "MISS");
+  assert.match(await cookieWins.text(), /lang="en"/);
+
+  const signedIn = await fetchPage({ cookie: "wos-session=sealed" });
   assert.equal(signedIn.headers.get("x-dsh-edge-cache"), "BYPASS");
 });
 
@@ -101,6 +108,7 @@ test("the Worker bypasses edge caching when the runtime denies the default cache
     new Request("http://localhost/docs", {
       headers: {
         accept: "text/html",
+        "accept-language": "zh-CN,zh;q=0.9",
         "x-dispatched-app": "site---test",
       },
     }),

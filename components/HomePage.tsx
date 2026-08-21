@@ -216,7 +216,7 @@ export default function HomePage({
             rel="noreferrer"
           >
             {t.officialSource}
-            <span aria-hidden="true"> \u2197</span>
+            <span aria-hidden="true">{" \u2197"}</span>
           </a>
         </div>
 

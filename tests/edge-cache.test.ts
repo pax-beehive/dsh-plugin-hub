@@ -24,7 +24,7 @@ test("public HTML cache varies only on rendered query fields and locale", () => 
   assert.equal(requestLocale(request), "en");
   assert.equal(
     key.search,
-    "?__dsh_cache=v2&__dsh_locale=en&page=2&q=memory&sort=updated",
+    "?__dsh_cache=v3&__dsh_locale=en&page=2&q=memory&sort=updated",
   );
 });
 
@@ -103,8 +103,30 @@ test("public HTML cache keys are versioned and do not vary by country", () => {
     cookie: "dsh-hub-locale=zh",
   });
   const key = new URL(publicPageCacheKey(request).url);
-  assert.equal(key.searchParams.get("__dsh_cache"), "v2");
+  assert.equal(key.searchParams.get("__dsh_cache"), "v3");
   assert.equal(key.searchParams.get("__dsh_locale"), "zh");
   assert.equal(key.searchParams.has("country"), false);
   assert.equal(key.searchParams.has("cf-ipcountry"), false);
+});
+
+test("no-cookie cache locale follows Accept-Language like rendering", () => {
+  const english = htmlRequest("/", { "accept-language": "en-US,en;q=0.9" });
+  const chinese = htmlRequest("/", { "accept-language": "zh-CN,zh;q=0.9" });
+  const missing = htmlRequest("/");
+
+  assert.equal(requestLocale(english), "en");
+  assert.equal(requestLocale(chinese), "zh");
+  assert.equal(requestLocale(missing), "en");
+  assert.equal(new URL(publicPageCacheKey(english).url).searchParams.get("__dsh_locale"), "en");
+  assert.equal(new URL(publicPageCacheKey(chinese).url).searchParams.get("__dsh_locale"), "zh");
+  assert.equal(new URL(publicPageCacheKey(missing).url).searchParams.get("__dsh_locale"), "en");
+});
+
+test("locale cookie wins over Accept-Language in the cache key", () => {
+  const request = htmlRequest("/", {
+    cookie: "dsh-hub-locale=en",
+    "accept-language": "zh-CN,zh;q=0.9",
+  });
+  assert.equal(requestLocale(request), "en");
+  assert.equal(new URL(publicPageCacheKey(request).url).searchParams.get("__dsh_locale"), "en");
 });

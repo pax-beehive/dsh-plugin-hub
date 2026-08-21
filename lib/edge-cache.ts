@@ -1,7 +1,7 @@
 import { isPersonalizedPath } from "./cache-control.ts";
 import {
   HUB_LOCALE_COOKIE,
-  parseHubLocale,
+  resolveHubLocale,
   type HubLocale,
 } from "./i18n.ts";
 
@@ -23,8 +23,9 @@ function readCookie(cookieHeader: string | null, name: string): string | null {
 }
 
 export function requestLocale(request: Request): HubLocale {
-  return parseHubLocale(
+  return resolveHubLocale(
     readCookie(request.headers.get("cookie"), HUB_LOCALE_COOKIE),
+    request.headers.get("accept-language"),
   );
 }
 
@@ -78,7 +79,7 @@ export function publicPageCacheKey(request: Request): Request {
   const url = new URL(request.url);
   url.hash = "";
   url.search = publicPageSearch(url).toString();
-  url.searchParams.set("__dsh_cache", "v2");
+  url.searchParams.set("__dsh_cache", "v3");
   url.searchParams.set("__dsh_locale", requestLocale(request));
   url.searchParams.sort();
   return new Request(url, {
