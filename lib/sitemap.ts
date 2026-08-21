@@ -35,6 +35,7 @@ export function staticSitemapEntries(): MetadataRoute.Sitemap {
     { url: absoluteUrl("/plugins"), changeFrequency: "hourly", priority: 0.9 },
     { url: absoluteUrl("/profiles"), changeFrequency: "hourly", priority: 0.8 },
     { url: absoluteUrl("/docs"), changeFrequency: "weekly", priority: 0.6 },
+    { url: absoluteUrl("/status"), changeFrequency: "hourly", priority: 0.4 },
     { url: absoluteUrl("/privacy"), changeFrequency: "yearly", priority: 0.2 },
     ...guides.map((guide) => ({
       url: absoluteUrl(`/docs/${guide.slug}`),
@@ -44,9 +45,6 @@ export function staticSitemapEntries(): MetadataRoute.Sitemap {
   ];
 }
 
-// Walk the same catalog search the /plugins page uses. Prefer numbered pages
-// (the live API returns `total` and ignores a broken cursor). Fall back to
-// nextCursor when that is what the backend provides. Never invent slugs.
 export async function listAllPackages(
   searchPackages: PackageSearch,
 ): Promise<SitemapPackage[]> {
@@ -165,4 +163,27 @@ export function sitemapIndexLocs(shards: SitemapShards): string[] {
   return sitemapShardIds(shards).map(({ id }) =>
     absoluteUrl(`/sitemap/${id}.xml`),
   );
+}
+
+function escapeXml(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
+}
+
+function lastmodValue(value: string | Date): string {
+  return value instanceof Date ? value.toISOString() : value;
+}
+
+export function sitemapEntriesToXml(entries: MetadataRoute.Sitemap): string {
+  const urls = entries.map((entry) => {
+    const lastmod = entry.lastModified
+      ? `\n    <lastmod>${escapeXml(lastmodValue(entry.lastModified))}</lastmod>`
+      : "";
+    return `  <url>\n    <loc>${escapeXml(entry.url)}</loc>${lastmod}\n  </url>`;
+  });
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>\n`;
 }
