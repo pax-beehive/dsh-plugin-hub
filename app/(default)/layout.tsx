@@ -6,6 +6,7 @@ import {
   OG_IMAGE_WIDTH,
   SITE_HOME,
 } from "@/lib/site-url";
+import { siteIcons } from "@/lib/site-icons";
 import type { Metadata } from "next";
 import "../globals.css";
 
@@ -45,14 +46,7 @@ export async function generateMetadata(): Promise<Metadata> {
       "插件市场",
       "插件社区",
     ],
-    icons: {
-      icon: [
-        { url: "/favicon.ico", sizes: "64x64" },
-        { url: "/favicon-64.png", type: "image/png", sizes: "64x64" },
-        { url: "/deepseek-whale-black.svg", type: "image/svg+xml" },
-      ],
-      shortcut: "/favicon.ico",
-    },
+    icons: siteIcons,
     openGraph: {
       type: "website",
       siteName: "DeepSeek Harness Plugin Hub",

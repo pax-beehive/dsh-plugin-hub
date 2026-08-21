@@ -61,8 +61,8 @@ test("server-renders the Plugin Hub coming-soon page", async () => {
   assert.match(html, /property="og:url" content="https:\/\/dshpluginhub\.ai\/?"/);
   assert.match(html, /"@type":"WebSite"/);
   assert.match(html, /"@type":"FAQPage"/);
-  assert.match(html, /rel="shortcut icon" href="\/favicon\.ico"/);
-  assert.match(html, /rel="icon" href="\/favicon-64\.png"/);
+  assert.match(html, /rel="shortcut icon" href="\/deepseek-whale-black\.svg\?v=2"/);
+  assert.match(html, /rel="icon" href="\/deepseek-whale-black\.svg\?v=2"/);
   assert.match(
     html,
     /rel="describedby" href="https:\/\/dshpluginhub\.ai\/llms\.txt"/,
@@ -101,6 +101,19 @@ test("catalog header includes the shared sign-in action", async () => {
   assert.match(logo, /src="\/deepseek-whale-black\.svg"/);
   assert.match(styles, /padding: 13px max\(20px, calc\(50% - 590px\)\)/);
   assert.match(styles, /\.catalog-section \{\s+width: min\(1180px, calc\(100% - 40px\)\)/);
+});
+
+test("public and dashboard layouts share the black whale favicon", async () => {
+  const [icons, publicLayout, dashboardLayout] = await Promise.all([
+    readFile(new URL("../lib/site-icons.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/(default)/layout.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/layout.tsx", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(icons, /deepseek-whale-black\.svg\?v=2/);
+  assert.match(icons, /shortcut: whaleIcon/);
+  assert.match(publicLayout, /icons: siteIcons/);
+  assert.match(dashboardLayout, /icons: siteIcons/);
 });
 
 test("homepage hero entry animates without forcing motion", async () => {
