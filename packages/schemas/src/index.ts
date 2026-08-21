@@ -242,7 +242,6 @@ export const pluginRecordSchema = z
     replacement: npmPackageNameSchema.optional(),
     latestVersion: exactSemverSchema,
     distTags: z.record(z.string(), exactSemverSchema).default({}),
-    weeklyDownloads: z.number().int().nonnegative().optional(),
     versions: z.array(pluginVersionSchema).min(1),
     createdAt: z.iso.datetime(),
     updatedAt: z.iso.datetime(),
@@ -369,7 +368,7 @@ export const registrySearchResponseSchema = z
     nextCursor: z.string().nullable(),
     // Present only when the backend supports numbered pagination
     // (page/sort params). Older backends omit it and the frontend falls back
-    // to cursor-only rendering.
+    //    to cursor-only rendering.
     total: z.number().int().nonnegative().optional(),
   })
   .strict();
