@@ -67,3 +67,20 @@ test("keeps weeklyDownloads on valid items and defaults missing to 0", () => {
   });
   assert.equal(withoutField.items[0]?.weeklyDownloads, 0);
 });
+
+test("accepts optional securityPassed:true and still parses items without it", () => {
+  const withField = parseRegistrySearchResponse({
+    items: [{ ...validItem, securityPassed: true }],
+    nextCursor: null,
+    total: 1,
+  });
+  assert.equal(withField.items.length, 1);
+  assert.equal(withField.items[0]?.securityPassed, true);
+  const withoutField = parseRegistrySearchResponse({
+    items: [validItem],
+    nextCursor: null,
+    total: 1,
+  });
+  assert.equal(withoutField.items.length, 1);
+  assert.equal(withoutField.items[0]?.securityPassed, undefined);
+});

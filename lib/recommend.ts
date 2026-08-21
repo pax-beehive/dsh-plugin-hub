@@ -20,6 +20,7 @@ export type RecommendItem = {
   categories: string[];
   github?: RecommendGithub;
   weeklyDownloads?: number;
+  securityPassed?: true;
   updatedAt: string;
   license?: string;
   reason?: string;
@@ -131,6 +132,7 @@ export function parseRecommendItems(payload: unknown): RecommendItem[] {
       ...(typeof record.weeklyDownloads === "number" && Number.isFinite(record.weeklyDownloads)
         ? { weeklyDownloads: Math.max(0, Math.floor(record.weeklyDownloads)) }
         : {}),
+      ...(record.securityPassed === true ? { securityPassed: true as const } : {}),
       updatedAt: typeof record.updatedAt === "string" ? record.updatedAt : "",
       license: typeof record.license === "string" ? record.license : undefined,
       ...(reason ? { reason: [...reason].slice(0, MAX_REASON_CHARS).join("") } : {}),

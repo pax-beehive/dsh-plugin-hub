@@ -116,6 +116,9 @@ export default async function CategoryPage({
                     </span>
                   ) : null}
                   <span className={isHotWeeklyDownloads(plugin.weeklyDownloads) ? "tag-signal tag-signal-hot" : "tag-signal"} title={t.plugins.weeklyDownloadsTitle}>{isHotWeeklyDownloads(plugin.weeklyDownloads) ? "🔥 " : ""}↓ {formatCompactCount(plugin.weeklyDownloads)}</span>
+                  {plugin.securityPassed === true ? (
+                    <span className="tag-signal tag-signal-secure" title={t.plugins.securityPassedTitle}>✓ {t.plugins.securityPassed}</span>
+                  ) : null}
                 </div>
                 <div className="plugin-card-meta">
                   <span>{t.plugins.updatedLabel} {new Date(plugin.updatedAt).toLocaleDateString(localeTags[locale])}</span>

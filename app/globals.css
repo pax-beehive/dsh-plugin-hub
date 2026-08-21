@@ -2478,6 +2478,12 @@ body {
   color: #c45a12;
 }
 
+.plugin-tags .tag-signal-secure {
+  border-color: rgb(20 140 130 / 28%);
+  background: rgb(20 140 130 / 8%);
+  color: #1a7a72;
+}
+
 /* Category rail (browse-by-category chips). */
 .category-rail {
   display: flex;

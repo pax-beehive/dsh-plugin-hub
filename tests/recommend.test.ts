@@ -97,6 +97,7 @@ test("parses recommend items defensively and skips incomplete cards", () => {
         categories: ["tools", 1],
         github: { stars: 12, pushedAt: "2026-08-01T00:00:00.000Z" },
         weeklyDownloads: 1234,
+        securityPassed: true,
         updatedAt: "2026-08-01T00:00:00.000Z",
         license: "MIT",
         reason: "x".repeat(200),
@@ -113,4 +114,6 @@ test("parses recommend items defensively and skips incomplete cards", () => {
   assert.equal(items[0]?.weeklyDownloads, undefined);
   assert.equal(items[1]?.github?.stars, 12);
   assert.equal(items[1]?.weeklyDownloads, 1234);
+  assert.equal(items[0]?.securityPassed, undefined);
+  assert.equal(items[1]?.securityPassed, true);
 });

@@ -163,6 +163,9 @@ export default async function PluginDetailPage({
               <div><dt>GitHub</dt><dd>★ {plugin.github.stars}</dd></div>
             ) : null}
             <div><dt>{t.plugins.weeklyDownloads}</dt><dd>{new Intl.NumberFormat(localeTags[locale]).format(plugin.weeklyDownloads)}</dd></div>
+            {plugin.securityPassed === true ? (
+              <div><dt>{t.plugins.securityPassed}</dt><dd title={t.plugins.securityPassedTitle}>✓ {t.plugins.securityPassed}</dd></div>
+            ) : null}
             {plugin.github?.pushedAt ? (
               <div>
                 <dt>{t.plugins.lastPush}</dt>
