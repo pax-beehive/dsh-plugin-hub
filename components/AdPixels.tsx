@@ -95,13 +95,13 @@ export default function AdPixels({
       {googleId ? (
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(googleId)}`}
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
       ) : null}
       {pixelId ? (
         <Script
           src="https://bzrcdn.openai.com/sdk/oaiq.min.js"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
       ) : null}
     </>
