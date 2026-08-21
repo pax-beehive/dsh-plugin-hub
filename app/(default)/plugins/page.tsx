@@ -88,7 +88,6 @@ export default async function PluginsPage({
       ? await searchPackages(q, { sort, page, limit: pageSize })
       : result;
 
-  // Category rail degrades to [] when the backend doesn't serve that endpoint yet.
   const categories = await listCategories(12);
 
   const pageHref = (target: { page?: number; sort?: Sort }) => {
