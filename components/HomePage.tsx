@@ -1,5 +1,4 @@
-import BrandLogo from "@/components/BrandLogo";
-import LanguageSwitch from "@/components/LanguageSwitch";
+import HubHeader from "@/components/HubHeader";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -162,35 +161,7 @@ export default function HomePage({
         height={760}
       />
 
-      <header className="site-header">
-        <Link className="brand" href="/" aria-label="Plugin Hub home">
-          <BrandLogo />
-          <span>
-            DeepSeek Harness <strong>Plugin Hub</strong>
-          </span>
-        </Link>
-
-        <nav className="site-nav" aria-label="Site">
-          <Link href="/plugins">{t.nav.plugins}</Link>
-          <Link href="/profiles">{t.nav.profiles}</Link>
-          <Link href="/guides">{t.nav.guides}</Link>
-          <Link href="/status">{t.nav.status}</Link>
-        </nav>
-
-        <div className="header-actions">
-          <Link className="hub-entry-link" href="/plugins">
-            {t.exploreHub}
-          </Link>
-          <Link className="header-signin-link" href="/sign-in">
-            {t.signIn}
-          </Link>
-          <span className="launch-status">
-            <span aria-hidden="true" />
-            {t.status}
-          </span>
-          <LanguageSwitch locale={language} />
-        </div>
-      </header>
+      <HubHeader locale={language} />
 
       <section className="hero" id="top">
         <p className="eyebrow">{t.badge}</p>

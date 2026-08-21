@@ -50,7 +50,8 @@ test("server-renders the Plugin Hub coming-soon page", async () => {
   assert.match(html, /为 Harness 插件生态而建的社区入口/);
   assert.match(html, /DeepSeek Harness Plugin Hub 是什么？/);
   assert.match(html, /href="\/plugins"/);
-  assert.match(html, /href="\/sign-in" class="header-signin-link">登录<\/a>/);
+  assert.match(html, /class="hub-header"/);
+  assert.match(html, /href="\/sign-in" class="hub-signin-link">登录<\/a>/);
   assert.doesNotMatch(html, /waitlist-form|name="email"/);
   assert.match(html, /href="\/privacy"/);
   assert.match(
@@ -81,7 +82,8 @@ test("server-renders English on the same URL from the locale cookie", async () =
   assert.match(html, /^<!DOCTYPE html><html lang="en">/i);
   assert.match(html, /An open community hub to discover, share, and install Harness plugins/);
   assert.match(html, /What is DeepSeek Harness Plugin Hub\?/);
-  assert.match(html, /href="\/sign-in" class="header-signin-link">Sign in<\/a>/);
+  assert.match(html, /class="hub-header"/);
+  assert.match(html, /href="\/sign-in" class="hub-signin-link">Sign in<\/a>/);
   assert.match(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/?"/);
   assert.match(html, /aria-pressed="true"[^>]*>EN<\/button>/i);
   assert.match(html, /"@id":"https:\/\/dshpluginhub\.ai\/#webpage"/);
@@ -98,6 +100,18 @@ test("catalog header includes the shared sign-in action", async () => {
   assert.match(header, /t\.nav\.signIn/);
   assert.match(logo, /src="\/deepseek-whale-black\.svg"/);
   assert.match(styles, /padding: 13px max\(20px, calc\(50% - 450px\)\)/);
+});
+
+test("homepage hero entry animates without forcing motion", async () => {
+  const styles = await readFile(
+    new URL("../app/globals.css", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(styles, /\.hero-actions \.hub-entry-link:hover/);
+  assert.match(styles, /background: var\(--blue\)/);
+  assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(styles, /\.hero-actions \.hub-entry-link \{\s+transition: none;/);
 });
 
 test("plugin catalog and details render backend-provided icon URLs", async () => {
@@ -198,7 +212,7 @@ test("homepage H1 includes the space and a site nav", async () => {
     html,
     /<h1>DeepSeek Harness(?:<!-- -->)?\s+<span>Plugin Hub<\/span><\/h1>/,
   );
-  assert.match(html, /<nav class="site-nav"[^>]*>/);
+  assert.match(html, /<nav class="hub-nav"[^>]*>/);
   assert.match(html, /href="\/guides"/);
   assert.match(html, /href="\/profiles"/);
   assert.match(html, /href="\/status"/);

@@ -2974,10 +2974,33 @@ body {
 .hero-actions .hub-entry-link {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   border: 1px solid #4653e6;
   border-radius: 8px;
+  background: rgb(255 255 255 / 78%);
   padding: 10px 22px;
   font-size: 14px;
+  box-shadow: 0 2px 8px rgb(70 83 230 / 8%);
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.hero-actions .hub-entry-link:hover,
+.hero-actions .hub-entry-link:focus-visible {
+  border-color: var(--blue);
+  background: var(--blue);
+  box-shadow: 0 10px 24px rgb(77 107 254 / 28%);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.hero-actions .hub-entry-link:active {
+  box-shadow: 0 5px 14px rgb(77 107 254 / 22%);
+  transform: translateY(0);
 }
 
 .hero-secondary-link {
@@ -2989,4 +3012,16 @@ body {
 
 .hero-secondary-link:hover {
   text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-actions .hub-entry-link {
+    transition: none;
+  }
+
+  .hero-actions .hub-entry-link:hover,
+  .hero-actions .hub-entry-link:focus-visible,
+  .hero-actions .hub-entry-link:active {
+    transform: none;
+  }
 }
