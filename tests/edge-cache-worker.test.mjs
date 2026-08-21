@@ -78,3 +78,44 @@ test("the Worker caches anonymous public HTML by locale", async () => {
   const signedIn = await fetchPage("wos-session=sealed");
   assert.equal(signedIn.headers.get("x-dsh-edge-cache"), "BYPASS");
 });
+
+test("the Worker bypasses edge caching when the runtime denies the default cache", async () => {
+  const restrictedCacheStorage = {};
+  Object.defineProperty(restrictedCacheStorage, "default", {
+    configurable: true,
+    get() {
+      throw new Error("This Worker is not permitted to access the default cache.");
+    },
+  });
+  Object.defineProperty(globalThis, "caches", {
+    configurable: true,
+    value: restrictedCacheStorage,
+  });
+
+  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
+  workerUrl.searchParams.set("restricted-cache-test", `${process.pid}-${Date.now()}`);
+  const { default: worker } = await import(workerUrl.href);
+  const response = await worker.fetch(
+    new Request("http://localhost/docs", {
+      headers: { accept: "text/html" },
+    }),
+    {
+      ASSETS: {
+        fetch: async () => new Response("Not found", { status: 404 }),
+      },
+      WORKOS_CLIENT_ID: "client_cache_test",
+      WORKOS_API_KEY: "sk_test_cache",
+      WORKOS_COOKIE_PASSWORD:
+        "cache-test-cookie-password-at-least-32-characters",
+      NEXT_PUBLIC_WORKOS_REDIRECT_URI: "http://localhost/callback",
+    },
+    {
+      waitUntil() {},
+      passThroughOnException() {},
+    },
+  );
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("x-dsh-edge-cache"), "BYPASS");
+  assert.match(await response.text(), /可靠地使用与构建插件/);
+});

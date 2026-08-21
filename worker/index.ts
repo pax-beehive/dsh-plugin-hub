@@ -28,7 +28,13 @@ interface ExecutionContext {
 type CacheStorageWithDefault = CacheStorage & { default?: Cache };
 
 function defaultEdgeCache(): Cache | null {
-  return (globalThis.caches as CacheStorageWithDefault | undefined)?.default ?? null;
+  try {
+    return (globalThis.caches as CacheStorageWithDefault | undefined)?.default ?? null;
+  } catch {
+    // Some compatible Worker runtimes expose CacheStorage but reject access to
+    // the provider-specific default cache. Rendering must still work there.
+    return null;
+  }
 }
 
 // Image security config. SVG sources with .svg extension auto-skip the
