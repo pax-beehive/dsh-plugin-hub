@@ -54,9 +54,10 @@ test("security headers set a short public cache on indexable pages", async () =>
   );
   assert.equal(
     response.headers.get("cache-control"),
-    "public, s-maxage=60, stale-while-revalidate=300",
+    "public, s-maxage=300, stale-while-revalidate=3600",
   );
   assert.match(response.headers.get("vary") ?? "", /Cookie/);
+  assert.match(response.headers.get("vary") ?? "", /Accept-Language/);
   assert.equal(response.headers.get("x-frame-options"), "DENY");
 });
 

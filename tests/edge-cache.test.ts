@@ -24,7 +24,7 @@ test("public HTML cache varies only on rendered query fields and locale", () => 
   assert.equal(requestLocale(request), "en");
   assert.equal(
     key.search,
-    "?__dsh_locale=en&page=2&q=memory&sort=updated",
+    "?__dsh_cache=v2&__dsh_locale=en&page=2&q=memory&sort=updated",
   );
 });
 
@@ -95,4 +95,16 @@ test("edge diagnostics preserve the response and expose cache timing", async () 
   assert.match(response.headers.get("server-timing") ?? "", /worker;dur=12\.3/);
   assert.match(response.headers.get("server-timing") ?? "", /edge-cache;desc="hit"/);
   assert.equal(await response.text(), "ok");
+});
+
+test("public HTML cache keys are versioned and do not vary by country", () => {
+  const request = htmlRequest("/plugins", {
+    "cf-ipcountry": "CN",
+    cookie: "dsh-hub-locale=zh",
+  });
+  const key = new URL(publicPageCacheKey(request).url);
+  assert.equal(key.searchParams.get("__dsh_cache"), "v2");
+  assert.equal(key.searchParams.get("__dsh_locale"), "zh");
+  assert.equal(key.searchParams.has("country"), false);
+  assert.equal(key.searchParams.has("cf-ipcountry"), false);
 });

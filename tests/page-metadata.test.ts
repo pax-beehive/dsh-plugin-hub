@@ -5,7 +5,7 @@ import { absoluteUrl, SITE_HOME } from "../lib/site-url.ts";
 
 test("homepage metadata self-canonicals with a trailing slash and owns index.md", () => {
   const metadata = homePageMetadata({
-    title: "DSH Plugin Hub — DeepSeek Harness Plugins, Profiles & Docs",
+    title: "DSH plugin registry — exact versions, manifests, one-command installs",
     description: "Community registry",
   });
 
@@ -31,6 +31,20 @@ test("inner pages set matching canonical and og:url", () => {
   assert.notEqual(metadata.alternates?.canonical, SITE_HOME);
 });
 
+test("status page sets matching canonical and og:url", () => {
+  const metadata = pageMetadata({
+    path: "/status",
+    title: "Status — DSH Plugin Hub",
+    description: "Pipeline status",
+  });
+
+  assert.equal(metadata.alternates?.canonical, "https://dshpluginhub.ai/status");
+  assert.equal(metadata.openGraph?.url, "https://dshpluginhub.ai/status");
+  assert.equal(metadata.openGraph?.title, "Status — DSH Plugin Hub");
+  assert.equal(metadata.alternates?.types, undefined);
+  assert.notEqual(metadata.alternates?.canonical, SITE_HOME);
+});
+
 test("report is noindex and omitted from markdown alternates", () => {
   const metadata = pageMetadata({
     path: "/report",
@@ -49,10 +63,11 @@ test("404 metadata is noindex only and does not reuse the homepage", () => {
   assert.equal(notFoundMetadata.description, undefined);
   assert.equal(notFoundMetadata.alternates, undefined);
   assert.equal(notFoundMetadata.openGraph, undefined);
-  assert.notEqual(notFoundMetadata.title, "DSH Plugin Hub — DeepSeek Harness Plugins, Profiles & Docs");
+  assert.notEqual(notFoundMetadata.title, "DSH plugin registry — exact versions, manifests, one-command installs");
 });
 
 test("absoluteUrl uses the trailing-slash homepage convention", () => {
   assert.equal(absoluteUrl("/"), SITE_HOME);
   assert.equal(absoluteUrl("/docs"), "https://dshpluginhub.ai/docs");
+  assert.equal(absoluteUrl("/status"), "https://dshpluginhub.ai/status");
 });
