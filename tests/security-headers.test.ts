@@ -39,6 +39,13 @@ test("security headers allow optional Google and ChatGPT Ads pixels", async () =
   assert.match(csp, /img-src[^;]*https:\/\/www\.google\.com/);
 });
 
+test("security headers allow backend-provided Gravatar plugin icons", () => {
+  const response = withSecurityHeaders(new Response("ok"));
+  const csp = response.headers.get("content-security-policy") ?? "";
+
+  assert.match(csp, /img-src[^;]*https:\/\/www\.gravatar\.com/);
+});
+
 test("security headers set a short public cache on indexable pages", async () => {
   const response = withSecurityHeaders(
     new Response("ok"),

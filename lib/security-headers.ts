@@ -12,7 +12,7 @@ export function withSecurityHeaders(response: Response, request?: Request) {
       "form-action 'self'",
       "frame-ancestors 'none'",
       "frame-src https://challenges.cloudflare.com",
-      "img-src 'self' data: https://www.google-analytics.com https://www.googleadservices.com https://www.googletagmanager.com https://bzr.openai.com https://www.google.com",
+      "img-src 'self' data: https://www.gravatar.com https://www.google-analytics.com https://www.googleadservices.com https://www.googletagmanager.com https://bzr.openai.com https://www.google.com",
       "object-src 'none'",
       "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://bzrcdn.openai.com",
       "style-src 'self' 'unsafe-inline'",
