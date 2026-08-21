@@ -23,3 +23,7 @@ The web shell remains replaceable because domain code cannot import Next.js, vin
 - The Hub gains independently publishable packages without a rewrite of the working landing site.
 - HMR for the Hub web application follows vinext/Vite. DSH profile HMR remains a separate Cordis behavior represented by registry metadata and documentation.
 - A future React Router migration can replace the web shell without changing the registry contracts or CLI protocol.
+
+The original D1/waitlist retention described by this decision was superseded by
+[ADR 0003](0003-frontend-has-no-product-persistence.md) after the Go Hub backend
+became the production system of record.

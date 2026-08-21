@@ -1,5 +1,5 @@
+import HubHeader from "@/components/HubHeader";
 import Link from "next/link";
-import LanguageSwitch from "@/components/LanguageSwitch";
 import { getHubLocale } from "@/lib/i18n-server";
 
 export async function generateMetadata() {
@@ -25,21 +25,17 @@ export default async function AuthErrorPage() {
   };
   return (
     <main className="dashboard-shell">
-      <header className="dashboard-header">
-        <Link className="brand" href="/">
-          <span className="brand-mark">H</span>
-          DSH <strong>Plugin Hub</strong>
-        </Link>
-        <LanguageSwitch locale={locale} />
-      </header>
-      <section className="dashboard-card">
-        <p className="dashboard-eyebrow">{t.eyebrow}</p>
-        <h1>{t.title}</h1>
-        <p>{t.body}</p>
-        <Link className="dashboard-primary" href="/sign-in">
-          {t.retry}
-        </Link>
-      </section>
+      <HubHeader locale={locale} />
+      <div className="dashboard-content">
+        <section className="dashboard-card">
+          <p className="dashboard-eyebrow">{t.eyebrow}</p>
+          <h1>{t.title}</h1>
+          <p>{t.body}</p>
+          <Link className="dashboard-primary" href="/sign-in">
+            {t.retry}
+          </Link>
+        </section>
+      </div>
     </main>
   );
 }

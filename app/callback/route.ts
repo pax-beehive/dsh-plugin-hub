@@ -57,8 +57,7 @@ async function emitSignInSuccess(email: string): Promise<void> {
 export const GET = handleAuth({
   returnPathname: "/dashboard",
   onSuccess: async ({ user }) => {
-    // Throws on failure, which handleAuth catches and routes to onError —
-    // same behavior as the previous D1 write.
+    // Throws on failure, which handleAuth catches and routes to onError.
     await upsertHubWorkosUser({
       workosUserId: user.id,
       email: user.email,

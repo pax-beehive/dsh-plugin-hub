@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { pluginIconUrl } from "@/lib/plugin-icon-url";
 
 export default function PluginIcon({
   className,
@@ -13,16 +14,17 @@ export default function PluginIcon({
 }) {
   const [failed, setFailed] = useState(false);
   const fallback = displayName.trim().slice(0, 1).toUpperCase() || "P";
+  const src = pluginIconUrl(iconUrl);
 
   return (
     <span className={className} aria-hidden="true">
-      {iconUrl && !failed ? (
-        // Plugin icons may be hosted by publishers or provided by Gravatar.
+      {src && !failed ? (
+        // Gravatar images are routed through the same-origin edge cache.
         // eslint-disable-next-line @next/next/no-img-element
         <img
           alt=""
           decoding="async"
-          src={iconUrl}
+          src={src}
           onError={() => setFailed(true)}
         />
       ) : (

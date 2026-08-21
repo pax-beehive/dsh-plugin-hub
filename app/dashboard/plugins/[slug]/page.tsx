@@ -1,9 +1,8 @@
 import EditPluginListingForm from "@/components/EditPluginListingForm";
+import { DashboardHeader } from "@/components/HubHeader";
 import { getOwnedPlugin } from "@/lib/hub-api";
 import { withAuth } from "@workos-inc/authkit-nextjs";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import LanguageSwitch from "@/components/LanguageSwitch";
 import { getHubLocale } from "@/lib/i18n-server";
 
 export const dynamic = "force-dynamic";
@@ -27,22 +26,18 @@ export default async function EditPluginListingPage({
 
   return (
     <main className="dashboard-shell">
-      <header className="dashboard-header">
-        <Link className="brand" href="/dashboard">
-          <span className="brand-mark">D</span>
-          DSH <strong>Plugin Hub</strong>
-        </Link>
-        <div className="dashboard-header-actions">
-          <LanguageSwitch locale={locale} />
-          <Link className="dashboard-link" href={`/plugins/${plugin.slug}`}>{t.view}</Link>
-        </div>
-      </header>
-      <section className="dashboard-card dashboard-card-wide listing-edit-card">
-        <p className="dashboard-eyebrow">CLAIMED PLUGIN</p>
-        <h1>{plugin.displayName}</h1>
-        <p>{plugin.packageName}: {t.intro}</p>
-        <EditPluginListingForm plugin={plugin} locale={locale} />
-      </section>
+      <DashboardHeader
+        locale={locale}
+        contextAction={{ href: `/plugins/${plugin.slug}`, label: t.view }}
+      />
+      <div className="dashboard-content">
+        <section className="dashboard-card dashboard-card-wide listing-edit-card">
+          <p className="dashboard-eyebrow">CLAIMED PLUGIN</p>
+          <h1>{plugin.displayName}</h1>
+          <p>{plugin.packageName}: {t.intro}</p>
+          <EditPluginListingForm plugin={plugin} locale={locale} />
+        </section>
+      </div>
     </main>
   );
 }

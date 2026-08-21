@@ -1,6 +1,10 @@
-import { pluginRecordSchema } from "@dsh-plugin-hub/schemas";
+import {
+  pluginRecordSchema,
+  type PluginRecord,
+} from "@dsh-plugin-hub/schemas";
 import { z } from "zod";
-import type { PluginSummary } from "./registry-service";
+
+export type PluginSummary = Omit<PluginRecord, "versions">;
 
 const pluginSummarySchema = pluginRecordSchema.omit({ versions: true });
 

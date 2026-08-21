@@ -14,25 +14,28 @@ plugins and profiles. The project is independent and unofficial.
 - Public one-time package submission and signed-in immediate sync
 - Optional GitHub App repository claim and listing management
 - Immutable published versions; listing copy may be refreshed independently
-- Cloudflare Worker + isolated D1 staging environment
+- Vinext SSR/RSC web shell on Cloudflare Workers
+- Locale-aware public HTML and Hub API edge caching
+- Same-origin cached Gravatar plugin icons
+- Go Hub backend on Cloud Run with PostgreSQL persistence
 
 ## Workspace
 
 ```text
 app/                 vinext / Next.js routes and publisher UI
-db/                  D1 schema and stores
-lib/                 registry, GitHub App and publication services
+components/          shared server and client UI modules
+lib/                 Hub adapters, auth, i18n, SEO and edge policy
 packages/schemas/    shared Zod wire and manifest schemas
 packages/registry/   version and profile-order resolution
 packages/cli/        dsh-hub command-line client
 examples/             copyable, schema-tested starter bundles
-drizzle/             committed D1 migrations
-scripts/seeds/       reviewed, repeatable registry seed data
 ```
 
 The web shell stays on vinext so it deploys as a Cloudflare Worker. Portable
 registry logic lives in workspace packages and has no Cloudflare dependency.
 See [`docs/adr/0001-retain-vinext-cloudflare-worker.md`](docs/adr/0001-retain-vinext-cloudflare-worker.md).
+The current runtime map and ownership rules live in
+[`docs/architecture.md`](docs/architecture.md).
 
 ## Local development
 
@@ -50,10 +53,10 @@ Run all gates:
 pnpm check
 ```
 
-The full suite builds the Worker and portable packages, validates committed D1
-migrations, and runs API, auth, publication, CLI and workerd integration tests.
+The full suite builds the Worker and portable packages and runs web, adapter,
+auth, schema, registry and CLI tests.
 
-## Registry API
+## Hub API
 
 ```text
 GET /api/v1/packages?q=vision&limit=20
@@ -64,7 +67,8 @@ GET /api/v1/profiles/{slug}
 
 Responses include exact source metadata, compatibility, HMR behavior and
 ordered profile bundles. Public reads are cacheable for 60 seconds with stale
-revalidation.
+revalidation. The Go backend owns these endpoints; browser requests use the
+web shell's same-origin `/api/*` adapter.
 
 ## CLI
 
@@ -107,44 +111,31 @@ See [`docs/publishing.md`](docs/publishing.md) for the manifest and security
 contract. A complete minimal package is available in
 [`examples/example-hello`](examples/example-hello).
 
-New teammates should start with [`docs/handover.md`](docs/handover.md) for the
-architecture, resource inventory, code map, operating commands, known limits,
-and production checklist.
+New teammates should start with [`docs/architecture.md`](docs/architecture.md).
 
 ## Staging
 
-Staging uses the Worker `deepseek-harness-plugin-hub-staging`, D1 database
-`deepseek-plugin-hub-staging`, Queue `dsh-plugin-hub-npm-sync-staging`, and
+Staging uses the Worker `deepseek-harness-plugin-hub-staging`, the shared Hub
+backend origin configured by `HUB_API_ORIGIN`, and
 `https://staging.dshpluginhub.ai`.
 
 ```bash
-pnpm db:migrate:staging
-pnpm db:seed:staging
 pnpm deploy:staging
 ```
 
 Secret names are documented in `.env.example`. Store them with `wrangler secret
-put`; never commit their values. Production WorkOS credentials, production D1
-separation and the production route remain launch TODOs.
+put`; never commit their values.
 
 When using AuthKit Hosted UI, configure `/sign-in` as the WorkOS Sign-in
 endpoint (`initiate_login_uri`) and leave the AuthKit external login URI empty.
 The external login field is reserved for applications that provide their own
 authentication UI and complete the `external_auth_id` flow.
 
-## Database changes
-
-```bash
-pnpm db:generate
-pnpm check
-```
-
-Review the generated SQL before applying it. Staging migrations always run
-against the dedicated staging database.
-
 ## Security invariants
 
 - WorkOS sessions protect the dashboard and management API.
+- The web shell has no database binding; all product persistence belongs to the
+  Go Hub backend.
 - npm responses are bound to the requested package name and exact manifest version.
 - npm search keywords only create candidates; the DSH manifest is the admission gate.
 - Public manifests contain only the install-relevant package fields; npm user,
@@ -160,7 +151,7 @@ against the dedicated staging database.
 - GitHub user access tokens and installation tokens are never stored.
 - GitHub App private keys and OAuth client secrets are Worker secrets.
 - Public publication excludes private repositories.
-- The waitlist retains Turnstile, D1 rate limiting and non-PII health metrics.
+- Abuse reports use Turnstile and are validated and persisted by the Hub backend.
 
 ## License and independence
 

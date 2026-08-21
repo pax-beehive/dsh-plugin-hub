@@ -15,7 +15,8 @@ test("homepage H1 keeps a space between Harness and Plugin Hub", () => {
   assert.match(header, /href="\/guides"/);
   assert.match(header, /href="\/profiles"/);
   assert.match(header, /href="\/status"/);
-  assert.match(header, /className="brand" href="\/"/);
+  assert.match(header, /<Link className="brand" href=\{homeHref\}>/);
+  assert.match(header, /<HeaderChrome homeHref="\/" locale=\{locale\}>/);
   assert.doesNotMatch(home, /href="#top"/);
   assert.doesNotMatch(home, /priority/);
 });

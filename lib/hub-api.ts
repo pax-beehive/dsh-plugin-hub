@@ -11,8 +11,11 @@ import {
   type ProfileCatalogItem,
 } from "@dsh-plugin-hub/schemas";
 import { z } from "zod";
-import { parseRegistrySearchResponse } from "./registry-search-response";
-import type { PluginSummary } from "./registry-service";
+import { fetchHub } from "./cloudflare-fetch";
+import {
+  parseRegistrySearchResponse,
+  type PluginSummary,
+} from "./registry-search-response";
 
 export type { PluginSummary };
 
@@ -84,7 +87,7 @@ async function hubFetch(
     const cookie = (await headers()).get("cookie");
     if (cookie) requestHeaders.cookie = cookie;
   }
-  return fetch(`${baseUrl}${path}`, { headers: requestHeaders });
+  return fetchHub(`${baseUrl}${path}`, { headers: requestHeaders });
 }
 
 async function expectOk(response: Response): Promise<unknown> {

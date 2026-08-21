@@ -102,19 +102,6 @@ a {
   color: var(--blue);
 }
 
-.brand-mark {
-  display: grid;
-  width: 30px;
-  height: 30px;
-  place-items: center;
-  border-radius: 9px;
-  background: linear-gradient(135deg, var(--blue), #6e8bff);
-  box-shadow: 0 4px 14px rgb(77 107 254 / 35%);
-  color: #fff;
-  font-size: 15px;
-  font-weight: 700;
-}
-
 .brand-logo {
   display: grid;
   width: 30px;
@@ -272,126 +259,6 @@ a {
   text-wrap: pretty;
 }
 
-.waitlist-form {
-  display: flex;
-  width: min(480px, 90vw);
-  flex-direction: column;
-  align-items: stretch;
-  gap: 12px;
-  margin-top: 42px;
-}
-
-.waitlist-fields {
-  display: flex;
-  gap: 10px;
-}
-
-.waitlist-form input {
-  min-width: 0;
-  height: 50px;
-  flex: 1;
-  padding: 0 18px;
-  border: 1px solid #dde2ef;
-  border-radius: 12px;
-  outline: none;
-  background: #fff;
-  box-shadow: 0 1px 2px rgb(11 17 48 / 4%);
-  color: var(--ink);
-  font-size: 15px;
-  transition: 160ms ease;
-}
-
-.waitlist-form input:focus {
-  border-color: var(--blue);
-  box-shadow: 0 0 0 4px rgb(77 107 254 / 14%);
-}
-
-.waitlist-form.is-complete input {
-  border-color: rgb(26 157 102 / 32%);
-  background: rgb(24 160 104 / 5%);
-  color: var(--muted);
-  cursor: not-allowed;
-}
-
-.waitlist-form button {
-  display: inline-flex;
-  height: 50px;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 0 26px;
-  border: 0;
-  border-radius: 12px;
-  background: var(--blue);
-  box-shadow: 0 6px 18px rgb(77 107 254 / 35%);
-  color: #fff;
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: 650;
-  white-space: nowrap;
-  transition: background 160ms ease, transform 160ms ease;
-}
-
-.waitlist-form button:hover {
-  background: var(--blue-dark);
-}
-
-.waitlist-form button:active {
-  transform: translateY(1px);
-}
-
-.waitlist-form button:disabled {
-  cursor: wait;
-  opacity: 0.72;
-}
-
-.waitlist-form button.is-complete,
-.waitlist-form button.is-complete:hover {
-  background: #169c64;
-  box-shadow: 0 8px 24px rgb(22 156 100 / 28%);
-  cursor: default;
-  opacity: 1;
-  animation: subscription-confirm 620ms cubic-bezier(0.2, 0.9, 0.3, 1.25)
-    both;
-}
-
-.subscription-check {
-  display: grid;
-  width: 20px;
-  height: 20px;
-  place-items: center;
-  border-radius: 50%;
-  background: rgb(255 255 255 / 20%);
-  font-size: 13px;
-  font-weight: 800;
-  animation: subscription-check-pop 520ms 100ms
-    cubic-bezier(0.2, 0.9, 0.3, 1.4) both;
-}
-
-.honeypot {
-  position: absolute;
-  left: -10000px;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-}
-
-.form-hint {
-  min-height: 18px;
-  margin: 13px 0 0;
-  color: var(--quiet);
-  font-size: 13px;
-}
-
-.form-hint.error {
-  color: #b42318;
-}
-
-.form-hint.success {
-  color: #13764c;
-  animation: subscription-message-rise 520ms ease-out both;
-}
-
 .turnstile-shell {
   min-height: 65px;
 }
@@ -405,13 +272,6 @@ a {
   font-size: 12px;
 }
 
-.privacy-hint {
-  margin: -4px 0 0;
-  color: var(--quiet);
-  font-size: 11px;
-}
-
-.privacy-hint a,
 .footer-notes a {
   color: var(--muted);
   text-underline-offset: 3px;
@@ -725,31 +585,13 @@ a {
 
 .dashboard-shell {
   min-height: 100svh;
-  padding: 28px clamp(20px, 5vw, 72px) 72px;
   background:
     radial-gradient(900px 480px at 50% -180px, rgb(77 107 254 / 18%), transparent 70%),
     #f8f9fd;
 }
 
-.dashboard-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-.dashboard-link {
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 650;
-  text-decoration: none;
-}
-
-.dashboard-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 14px;
+.dashboard-content {
+  padding: 28px clamp(20px, 5vw, 72px) 72px;
 }
 
 .dashboard-card {
@@ -1891,40 +1733,6 @@ a {
   }
 }
 
-@keyframes subscription-confirm {
-  0% {
-    transform: scale(0.96);
-  }
-  55% {
-    transform: scale(1.035);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes subscription-check-pop {
-  0% {
-    opacity: 0;
-    transform: scale(0.35) rotate(-18deg);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) rotate(0);
-  }
-}
-
-@keyframes subscription-message-rise {
-  0% {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @media (max-width: 760px) {
   .site-header {
     padding: 18px 20px;
@@ -2064,20 +1872,6 @@ a {
   }
 }
 
-@media (max-width: 520px) {
-  .brand-mark {
-    display: none;
-  }
-
-  .waitlist-fields {
-    flex-direction: column;
-  }
-
-  .waitlist-form button {
-    width: 100%;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -2141,14 +1935,6 @@ body {
   opacity: 0.04;
 }
 
-/* Brand: solid mark, no gradient/shadow. */
-.brand-mark {
-  border-radius: 8px;
-  background: var(--ink);
-  box-shadow: none;
-  font-size: 14px;
-}
-
 /* Hero: solid accent instead of gradient text, calmer chip. */
 .eyebrow {
   padding: 6px 13px;
@@ -2173,18 +1959,6 @@ body {
 
 .intro {
   font-size: 16px;
-}
-
-/* Forms: hairline borders, no drop shadows. */
-.waitlist-form input {
-  border-color: var(--line-strong);
-  border-radius: 10px;
-  box-shadow: none;
-}
-
-.waitlist-form button {
-  border-radius: 10px;
-  box-shadow: none;
 }
 
 /* Feature cards: flat and still. */
@@ -3005,7 +2779,7 @@ body {
 }
 
 /* ------------------------------------------------------------------ */
-/* Launch: hero CTA row (waitlist form removed)                        */
+/* Launch: hero CTA row                                                */
 /* ------------------------------------------------------------------ */
 
 .hero-actions {

@@ -4,19 +4,14 @@
   "account_id": "221784d24eb2a95d148bc96b6f06d6be",
   "main": "dist/server/index.js",
   "compatibility_date": "2026-05-15",
+  "placement": {
+    "mode": "smart"
+  },
   "assets": {
     "directory": "dist/client",
     "binding": "ASSETS",
     "run_worker_first": ["/robots.txt", "/sitemap.xml", "/sitemap/*"]
   },
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "deepseek-plugin-hub-waitlist",
-      "database_id": "33f8495c-1d62-48a1-af4d-4113bc3aacc1",
-      "migrations_dir": "drizzle"
-    }
-  ],
   "workers_dev": true,
   "preview_urls": false,
   "observability": {
@@ -48,15 +43,7 @@
         "GITHUB_APP_SLUG": "pax-dsh-hub",
         "GITHUB_CLIENT_ID": "Iv23liVukxgp1lfIaSI5",
         "GITHUB_REDIRECT_URI": "https://staging.dshpluginhub.ai/integrations/github/oauth/callback"
-      },
-      "d1_databases": [
-        {
-          "binding": "DB",
-          "database_name": "deepseek-plugin-hub-staging",
-          "database_id": "d70df57d-db32-4ee6-88f1-153ff93e94b3",
-          "migrations_dir": "drizzle"
-        }
-      ]
+      }
     }
   }
 }

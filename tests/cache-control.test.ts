@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  PLUGIN_ICON_CACHE_CONTROL,
   PRIVATE_CACHE_CONTROL,
   PUBLIC_CACHE_CONTROL,
   cacheControlFor,
@@ -35,4 +36,13 @@ test("auth, API, collect, and report stay no-store", () => {
 test("non-GET report submissions are never cached", () => {
   assert.equal(cacheControlFor(request("/report", "POST")), PRIVATE_CACHE_CONTROL);
   assert.equal(cacheControlFor(request("/", "POST")), PRIVATE_CACHE_CONTROL);
+});
+
+test("same-origin plugin icons get a long immutable-origin edge cache", () => {
+  assert.equal(
+    cacheControlFor(
+      request("/plugin-icons/gravatar/2a1454e724832f3b0d3b15c42b347401"),
+    ),
+    PLUGIN_ICON_CACHE_CONTROL,
+  );
 });

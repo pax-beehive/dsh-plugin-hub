@@ -79,7 +79,7 @@
 |---|---|---|
 | B1 | 指南页：install / build / publish（publishing.md 已有素材，翻译成面向用户的指南） | 2.3 |
 | B2 | **错误修复长尾页** 5–10 篇（ERR_PNPM_IGNORED_BUILDS、plugin failed to load、profile 相关），中英双语 | 2.3 |
-| B3 | 安全立场页 + abuse report 端点（D1 一张表 + Turnstile，已有 waitlist rate-limit 模式可复用） | 2.5 |
+| B3 | 安全立场页 + abuse report 端点（Go Hub 后端写入 PostgreSQL，前端使用 Turnstile） | 2.5 |
 
 ### Phase C：站内分发（1 个月内，战略级）
 

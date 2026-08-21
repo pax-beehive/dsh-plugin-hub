@@ -1,5 +1,7 @@
 export const PUBLIC_CACHE_CONTROL =
   "public, s-maxage=60, stale-while-revalidate=300";
+export const PLUGIN_ICON_CACHE_CONTROL =
+  "public, max-age=86400, s-maxage=2592000, stale-while-revalidate=604800";
 export const PRIVATE_CACHE_CONTROL = "no-store";
 
 const PRIVATE_EXACT = new Set([
@@ -32,6 +34,9 @@ export function cacheControlFor(request: Request): string {
   const method = request.method.toUpperCase();
   if (method !== "GET" && method !== "HEAD") return PRIVATE_CACHE_CONTROL;
   const pathname = new URL(request.url).pathname;
+  if (pathname.startsWith("/plugin-icons/gravatar/")) {
+    return PLUGIN_ICON_CACHE_CONTROL;
+  }
   if (isPersonalizedPath(pathname)) return PRIVATE_CACHE_CONTROL;
   return PUBLIC_CACHE_CONTROL;
 }

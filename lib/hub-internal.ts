@@ -1,8 +1,7 @@
 import { env } from "cloudflare:workers";
 import type { GitHubClaimStore, VerifiedGitHubInstallation } from "./github-app";
 
-// Server-to-server calls from auth callbacks into the Go Hub API. These write
-// identity data that used to go straight to D1.
+// Server-to-server calls from auth callbacks into the Go Hub API.
 
 function resolveInternalConfig(): { origin: string; token: string } {
   const origin = env.HUB_API_ORIGIN ?? process.env.HUB_API_ORIGIN;

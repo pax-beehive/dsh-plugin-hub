@@ -47,7 +47,7 @@ export const TurnstileWidget = forwardRef<
   TurnstileWidgetHandle,
   TurnstileWidgetProps
 >(function TurnstileWidget(
-  { siteKey, language, action = "waitlist", onTokenChange },
+  { siteKey, language, action = "report", onTokenChange },
   ref,
 ) {
   const containerRef = useRef<HTMLDivElement>(null);

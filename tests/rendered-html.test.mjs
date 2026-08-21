@@ -98,9 +98,26 @@ test("catalog header includes the shared sign-in action", async () => {
   assert.match(header, /<BrandLogo \/>/);
   assert.match(header, /className="hub-signin-link" href="\/sign-in"/);
   assert.match(header, /t\.nav\.signIn/);
+  assert.match(header, /export function DashboardHeader/);
+  assert.match(header, /<HeaderChrome homeHref="\/dashboard" locale=\{locale\}>/);
   assert.match(logo, /src="\/deepseek-whale-black\.svg"/);
   assert.match(styles, /padding: 13px max\(20px, calc\(50% - 590px\)\)/);
   assert.match(styles, /\.catalog-section \{\s+width: min\(1180px, calc\(100% - 40px\)\)/);
+});
+
+test("publisher pages use the shared header chrome", async () => {
+  const [dashboard, editor, authError] = await Promise.all([
+    readFile(new URL("../app/dashboard/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/plugins/[slug]/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/(default)/auth/error/page.tsx", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(dashboard, /<DashboardHeader locale=\{locale\} \/>/);
+  assert.match(editor, /<DashboardHeader/);
+  assert.match(authError, /<HubHeader locale=\{locale\} \/>/);
+  for (const source of [dashboard, editor, authError]) {
+    assert.doesNotMatch(source, /dashboard-header|brand-mark/);
+  }
 });
 
 test("public and dashboard layouts share the black whale favicon", async () => {
@@ -140,7 +157,8 @@ test("plugin catalog and details render backend-provided icon URLs", async () =>
     readFile(new URL("../app/(default)/plugins/[slug]/page.tsx", import.meta.url), "utf8"),
   ]);
 
-  assert.match(component, /src=\{iconUrl\}/);
+  assert.match(component, /const src = pluginIconUrl\(iconUrl\)/);
+  assert.match(component, /src=\{src\}/);
   assert.match(component, /onError=\{\(\) => setFailed\(true\)\}/);
   for (const source of [catalog, category, detail]) {
     assert.match(source, /<PluginIcon/);
