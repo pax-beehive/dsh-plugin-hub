@@ -1,11 +1,12 @@
 import HubHeader from "@/components/HubHeader";
 import PluginIcon from "@/components/PluginIcon";
-import SubmitNpmPackageForm from "@/components/SubmitNpmPackageForm";
+import PluginRecommend from "@/components/PluginRecommend";
 import {
   listCategories,
   listSourceOnlyListings,
   searchPackages,
 } from "@/lib/hub-api";
+import { formatCompactCount, isHotWeeklyDownloads } from "@/lib/format-count";
 import { hubCopy, localeTags } from "@/lib/i18n";
 import { getHubLocale } from "@/lib/i18n-server";
 import { pageMetadata } from "@/lib/page-metadata";
@@ -59,7 +60,7 @@ function pageWindow(page: number, pageCount: number): Array<number | null> {
 export default async function PluginsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; page?: string; sort?: string }>;
+  searchParams: Promise<{ q?: string; page?: string; sort?: string; ask?: string }>;
 }) {
   const params = await searchParams;
   const q = (params.q ?? "").trim().slice(0, 120);
@@ -121,18 +122,7 @@ export default async function PluginsPage({
         <p className="catalog-eyebrow">COMMUNITY REGISTRY</p>
         <h1>{t.plugins.title}</h1>
         <p>{t.plugins.intro}</p>
-        <form className="catalog-search" action="/plugins">
-          <label className="sr-only" htmlFor="plugin-search">{t.plugins.searchLabel}</label>
-          <input
-            id="plugin-search"
-            name="q"
-            type="search"
-            defaultValue={q}
-            placeholder={t.plugins.searchPlaceholder}
-          />
-          <button type="submit">{t.common.search}</button>
-        </form>
-        <SubmitNpmPackageForm locale={locale} />
+        <PluginRecommend ask={params.ask} locale={locale} />
         {categories.length ? (
           <nav className="category-rail" aria-label={t.plugins.browseCategories}>
             {categories.map((entry) => (
@@ -197,6 +187,7 @@ export default async function PluginsPage({
                       ★ {plugin.github.stars}
                     </span>
                   ) : null}
+                  <span className={isHotWeeklyDownloads(plugin.weeklyDownloads) ? "tag-signal tag-signal-hot" : "tag-signal"} title={t.plugins.weeklyDownloadsTitle}>{isHotWeeklyDownloads(plugin.weeklyDownloads) ? "\u{1F525} " : ""}\u2193 {formatCompactCount(plugin.weeklyDownloads)}</span>
                 </div>
                 <div className="plugin-card-meta">
                   <span>{t.plugins.updatedLabel} {new Date(plugin.updatedAt).toLocaleDateString(localeTags[locale])}</span>
@@ -273,7 +264,7 @@ export default async function PluginsPage({
                 <div className="plugin-tags">
                   {repo.language ? <span>{repo.language}</span> : null}
                   {repo.license ? <span>{repo.license}</span> : null}
-                  <span>{t.plugins.sourceOnlyCta} ↗</span>
+                  <span>{t.plugins.sourceOnlyCta} \u2197</span>
                 </div>
               </a>
             ))}
