@@ -6,6 +6,7 @@ import {
   buildSitemapShards,
   entriesForShard,
   listAllPackages,
+  sitemapEntriesToXml,
   sitemapIndexLocs,
   sitemapShardIds,
   staticSitemapEntries,
@@ -23,7 +24,9 @@ test("static sitemap omits /report and uses the trailing-slash homepage", () => 
   const urls = staticSitemapEntries().map((entry) => entry.url);
   assert.ok(urls.includes("https://dshpluginhub.ai/"));
   assert.ok(urls.includes("https://dshpluginhub.ai/plugins"));
+  assert.ok(urls.includes("https://dshpluginhub.ai/categories"));
   assert.ok(urls.includes("https://dshpluginhub.ai/docs"));
+  assert.ok(urls.includes("https://dshpluginhub.ai/status"));
   assert.ok(urls.includes("https://dshpluginhub.ai/privacy"));
   assert.ok(urls.includes("https://dshpluginhub.ai/profiles"));
   assert.ok(urls.some((url) => url.startsWith("https://dshpluginhub.ai/docs/")));
@@ -122,4 +125,21 @@ test("stops walking when the backend repeats the first page", async () => {
   const plugins = await listAllPackages(search);
   assert.equal(plugins.length, 50);
   assert.equal(calls, 2);
+});
+
+test("serializes a urlset Vinext can serve from the Route Handler", () => {
+  const xml = sitemapEntriesToXml([
+    { url: "https://dshpluginhub.ai/", changeFrequency: "weekly", priority: 1 },
+    {
+      url: "https://dshpluginhub.ai/plugins/acme&co",
+      lastModified: "2026-08-20T00:00:00.000Z",
+    },
+  ]);
+  assert.match(xml, /^<\?xml version="1\.0" encoding="UTF-8"\?>/);
+  assert.match(xml, /xmlns="http:\/\/www.sitemaps.org\/schemas\/sitemap\/0.9"/);
+  assert.match(xml, /<urlset /);
+  assert.match(xml, /<loc>https:\/\/dshpluginhub\.ai\/<\/loc>/);
+  assert.match(xml, /<loc>https:\/\/dshpluginhub\.ai\/plugins\/acme&amp;co<\/loc>/);
+  assert.match(xml, /<lastmod>2026-08-20T00:00:00\.000Z<\/lastmod>/);
+  assert.equal(xml.includes("/report"), false);
 });
