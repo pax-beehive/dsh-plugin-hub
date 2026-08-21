@@ -175,3 +175,34 @@ export function profileStructuredData(input: {
     ]),
   ];
 }
+
+export function categoriesIndexStructuredData(input: {
+  categories: Array<{ name: string; count: number }>;
+  total: number;
+  locale: "zh" | "en";
+}): JsonLdObject[] {
+  const { categories, locale } = input;
+  const collection: JsonLdObject = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": absoluteUrl("/categories"),
+    name: locale === "en" ? "Browse all DSH plugins" : "浏览全部 DSH 插件",
+    url: absoluteUrl("/categories"),
+    isPartOf: { "@id": `${BASE_URL}/#website` },
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: categories.length,
+      itemListElement: categories.map((entry, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: entry.name,
+        url: absoluteUrl(`/categories/${encodeURIComponent(entry.name)}`),
+      })),
+    },
+  };
+  const breadcrumbs = breadcrumbList([
+    { name: locale === "en" ? "Home" : "首页", path: "/" },
+    { name: locale === "en" ? "Categories" : "分类", path: "/categories" },
+  ]);
+  return [collection, breadcrumbs];
+}

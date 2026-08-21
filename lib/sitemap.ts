@@ -33,6 +33,7 @@ export function staticSitemapEntries(): MetadataRoute.Sitemap {
   return [
     { url: SITE_HOME, changeFrequency: "weekly", priority: 1 },
     { url: absoluteUrl("/plugins"), changeFrequency: "hourly", priority: 0.9 },
+    { url: absoluteUrl("/categories"), changeFrequency: "daily", priority: 0.7 },
     { url: absoluteUrl("/profiles"), changeFrequency: "hourly", priority: 0.8 },
     { url: absoluteUrl("/docs"), changeFrequency: "weekly", priority: 0.6 },
     { url: absoluteUrl("/status"), changeFrequency: "hourly", priority: 0.4 },
@@ -178,6 +179,7 @@ function lastmodValue(value: string | Date): string {
   return value instanceof Date ? value.toISOString() : value;
 }
 
+/** Turn MetadataRoute.Sitemap entries into a urlset Vinext cannot drop. */
 export function sitemapEntriesToXml(entries: MetadataRoute.Sitemap): string {
   const urls = entries.map((entry) => {
     const lastmod = entry.lastModified
