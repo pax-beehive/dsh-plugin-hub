@@ -45,6 +45,8 @@ export const hubCopy = {
       emptyAction: "前往发布控制台",
       description: "说明",
       versions: "版本",
+      showMoreVersions: (count: number) => `查看其余 ${count} 个版本`,
+      hideVersions: "收起版本",
       latest: "最新版",
       unpackedSize: "解包体积",
       fileCount: "文件数",
@@ -151,6 +153,9 @@ export const hubCopy = {
       emptyAction: "Open publisher console",
       description: "Description",
       versions: "Versions",
+      showMoreVersions: (count: number) =>
+        `Show ${count} more ${count === 1 ? "version" : "versions"}`,
+      hideVersions: "Collapse versions",
       latest: "Latest",
       unpackedSize: "Unpacked size",
       fileCount: "Files",

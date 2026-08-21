@@ -130,6 +130,22 @@ test("plugin catalog and details render backend-provided icon URLs", async () =>
   }
 });
 
+test("plugin details collapse versions after the newest three", async () => {
+  const [detail, styles, i18n] = await Promise.all([
+    readFile(new URL("../app/(default)/plugins/[slug]/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readFile(new URL("../lib/i18n.ts", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(detail, /versionRows\.slice\(0, 3\)/);
+  assert.match(detail, /<details className="version-overflow">/);
+  assert.match(detail, /versionRows\.slice\(3\)/);
+  assert.doesNotMatch(detail, /<details className="version-overflow" open/);
+  assert.match(styles, /\.version-overflow\[open\] \.version-toggle-less/);
+  assert.match(i18n, /showMoreVersions/);
+  assert.match(i18n, /hideVersions/);
+});
+
 test("legacy English URL stores the preference and redirects to the canonical URL", async () => {
   const response = await render("/en");
   assert.equal(response.status, 308);

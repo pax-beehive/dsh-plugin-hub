@@ -74,6 +74,18 @@ export default async function PluginDetailPage({
           ? latest.unpackedSize / 1_048_576
           : latest.unpackedSize / 1024,
       );
+  const versionRows = plugin.versions.slice().reverse().map((version) => (
+    <div className="version-row" key={version.version}>
+      <div>
+        <strong>{version.version}</strong>
+        <span>{version.channel}</span>
+      </div>
+      <time dateTime={version.publishedAt}>
+        {new Date(version.publishedAt).toLocaleDateString(localeTags[locale])}
+      </time>
+    </div>
+  ));
+  const hiddenVersionCount = Math.max(0, versionRows.length - 3);
 
   return (
     <main className="hub-shell">
@@ -117,17 +129,22 @@ export default async function PluginDetailPage({
 
           <section className="version-list">
             <h2>{t.plugins.versions}</h2>
-            {plugin.versions.slice().reverse().map((version) => (
-              <div className="version-row" key={version.version}>
-                <div>
-                  <strong>{version.version}</strong>
-                  <span>{version.channel}</span>
+            {versionRows.slice(0, 3)}
+            {hiddenVersionCount > 0 ? (
+              <details className="version-overflow">
+                <summary>
+                  <span className="version-toggle-more">
+                    {t.plugins.showMoreVersions(hiddenVersionCount)}
+                  </span>
+                  <span className="version-toggle-less">
+                    {t.plugins.hideVersions}
+                  </span>
+                </summary>
+                <div className="version-overflow-rows">
+                  {versionRows.slice(3)}
                 </div>
-                <time dateTime={version.publishedAt}>
-                  {new Date(version.publishedAt).toLocaleDateString(localeTags[locale])}
-                </time>
-              </div>
-            ))}
+              </details>
+            ) : null}
           </section>
         </section>
 

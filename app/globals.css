@@ -1661,6 +1661,50 @@ a {
   font-size: 12px;
 }
 
+.version-overflow {
+  display: grid;
+}
+
+.version-overflow summary {
+  order: 2;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+  color: var(--blue-dark);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 650;
+  list-style: none;
+}
+
+.version-overflow summary::-webkit-details-marker {
+  display: none;
+}
+
+.version-overflow summary::after {
+  margin-left: 7px;
+  content: "↓";
+}
+
+.version-overflow[open] summary::after {
+  content: "↑";
+}
+
+.version-overflow-rows {
+  order: 1;
+}
+
+.version-toggle-less {
+  display: none;
+}
+
+.version-overflow[open] .version-toggle-more {
+  display: none;
+}
+
+.version-overflow[open] .version-toggle-less {
+  display: inline;
+}
+
 .detail-sidebar {
   align-self: start;
   position: sticky;
