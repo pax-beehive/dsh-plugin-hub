@@ -48,7 +48,7 @@ export default async function ProfilesPage({ searchParams }: { searchParams: Pro
         {profiles.length ? (
           <div className="profile-grid">
             {profiles.map((profile) => (
-              <Link className="profile-card" href={`/profiles/${profile.slug}`} key={profile.id}>
+              <Link className="profile-card" href={`/profiles/${profile.slug}`} key={profile.id} prefetch={false}>
                 <span className="profile-glyph" aria-hidden="true">◈</span>
                 <div><h3>{profile.name}{profile.claimed ? <span className="claimed-badge">{t.common.claimed}</span> : null}</h3><p>{profile.description || `by ${profile.owner}`}</p></div>
                 <code>{profile.bundleCount} bundles · v{profile.latestVersion}</code>

@@ -139,6 +139,7 @@ export default async function PluginsPage({
               <Link
                 href={`/categories/${encodeURIComponent(entry.name)}`}
                 key={entry.name}
+                prefetch={false}
               >
                 {entry.name}
                 <span>{entry.count}</span>
@@ -171,7 +172,7 @@ export default async function PluginsPage({
         {pageResult.items.length ? (
           <div className="plugin-grid">
             {pageResult.items.map((plugin) => (
-              <Link className="plugin-card" href={`/plugins/${plugin.slug}`} key={plugin.id}>
+              <Link className="plugin-card" href={`/plugins/${plugin.slug}`} key={plugin.id} prefetch={false}>
                 <div className="plugin-card-topline">
                   <PluginIcon
                     className="plugin-icon"
@@ -214,7 +215,7 @@ export default async function PluginsPage({
         {pageCount > 1 ? (
           <nav className="catalog-pagination" aria-label="Pagination">
             {page > 1 ? (
-              <Link className="pagination-link" href={pageHref({ page: page - 1 })}>
+              <Link className="pagination-link" href={pageHref({ page: page - 1 })} prefetch={false}>
                 ← {t.plugins.prevPage}
               </Link>
             ) : null}
@@ -227,13 +228,14 @@ export default async function PluginsPage({
                   className={`pagination-link pagination-number ${entry === page ? "active" : ""}`}
                   href={pageHref({ page: entry })}
                   key={entry}
+                  prefetch={false}
                 >
                   {entry}
                 </Link>
               ),
             )}
             {page < pageCount ? (
-              <Link className="pagination-link pagination-next" href={pageHref({ page: page + 1 })}>
+              <Link className="pagination-link pagination-next" href={pageHref({ page: page + 1 })} prefetch={false}>
                 {t.plugins.nextPage} →
               </Link>
             ) : null}

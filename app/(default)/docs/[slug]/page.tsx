@@ -90,6 +90,7 @@ export default async function DocPage({
                     aria-current={item.slug === slug ? "page" : undefined}
                     href={`/docs/${item.slug}`}
                     key={item.slug}
+                    prefetch={false}
                   >
                     {item.title[locale]}
                   </Link>
@@ -145,7 +146,7 @@ export default async function DocPage({
             <h2 id="related-docs-heading">{t.related}</h2>
             <div className="docs-related-grid">
               {related.map((item) => (
-                <Link href={`/docs/${item.slug}`} key={item.slug}>
+                <Link href={`/docs/${item.slug}`} key={item.slug} prefetch={false}>
                   <span>{docCategories.find((group) => group.id === item.category)?.label[locale]}</span>
                   <strong>{item.title[locale]}</strong>
                   <small>{item.description[locale]}</small>

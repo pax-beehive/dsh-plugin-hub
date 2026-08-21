@@ -167,6 +167,11 @@ test("plugin catalog and details render backend-provided icon URLs", async () =>
   assert.match(component, /const src = pluginIconUrl\(iconUrl\)/);
   assert.match(component, /src=\{src\}/);
   assert.match(component, /onError=\{\(\) => setFailed\(true\)\}/);
+  assert.match(component, /loading=\{eager \? "eager" : "lazy"\}/);
+  assert.match(component, /fetchPriority=\{eager \? "high" : "low"\}/);
+  assert.match(component, /width=\{size\}/);
+  assert.match(component, /height=\{size\}/);
+  assert.doesNotMatch(component, /gravatar\.com/);
   for (const source of [catalog, category, detail]) {
     assert.match(source, /<PluginIcon/);
     assert.match(source, /iconUrl=\{plugin\.iconUrl\}/);

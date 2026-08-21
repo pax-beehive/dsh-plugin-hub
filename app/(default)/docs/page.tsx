@@ -34,7 +34,7 @@ export default async function DocsPage() {
           read: "Read documentation",
           browse: "Browse the library",
           browseIntro: "Choose a topic based on what you are trying to accomplish.",
-          articles: (count: number) => `${count} ${count === 1 ? "article" : "articles"}`,
+          articles: (count) => `${count} ${count === 1 ? "article" : "articles"}`,
           quickLinks: "Product resources",
           plugins: "Browse verified plugins",
           profiles: "Explore reproducible profiles",
@@ -52,7 +52,7 @@ export default async function DocsPage() {
           read: "阅读文档",
           browse: "浏览文档库",
           browseIntro: "根据你现在要完成的任务，选择对应主题。",
-          articles: (count: number) => `${count} 篇文档`,
+          articles: (count) => `${count} 篇文档`,
           quickLinks: "产品入口",
           plugins: "浏览已验证插件",
           profiles: "探索可复现 Profiles",
@@ -99,7 +99,7 @@ export default async function DocsPage() {
                 <h2 id="docs-start-heading">{featured.title[locale]}</h2>
                 <p>{t.startIntro}</p>
               </div>
-              <Link href={`/docs/${featured.slug}`}>
+              <Link href={`/docs/${featured.slug}`} prefetch={false}>
                 {t.read}<span aria-hidden="true"> →</span>
               </Link>
             </section>
@@ -138,6 +138,7 @@ export default async function DocsPage() {
                         className="docs-card"
                         href={`/docs/${guide.slug}`}
                         key={guide.slug}
+                        prefetch={false}
                       >
                         <span className="docs-card-icon" aria-hidden="true">↗</span>
                         <h3>{guide.title[locale]}</h3>
