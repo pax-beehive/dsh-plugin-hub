@@ -1,0 +1,19 @@
+{
+  "name": "@dsh-plugin-hub/dsh-plugin",
+  "version": "0.1.0",
+  "description": "DSH tools for planning and applying reproducible Plugin Hub Profiles through the local dsh-hub CLI",
+  "type": "module",
+  "main": "./index.js",
+  "files": ["index.js", "cordis.patch.yml", "README.md"],
+  "dependencies": {
+    "@dsh-plugin-hub/cli": "workspace:*"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-tools": "^0.1.1-rc.1"
+  },
+  "engines": { "node": ">=22.13.0" },
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } },
+  "publishConfig": { "access": "public", "provenance": true },
+  "license": "MIT"
+}

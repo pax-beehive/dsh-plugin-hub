@@ -6,9 +6,10 @@ plugins and profiles. The project is independent and unofficial.
 ## What is implemented
 
 - Public plugin search, detail pages, screenshots, compatibility and exact install specs
-- Public ordered profiles with versioned bundle selectors
+- Editable Profile Drafts and immutable, content-addressed Profile Releases
 - JSON Registry API for packages, versions and profiles
-- `dsh-hub` CLI for search, exact resolution, install, profile apply and lockfiles
+- `dsh-hub` CLI for capture, share, exact apply, portable import and rollback
+- DSH plugin tools and an agent Skill for confirmed plan/apply automation
 - WorkOS AuthKit publisher accounts
 - Automatic npm discovery, manifest validation and version-history sync
 - Public one-time package submission and signed-in immediate sync
@@ -63,6 +64,7 @@ GET /api/v1/packages?q=vision&limit=20
 GET /api/v1/packages/resolve?name=dsh-conversation-exporter
 GET /api/v1/profiles?limit=20
 GET /api/v1/profiles/{slug}
+GET /api/v1/profiles/{slug}/releases/{version}/download
 ```
 
 Responses include exact source metadata, compatibility, HMR behavior and
@@ -80,12 +82,24 @@ dsh-hub info dsh-conversation-exporter --version latest
 dsh-hub install dsh-conversation-exporter --profile web
 dsh-hub profile search team
 dsh-hub profile apply <profile-slug> --profile web
+dsh-hub profile share <slug> --profile web --version 1.0.0
+dsh-hub profile import ./team-profile-1.0.0.dshprofile --profile web
+dsh-hub profile history --profile web
+dsh-hub profile rollback --profile web
 ```
 
 Install execution uses argument arrays rather than a shell. A successful apply
-writes `~/.dsh/profiles/<profile>/dsh-hub.lock.json` with resolved versions,
-sources and integrity. Profile bundles execute in the published order after
-`before` / `after` constraints are checked for cycles.
+keeps the official Profile directory clean and writes Hub state to
+`~/.dsh/.hub/installations/<profile>/current.json`. A Release locks the exact
+DSH runtime, Plugin versions, sources, integrity and sequence. Apply builds a
+staging Profile, validates its structure and composed config through the pinned
+official DSH CLI, then atomically switches the target. Previous complete Profile
+directories remain available for rollback.
+
+The `.dshprofile` download is a portable recipe containing Release metadata,
+`package.json` and `cordis.patch.yml`. It never embeds Plugin code, credentials,
+input values, session data or logs. See [`docs/profile-v1.md`](docs/profile-v1.md)
+for the V1 contract and V2 boundary.
 
 `dsh-hub init` creates a three-file, schema-valid bundle starter and refuses to
 overwrite existing files. Add `--name @scope/my-plugin` when the npm name
