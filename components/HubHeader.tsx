@@ -33,6 +33,7 @@ export default function HubHeader({ locale }: { locale: HubLocale }) {
   return (
     <HeaderChrome homeHref="/" locale={locale}>
       <Link href="/plugins">{t.nav.plugins}</Link>
+      <Link href="/categories">{t.nav.categories}</Link>
       <Link href="/profiles">{t.nav.profiles}</Link>
       <Link href="/docs">{t.nav.docs}</Link>
       <Link href="/status">{t.nav.status}</Link>
