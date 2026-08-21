@@ -23,11 +23,11 @@ const copy = {
     knowledgeEyebrow: "ABOUT THE REGISTRY",
     knowledgeTitle: "为 Harness 插件生态而建的社区入口",
     knowledgeIntro:
-      "DeepSeek Harness 采用“everything is a plugin”的架构。Plugin Hub 希望让社区插件和可复用配置更容易被发现、理解与采用。",
+      "DeepSeek Harness 采用“everything is a plugin”的架构。这个注册表希望让社区插件和可复用配置更容易被发现、理解与采用。",
     officialSource: "查看 DeepSeek Harness 官方开源项目",
     faq: [
       [
-        "DeepSeek Harness Plugin Hub 是什么？",
+        "DSH 插件注册表是什么？",
         "一个由社区独立维护的插件目录与分享平台，面向 DeepSeek Harness 的 dsh-plugin 生态。",
       ],
       [
@@ -65,12 +65,12 @@ const copy = {
     knowledgeEyebrow: "ABOUT THE REGISTRY",
     knowledgeTitle: "A community entry point for the Harness plugin ecosystem",
     knowledgeIntro:
-      "DeepSeek Harness is built around an “everything is a plugin” architecture. Plugin Hub aims to make community plugins and reusable configurations easier to discover, understand, and adopt.",
+      "DeepSeek Harness is built around an “everything is a plugin” architecture. This registry makes community plugins easier to discover with verified manifests and exact versions.",
     officialSource: "View the official DeepSeek Harness open-source project",
     faq: [
       [
-        "What is DeepSeek Harness Plugin Hub?",
-        "An independently maintained community directory and sharing platform for the DeepSeek Harness dsh-plugin ecosystem.",
+        "What is the DSH plugin registry?",
+        "A community registry for DeepSeek Harness plugins: verified manifests, exact versions, and one-command installs.",
       ],
       [
         "Can I use it now?",
