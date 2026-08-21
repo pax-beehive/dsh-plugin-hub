@@ -17,3 +17,8 @@ test("ads crawlers are allowed the public catalog like OAI-SearchBot", () => {
     assert.deepEqual(rule?.disallow, ["/dashboard", "/api/", "/integrations/"]);
   }
 });
+
+test("robots still points at the production sitemap", () => {
+  const result = robots();
+  assert.equal(result.sitemap, "https://dshpluginhub.ai/sitemap.xml");
+});

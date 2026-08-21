@@ -136,7 +136,7 @@ test("serializes a urlset Vinext can serve from the Route Handler", () => {
     },
   ]);
   assert.match(xml, /^<\?xml version="1\.0" encoding="UTF-8"\?>/);
-  assert.match(xml, /xmlns="http:\/\/www.sitemaps.org\/schemas\/sitemap\/0.9"/);
+  assert.match(xml, /xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9"/);
   assert.match(xml, /<urlset /);
   assert.match(xml, /<loc>https:\/\/dshpluginhub\.ai\/<\/loc>/);
   assert.match(xml, /<loc>https:\/\/dshpluginhub\.ai\/plugins\/acme&amp;co<\/loc>/);
