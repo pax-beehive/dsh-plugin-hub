@@ -11,7 +11,8 @@ export class RegistryResolutionError extends Error {
     | "PACKAGE_NOT_FOUND"
     | "VERSION_NOT_FOUND"
     | "DUPLICATE_BUNDLE"
-    | "ORDER_CYCLE";
+    | "ORDER_CYCLE"
+    | "ORDER_CONSTRAINT";
 
   constructor(
     code: RegistryResolutionError["code"],
@@ -125,13 +126,41 @@ export function orderProfileBundles(
   return ordered;
 }
 
+/** Validate an author-confirmed Profile sequence without changing it. */
+export function validateProfileBundleOrder(
+  bundles: readonly ProfileBundle[],
+): ProfileBundle[] {
+  const positions = new Map<string, number>();
+  for (const [index, bundle] of bundles.entries()) {
+    if (positions.has(bundle.packageName)) {
+      throw new RegistryResolutionError("DUPLICATE_BUNDLE", `Profile contains ${bundle.packageName} more than once`);
+    }
+    positions.set(bundle.packageName, index);
+  }
+  for (const [index, bundle] of bundles.entries()) {
+    for (const target of bundle.before) {
+      const targetIndex = positions.get(target);
+      if (targetIndex === undefined || index >= targetIndex) {
+        throw new RegistryResolutionError("ORDER_CONSTRAINT", `${bundle.packageName} must appear before ${target}`);
+      }
+    }
+    for (const target of bundle.after) {
+      const targetIndex = positions.get(target);
+      if (targetIndex === undefined || index <= targetIndex) {
+        throw new RegistryResolutionError("ORDER_CONSTRAINT", `${bundle.packageName} must appear after ${target}`);
+      }
+    }
+  }
+  return [...bundles];
+}
+
 export interface ResolvedProfileBundle {
   packageName: string;
   selector: string;
   version: string;
   installSpec: string;
   integrity?: string;
-  sourceKind: PluginVersion["source"]["kind"];
+  sourceKind: PluginVersion["source"]["kind"] | "builtin";
 }
 
 export interface ResolvedProfile {
@@ -143,8 +172,18 @@ export function resolveProfile(
   profile: HubProfileVersion,
   plugins: ReadonlyMap<string, PluginRecord>,
 ): ResolvedProfile {
-  const ordered = orderProfileBundles(profile.bundles);
+  const ordered = validateProfileBundleOrder(profile.bundles);
   const bundles = ordered.map((reference) => {
+    if (reference.sourceKind === "builtin" && reference.version) {
+      return {
+        packageName: reference.packageName,
+        selector: reference.selector,
+        version: reference.version,
+        installSpec: reference.installSpec ?? `builtin:${reference.packageName}@${reference.version}`,
+        integrity: reference.integrity,
+        sourceKind: "builtin" as const,
+      };
+    }
     const plugin = plugins.get(reference.packageName);
     if (!plugin) {
       throw new RegistryResolutionError(
@@ -152,15 +191,25 @@ export function resolveProfile(
         `Profile references unknown package ${reference.packageName}`,
       );
     }
-    const version = resolvePluginVersion(plugin, reference.selector);
+    const version = reference.version
+      ? plugin.versions.find((candidate) =>
+          candidate.version === reference.version && !candidate.yanked,
+        )
+      : resolvePluginVersion(plugin, reference.selector);
+    if (!version) {
+      throw new RegistryResolutionError(
+        "VERSION_NOT_FOUND",
+        `${reference.packageName} has no non-yanked version ${reference.version}`,
+      );
+    }
     return {
       packageName: reference.packageName,
       selector: reference.selector,
       version: version.version,
       installSpec: reference.installSpec ?? version.source.installSpec,
-      integrity:
-        version.source.kind === "github" ? undefined : version.source.integrity,
-      sourceKind: version.source.kind,
+      integrity: reference.integrity ??
+        (version.source.kind === "github" ? undefined : version.source.integrity),
+      sourceKind: reference.sourceKind ?? version.source.kind,
     };
   });
 

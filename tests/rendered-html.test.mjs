@@ -65,6 +65,10 @@ test("server-renders the Plugin Hub coming-soon page", async () => {
   assert.match(html, /rel="icon" href="\/deepseek-whale-black\.svg\?v=2"/);
   assert.match(
     html,
+    /rel="alternate" href="https:\/\/dshpluginhub\.ai\/index\.md" type="text\/markdown"/,
+  );
+  assert.match(
+    html,
     /rel="describedby" href="https:\/\/dshpluginhub\.ai\/llms\.txt"/,
   );
   assert.doesNotMatch(html, /codex-preview|Building your site/i);

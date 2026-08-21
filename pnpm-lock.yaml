@@ -131,6 +131,12 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
+  packages/dsh-plugin:
+    dependencies:
+      '@dsh-plugin-hub/cli':
+        specifier: workspace:*
+        version: link:../cli
+
   packages/registry:
     dependencies:
       '@dsh-plugin-hub/schemas':

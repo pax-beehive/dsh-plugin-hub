@@ -1,4 +1,3 @@
-import { env } from "cloudflare:workers";
 import { headers } from "next/headers";
 import {
   hubProfileSchema,
@@ -60,7 +59,15 @@ export type OwnedPlugin = z.infer<typeof ownedPluginSchema>;
 export type GitHubRepository = z.infer<typeof gitHubRepositorySchema>;
 
 async function resolveBaseUrl(): Promise<string> {
-  const configured = env.HUB_API_ORIGIN ?? process.env.HUB_API_ORIGIN;
+  let configured = process.env.HUB_API_ORIGIN;
+  if (!configured) {
+    try {
+      const worker = await import("cloudflare:workers");
+      configured = worker.env.HUB_API_ORIGIN;
+    } catch {
+      // Plain Node rendering has no cloudflare: module; request headers remain authoritative.
+    }
+  }
   if (configured) return configured.replace(/\/$/, "");
   const headerList = await headers();
   const host = headerList.get("x-forwarded-host") ?? headerList.get("host");

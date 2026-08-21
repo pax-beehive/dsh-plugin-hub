@@ -252,9 +252,41 @@ export const profileBundleSchema = z
   .object({
     packageName: npmPackageNameSchema,
     selector: z.string().min(1).default("latest"),
+    /** Exact immutable resolution. Required on Hub-authored releases. */
+    version: exactSemverSchema.optional(),
     installSpec: z.string().min(1).optional(),
+    integrity: z.string().min(1).optional(),
+    sourceKind: z.enum(["npm", "github", "builtin"]).optional(),
     before: z.array(npmPackageNameSchema).default([]),
     after: z.array(npmPackageNameSchema).default([]),
+  })
+  .strict();
+
+export const profileRuntimeSchema = z
+  .object({
+    range: z.string().min(1).default("*"),
+    version: exactSemverSchema.optional(),
+    integrity: z.string().min(1).optional(),
+  })
+  .strict();
+
+export const profileInputSchema = z
+  .object({
+    key: z.string().regex(/^[A-Z][A-Z0-9_]*$/),
+    label: z.string().min(1).max(120),
+    description: z.string().max(500).optional(),
+    required: z.boolean().default(true),
+    secret: z.boolean().default(true),
+  })
+  .strict();
+
+export const profileVerificationSchema = z
+  .object({
+    structural: z.literal("passed"),
+    composition: z.enum(["local_required", "locally_verified"]).optional(),
+    activation: z.enum(["local_required", "locally_verified"]),
+    platform: z.enum(["darwin", "linux", "win32"]).optional(),
+    verifiedAt: z.iso.datetime().optional(),
   })
   .strict();
 
@@ -265,9 +297,31 @@ export const hubProfileVersionSchema = z
     name: z.string().min(1).max(120),
     description: z.string().max(2_000).default(""),
     dsh: z.string().min(1).default("*"),
+    runtime: profileRuntimeSchema.optional(),
     bundles: z.array(profileBundleSchema).min(1),
     patch: z.array(z.record(z.string(), z.unknown())).default([]),
+    patchYaml: z.string().max(200_000).optional(),
+    inputs: z.array(profileInputSchema).default([]),
+    verification: profileVerificationSchema.optional(),
+    contentHash: z.string().regex(/^sha256:[0-9a-f]{64}$/).optional(),
     publishedAt: z.iso.datetime(),
+  })
+  .strict();
+
+export const profileDraftSchema = z
+  .object({
+    schemaVersion: z.literal(1).default(1),
+    slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    name: z.string().min(1).max(120),
+    description: z.string().max(2_000).default(""),
+    visibility: z.enum(["public", "unlisted", "private"]).default("public"),
+    dsh: z.string().min(1).default("*"),
+    runtime: profileRuntimeSchema.optional(),
+    bundles: z.array(profileBundleSchema).min(1),
+    patch: z.array(z.record(z.string(), z.unknown())).default([]),
+    patchYaml: z.string().max(200_000).optional(),
+    inputs: z.array(profileInputSchema).default([]),
+    updatedAt: z.iso.datetime().optional(),
   })
   .strict();
 
@@ -326,6 +380,9 @@ export type PluginSource = z.infer<typeof pluginSourceSchema>;
 export type PluginVersion = z.infer<typeof pluginVersionSchema>;
 export type PluginRecord = z.infer<typeof pluginRecordSchema>;
 export type ProfileBundle = z.infer<typeof profileBundleSchema>;
+export type ProfileRuntime = z.infer<typeof profileRuntimeSchema>;
+export type ProfileInput = z.infer<typeof profileInputSchema>;
+export type ProfileDraft = z.infer<typeof profileDraftSchema>;
 export type HubProfileVersion = z.infer<typeof hubProfileVersionSchema>;
 export type HubProfile = z.infer<typeof hubProfileSchema>;
 export type ProfileCatalogItem = z.infer<typeof profileCatalogItemSchema>;
