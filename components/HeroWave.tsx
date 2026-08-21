@@ -327,5 +327,5 @@ export default function HeroWave() {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="hero-wave" aria-hidden="true" />;
+  return <canvas ref={canvasRef} className="hero-wave" aria-hidden="true" style={{ width: "100%", height: "100%", display: "block" }} />;
 }

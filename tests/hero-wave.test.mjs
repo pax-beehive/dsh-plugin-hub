@@ -51,6 +51,9 @@ test("hero-wave CSS is a full-bleed inert layer", () => {
   const body = rule(".hero-wave");
   assert.match(body, /position:\s*absolute/);
   assert.match(body, /inset:\s*0/);
+  assert.match(body, /width:\s*100%/);
+  assert.match(body, /height:\s*100%/);
+  assert.match(body, /display:\s*block/);
   assert.match(body, /z-index:\s*0/);
   assert.match(body, /pointer-events:\s*none/);
 });
