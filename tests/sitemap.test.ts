@@ -23,10 +23,10 @@ test("static sitemap omits /report and uses the trailing-slash homepage", () => 
   const urls = staticSitemapEntries().map((entry) => entry.url);
   assert.ok(urls.includes("https://dshpluginhub.ai/"));
   assert.ok(urls.includes("https://dshpluginhub.ai/plugins"));
-  assert.ok(urls.includes("https://dshpluginhub.ai/guides"));
+  assert.ok(urls.includes("https://dshpluginhub.ai/docs"));
   assert.ok(urls.includes("https://dshpluginhub.ai/privacy"));
   assert.ok(urls.includes("https://dshpluginhub.ai/profiles"));
-  assert.ok(urls.some((url) => url.startsWith("https://dshpluginhub.ai/guides/")));
+  assert.ok(urls.some((url) => url.startsWith("https://dshpluginhub.ai/docs/")));
   assert.equal(urls.includes("https://dshpluginhub.ai/report"), false);
   assert.equal(
     urls.filter((url) => url === "https://dshpluginhub.ai" || url === "https://dshpluginhub.ai/").length,

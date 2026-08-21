@@ -34,7 +34,7 @@ export default function HubHeader({ locale }: { locale: HubLocale }) {
     <HeaderChrome homeHref="/" locale={locale}>
       <Link href="/plugins">{t.nav.plugins}</Link>
       <Link href="/profiles">{t.nav.profiles}</Link>
-      <Link href="/guides">{t.nav.guides}</Link>
+      <Link href="/docs">{t.nav.docs}</Link>
       <Link className="hub-signin-link" href="/sign-in">
         {t.nav.signIn}
       </Link>
@@ -77,7 +77,7 @@ export function HubFooter({ locale }: { locale: HubLocale }) {
     resources: "Resources",
     plugins: "Plugins",
     profiles: "Profiles",
-    guides: "Guides",
+    docs: "Docs",
     publish: "Publish a plugin",
     contact: "Contact",
     report: "Report an issue",
@@ -94,7 +94,7 @@ export function HubFooter({ locale }: { locale: HubLocale }) {
     resources: "相关链接",
     plugins: "插件目录",
     profiles: "Profiles",
-    guides: "使用指南",
+    docs: "文档中心",
     publish: "发布插件",
     contact: "联系我们",
     report: "报告问题",
@@ -121,7 +121,7 @@ export function HubFooter({ locale }: { locale: HubLocale }) {
             <h2>{copy.explore}</h2>
             <Link href="/plugins">{copy.plugins}</Link>
             <Link href="/profiles">{copy.profiles}</Link>
-            <Link href="/guides">{copy.guides}</Link>
+            <Link href="/docs">{copy.docs}</Link>
           </nav>
 
           <nav className="hub-footer-column" aria-label={copy.community}>

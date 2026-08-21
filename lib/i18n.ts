@@ -18,7 +18,7 @@ export const hubCopy = {
     nav: {
       plugins: "Plugins",
       profiles: "Profiles",
-      guides: "指南",
+      docs: "文档",
       signIn: "登录",
       publish: "发布",
     },
@@ -103,7 +103,7 @@ export const hubCopy = {
     nav: {
       plugins: "Plugins",
       profiles: "Profiles",
-      guides: "Guides",
+      docs: "Docs",
       signIn: "Sign in",
       publish: "Publish",
     },

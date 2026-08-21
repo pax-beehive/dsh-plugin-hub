@@ -84,7 +84,7 @@ test("server-renders English on the same URL from the locale cookie", async () =
   const html = await response.text();
   assert.match(
     html,
-    /<title>DSH Plugin Hub — DeepSeek Harness Plugins, Profiles &amp; Guides<\/title>/i,
+    /<title>DSH Plugin Hub — DeepSeek Harness Plugins, Profiles &amp; Docs<\/title>/i,
   );
   assert.match(html, /^<!DOCTYPE html><html lang="en">/i);
   assert.match(html, /An open community hub to discover, share, and install Harness plugins/);
@@ -272,7 +272,7 @@ test("homepage H1 includes the space and a site nav", async () => {
     /<h1>DeepSeek Harness(?:<!-- -->)?\s+<span>Plugin Hub<\/span><\/h1>/,
   );
   assert.match(html, /<nav class="hub-nav"[^>]*>/);
-  assert.match(html, /href="\/guides"/);
+  assert.match(html, /href="\/docs"/);
   assert.match(html, /href="\/profiles"/);
   assert.match(
     html,
@@ -282,15 +282,28 @@ test("homepage H1 includes the space and a site nav", async () => {
   assert.doesNotMatch(html, /DeepSeek HarnessPlugin Hub/);
 });
 
-test("guides page does not advertise the homepage markdown alternate", async () => {
-  const html = await (await render("/guides")).text();
-  assert.match(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/guides"/);
-  assert.match(html, /property="og:url" content="https:\/\/dshpluginhub\.ai\/guides"/);
+test("docs page does not advertise the homepage markdown alternate", async () => {
+  const html = await (await render("/docs")).text();
+  assert.match(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/docs"/);
+  assert.match(html, /property="og:url" content="https:\/\/dshpluginhub\.ai\/docs"/);
+  assert.match(html, /可靠地使用与构建插件/);
+  assert.match(html, /href="\/docs\/first-plugin"/);
+  assert.match(html, /文档中心/);
   assert.doesNotMatch(
     html,
     /rel="alternate" type="text\/markdown" href="https:\/\/dshpluginhub\.ai\/index\.md"/,
   );
   assert.match(html, /rel="describedby" href="https:\/\/dshpluginhub\.ai\/llms\.txt"/);
+});
+
+test("legacy guide URLs permanently redirect into the docs library", async () => {
+  const index = await render("/guides");
+  assert.equal(index.status, 308);
+  assert.equal(index.headers.get("location"), "/docs");
+
+  const article = await render("/guides/first-plugin");
+  assert.equal(article.status, 308);
+  assert.equal(article.headers.get("location"), "/docs/first-plugin");
 });
 
 test("404 metadata is noindex only and does not reuse the homepage", async () => {

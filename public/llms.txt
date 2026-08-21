@@ -15,7 +15,7 @@ Important interpretation notes:
 - [Plugin Hub homepage](https://dshpluginhub.ai/): Canonical human-facing homepage. Chinese and English share the canonical URL via an in-place language switch.
 - [Plugin catalog](https://dshpluginhub.ai/plugins): Searchable directory of verified DSH plugins with versions, compatibility, HMR behavior, sources, and exact install commands.
 - [Profiles](https://dshpluginhub.ai/profiles): Ordered, versioned DeepSeek Harness profiles that reproduce a full Harness setup with one command.
-- [Guides](https://dshpluginhub.ai/guides): Step-by-step guides for plugin installation, troubleshooting, compatibility, and plugin development.
+- [Documentation](https://dshpluginhub.ai/docs): User-focused documentation for plugin installation, troubleshooting, compatibility, development, and publishing.
 - [Homepage in Markdown](https://dshpluginhub.ai/index.md): Complete, low-noise description of the Hub, its capabilities, FAQs, and identity boundaries.
 
 ## Registry API

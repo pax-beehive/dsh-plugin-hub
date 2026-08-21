@@ -12,7 +12,7 @@ test("homepage H1 keeps a space between Harness and Plugin Hub", () => {
   assert.match(home, /\{t\.title\}\{" "\}/);
   assert.match(home, /<HubHeader locale=\{language\} \/>/);
   assert.match(header, /<nav className="hub-nav"/);
-  assert.match(header, /href="\/guides"/);
+  assert.match(header, /href="\/docs"/);
   assert.match(header, /href="\/profiles"/);
   assert.match(header, /<Link className="brand" href=\{homeHref\}>/);
   assert.match(header, /<HeaderChrome homeHref="\/" locale=\{locale\}>/);
@@ -21,8 +21,8 @@ test("homepage H1 keeps a space between Harness and Plugin Hub", () => {
 });
 
 test("hub chrome exposes the complete public-site footer", () => {
-  assert.match(header, /href="\/guides"/);
-  assert.match(header, /t\.nav\.guides/);
+  assert.match(header, /href="\/docs"/);
+  assert.match(header, /t\.nav\.docs/);
   assert.match(header, /export function HubFooter/);
   assert.match(header, /href="\/privacy"/);
   assert.match(header, /mailto:hello@dshpluginhub\.ai/);

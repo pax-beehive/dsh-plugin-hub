@@ -4,8 +4,42 @@ export type GuideSection = {
   code?: { language: string; content: string };
 };
 
+export type DocCategory = "get-started" | "develop" | "troubleshoot";
+
+export const docCategories: Array<{
+  id: DocCategory;
+  label: { zh: string; en: string };
+  description: { zh: string; en: string };
+}> = [
+  {
+    id: "get-started",
+    label: { zh: "开始使用", en: "Get started" },
+    description: {
+      zh: "从第一个插件开始，了解 DSH 插件的完整工作流。",
+      en: "Learn the complete DSH plugin workflow from your first project.",
+    },
+  },
+  {
+    id: "develop",
+    label: { zh: "构建与发布", en: "Build and publish" },
+    description: {
+      zh: "开发、验证、发布并维护可发现的社区插件。",
+      en: "Develop, validate, publish, and maintain discoverable community plugins.",
+    },
+  },
+  {
+    id: "troubleshoot",
+    label: { zh: "故障排查", en: "Troubleshooting" },
+    description: {
+      zh: "解决安装、兼容性和运行时行为中的常见问题。",
+      en: "Resolve common installation, compatibility, and runtime issues.",
+    },
+  },
+];
+
 export type Guide = {
   slug: string;
+  category: DocCategory;
   title: { zh: string; en: string };
   description: { zh: string; en: string };
   sections: { zh: GuideSection[]; en: GuideSection[] };
@@ -14,6 +48,7 @@ export type Guide = {
 export const guides: Guide[] = [
   {
     slug: "install-failed",
+    category: "troubleshoot",
     title: { zh: "插件安装失败排查", en: "Troubleshooting Plugin Install Failures" },
     description: {
       zh: "插件安装时报错？按这个清单逐步排查包名、manifest、版本格式和网络问题。",
@@ -118,6 +153,7 @@ export const guides: Guide[] = [
   },
   {
     slug: "version-incompatible",
+    category: "troubleshoot",
     title: { zh: "DSH 版本不兼容", en: "DSH Version Incompatibility" },
     description: {
       zh: "插件声明的 DSH 版本范围和当前环境不匹配时的排查和修复方法。",
@@ -184,6 +220,7 @@ export const guides: Guide[] = [
   },
   {
     slug: "hmr-not-working",
+    category: "develop",
     title: { zh: "插件 HMR 不工作", en: "Plugin HMR Not Working" },
     description: {
       zh: "理解 DSH 的四种 HMR 模式，选择正确的模式并排查热更新失效的原因。",
@@ -256,6 +293,7 @@ export const guides: Guide[] = [
   },
   {
     slug: "plugin-not-found",
+    category: "develop",
     title: { zh: "发布后搜不到插件", en: "Plugin Not Showing Up After Publishing" },
     description: {
       zh: "插件发布到 npm 后在 Hub 上找不到？了解同步周期、手动加速和常见拒绝原因。",
@@ -328,6 +366,7 @@ export const guides: Guide[] = [
   },
   {
     slug: "first-plugin",
+    category: "get-started",
     title: { zh: "写你的第一个 DSH 插件", en: "Write Your First DSH Plugin" },
     description: {
       zh: "从脚手架到发布上架的完整流程：init、validate、publish、claim。",

@@ -137,7 +137,7 @@ export function guideStructuredData(input: {
   locale: "zh" | "en";
 }): JsonLdObject[] {
   const { slug, title, description, locale } = input;
-  const path = `/guides/${slug}`;
+  const path = `/docs/${slug}`;
   const article: JsonLdObject = {
     "@context": "https://schema.org",
     "@type": "TechArticle",
@@ -155,7 +155,7 @@ export function guideStructuredData(input: {
   };
   const breadcrumbs = breadcrumbList([
     { name: locale === "en" ? "Home" : "首页", path: "/" },
-    { name: locale === "en" ? "Guides" : "指南", path: "/guides" },
+    { name: locale === "en" ? "Documentation" : "文档中心", path: "/docs" },
     { name: title, path },
   ]);
   return [article, breadcrumbs];

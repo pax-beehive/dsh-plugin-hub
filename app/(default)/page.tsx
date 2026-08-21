@@ -8,7 +8,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return homePageMetadata(
     locale === "en"
       ? {
-          title: "DSH Plugin Hub — DeepSeek Harness Plugins, Profiles & Guides",
+          title: "DSH Plugin Hub — DeepSeek Harness Plugins, Profiles & Docs",
           description:
             "The community registry for DeepSeek Harness (dsh) plugins: discover manifest-verified DSH plugins and reusable profiles, check exact versions, compatibility and integrity, and install with one command via the dsh-hub CLI. Independent and unofficial.",
         }

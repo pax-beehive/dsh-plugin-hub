@@ -12,7 +12,7 @@ function request(path: string, method = "GET") {
 }
 
 test("indexable HTML gets a short public cache", () => {
-  for (const path of ["/", "/plugins", "/guides", "/privacy", "/about"]) {
+  for (const path of ["/", "/plugins", "/docs", "/privacy", "/about"]) {
     assert.equal(cacheControlFor(request(path)), PUBLIC_CACHE_CONTROL);
   }
 });

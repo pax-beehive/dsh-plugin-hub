@@ -8,7 +8,7 @@ const copy = {
     nav: {
       plugins: "Plugins",
       profiles: "Profiles",
-      guides: "指南",
+      docs: "文档",
       status: "状态",
     },
     badge: "NOW LIVE · 现已上线",
@@ -50,7 +50,7 @@ const copy = {
     nav: {
       plugins: "Plugins",
       profiles: "Profiles",
-      guides: "Guides",
+      docs: "Docs",
       status: "Status",
     },
     badge: "NOW LIVE",
