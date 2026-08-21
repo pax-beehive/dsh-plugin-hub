@@ -26,21 +26,21 @@ test("clamps recommend queries to 500 Unicode code points, not bytes", () => {
   assert.equal(clampRecommendQuery("a".repeat(500)).length, 500);
   assert.equal(clampRecommendQuery("a".repeat(501)), "a".repeat(500));
 
-  const emoji = "\u{1F600}".repeat(501);
+  const emoji = "😀".repeat(501);
   const clamped = clampRecommendQuery(emoji);
   assert.equal([...clamped].length, MAX_RECOMMEND_QUERY_CODE_POINTS);
-  assert.equal(clamped, "\u{1F600}".repeat(500));
+  assert.equal(clamped, "😀".repeat(500));
 
-  const mixed = `${"\u4f60".repeat(400)}${"\u{1F310}".repeat(200)}`;
+  const mixed = `${"你".repeat(400)}${"🌐".repeat(200)}`;
   assert.equal([...clampRecommendQuery(mixed)].length, 500);
 });
 
 test("rejects empty queries after trim and does not treat them as sendable", () => {
   assert.deepEqual(prepareRecommendQuery(""), { ok: false, reason: "empty" });
   assert.deepEqual(prepareRecommendQuery("   \n\t  "), { ok: false, reason: "empty" });
-  assert.deepEqual(prepareRecommendQuery("  \u67e5\u5929\u6c14  "), {
+  assert.deepEqual(prepareRecommendQuery("  查天气  "), {
     ok: true,
-    query: "\u67e5\u5929\u6c14",
+    query: "查天气",
   });
 });
 

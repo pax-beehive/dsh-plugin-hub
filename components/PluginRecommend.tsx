@@ -230,7 +230,7 @@ function RecommendCard({
           </span>
         ) : null}
         {plugin.weeklyDownloads != null ? (
-          <span className={isHotWeeklyDownloads(plugin.weeklyDownloads) ? "tag-signal tag-signal-hot" : "tag-signal"} title={t.plugins.weeklyDownloadsTitle}>{isHotWeeklyDownloads(plugin.weeklyDownloads) ? "\u{1F525} " : ""}\u2193 {formatCompactCount(plugin.weeklyDownloads)}</span>
+          <span className={isHotWeeklyDownloads(plugin.weeklyDownloads) ? "tag-signal tag-signal-hot" : "tag-signal"} title={t.plugins.weeklyDownloadsTitle}>{isHotWeeklyDownloads(plugin.weeklyDownloads) ? "🔥 " : ""}↓ {formatCompactCount(plugin.weeklyDownloads)}</span>
         ) : null}
       </div>
       <div className="plugin-card-meta">
