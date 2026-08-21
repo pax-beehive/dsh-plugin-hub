@@ -13,14 +13,14 @@ const copy = {
     },
     badge: "NOW LIVE · 现已上线",
     title: "DeepSeek Harness",
-    accent: "Plugin Hub",
-    intro: "一个集中发现、分享与安装 Harness 插件的开放社区。",
-    exploreHub: "进入 Hub",
+    accent: "插件注册表",
+    intro: "自有插件注册表：精确版本与 manifest 校验。",
+    exploreHub: "浏览插件",
     signIn: "登录",
     publishCta: "发布插件",
     disclaimer:
       "非官方社区项目，由社区独立创建和维护，与 DeepSeek 官方无隶属、授权或背书关系。",
-    knowledgeEyebrow: "ABOUT THE HUB",
+    knowledgeEyebrow: "ABOUT THE REGISTRY",
     knowledgeTitle: "为 Harness 插件生态而建的社区入口",
     knowledgeIntro:
       "DeepSeek Harness 采用“everything is a plugin”的架构。Plugin Hub 希望让社区插件和可复用配置更容易被发现、理解与采用。",
@@ -55,14 +55,14 @@ const copy = {
     },
     badge: "NOW LIVE",
     title: "DeepSeek Harness",
-    accent: "Plugin Hub",
-    intro: "An open community hub to discover, share, and install Harness plugins.",
-    exploreHub: "Explore Hub",
+    accent: "plugin registry",
+    intro: "Exact versions, verified manifests, and one-command installs for DeepSeek Harness plugins.",
+    exploreHub: "Browse plugins",
     signIn: "Sign in",
     publishCta: "Publish a plugin",
     disclaimer:
       "An independent, unofficial community project. Not affiliated with, authorized by, or endorsed by DeepSeek.",
-    knowledgeEyebrow: "ABOUT THE HUB",
+    knowledgeEyebrow: "ABOUT THE REGISTRY",
     knowledgeTitle: "A community entry point for the Harness plugin ecosystem",
     knowledgeIntro:
       "DeepSeek Harness is built around an “everything is a plugin” architecture. Plugin Hub aims to make community plugins and reusable configurations easier to discover, understand, and adopt.",
@@ -115,8 +115,8 @@ function pageStructuredData(language: keyof typeof copy) {
     url: `https://dshpluginhub.ai${path}`,
     name:
       language === "en"
-        ? "DeepSeek Harness Plugin Hub — Discover and share plugins"
-        : "DeepSeek Harness Plugin Hub — 插件发现与分享社区",
+        ? "DSH plugin registry — exact versions, manifests, one-command installs"
+        : "DSH 插件注册表 — 精确版本、manifest 与一键安装",
     description: copy[language].intro,
     isPartOf: { "@id": "https://dshpluginhub.ai/#website" },
     about: {

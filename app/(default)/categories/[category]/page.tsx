@@ -1,6 +1,7 @@
 import HubHeader from "@/components/HubHeader";
 import PluginIcon from "@/components/PluginIcon";
 import { listCategories, searchPackages } from "@/lib/hub-api";
+import { formatCompactCount, isHotWeeklyDownloads } from "@/lib/format-count";
 import { hubCopy, localeTags } from "@/lib/i18n";
 import { getHubLocale } from "@/lib/i18n-server";
 import { JsonLd, categoryStructuredData } from "@/lib/structured-data";
@@ -19,8 +20,8 @@ export async function generateMetadata({
   const locale = await getHubLocale();
   const title =
     locale === "en"
-      ? `${category} DSH Plugins — DeepSeek Harness Plugin Hub`
-      : `${category} 类 DSH 插件 — DeepSeek Harness Plugin Hub`;
+      ? `${category} DSH plugins — verified manifests and exact versions`
+      : `${category} 类 DSH 插件 — 已校验 manifest 与精确版本`;
   const description =
     locale === "en"
       ? `Browse verified ${category} plugins for DeepSeek Harness (dsh): exact versions, compatibility, and one-command installs.`
@@ -106,6 +107,7 @@ export default async function CategoryPage({
                       ★ {plugin.github.stars}
                     </span>
                   ) : null}
+                  <span className={isHotWeeklyDownloads(plugin.weeklyDownloads) ? "tag-signal tag-signal-hot" : "tag-signal"} title={t.plugins.weeklyDownloadsTitle}>{isHotWeeklyDownloads(plugin.weeklyDownloads) ? "🔥 " : ""}↓ {formatCompactCount(plugin.weeklyDownloads)}</span>
                 </div>
                 <div className="plugin-card-meta">
                   <span>{t.plugins.updatedLabel} {new Date(plugin.updatedAt).toLocaleDateString(localeTags[locale])}</span>
