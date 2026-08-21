@@ -10,7 +10,7 @@
   "assets": {
     "directory": "dist/client",
     "binding": "ASSETS",
-    "run_worker_first": ["/robots.txt", "/sitemap.xml", "/sitemap/*"]
+    "run_worker_first": ["/robots.txt", "/sitemap.xml", "/sitemap/*", "/status"]
   },
   "workers_dev": true,
   "preview_urls": false,
@@ -23,7 +23,10 @@
     "NEXT_PUBLIC_WORKOS_REDIRECT_URI": "https://dshpluginhub.ai/callback",
     "GITHUB_APP_ID": "4631702",
     "GITHUB_APP_SLUG": "pax-dsh-hub",
-    "GITHUB_REDIRECT_URI": "https://dshpluginhub.ai/integrations/github/oauth/callback"
+    "GITHUB_REDIRECT_URI": "https://dshpluginhub.ai/integrations/github/oauth/callback",
+    "NEXT_PUBLIC_GOOGLE_ADS_ID": "AW-18401737282",
+    "NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL_INSTALL": "FMLKCLGdoOUcEML00MZE",
+    "NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL_SIGNUP": "asRTCKnWo-UcEML00MZE"
   },
   "env": {
     "staging": {

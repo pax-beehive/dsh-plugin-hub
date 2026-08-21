@@ -1,3 +1,4 @@
+import { AuthKitProvider } from "@workos-inc/authkit-nextjs/components";
 import SiteDocument from "@/components/SiteDocument";
 import { HubFooter } from "@/components/HubHeader";
 import { getHubLocale } from "@/lib/i18n-server";
@@ -17,7 +18,9 @@ export default async function DashboardLayout({
   const locale = await getHubLocale();
   return (
     <SiteDocument language={locale === "en" ? "en" : "zh-CN"}>
-      {children}
+      <AuthKitProvider>
+        {children}
+      </AuthKitProvider>
       <HubFooter locale={locale} />
     </SiteDocument>
   );
