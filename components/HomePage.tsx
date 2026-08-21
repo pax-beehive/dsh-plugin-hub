@@ -143,7 +143,7 @@ export default function HomePage({
   const t = copy[language];
 
   return (
-    <main className="site-shell" lang={language === "en" ? "en" : "zh-CN"}>
+    <main className="site-shell site-shell--ocean" lang={language === "en" ? "en" : "zh-CN"}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
