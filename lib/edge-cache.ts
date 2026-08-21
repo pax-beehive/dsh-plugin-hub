@@ -78,6 +78,7 @@ export function publicPageCacheKey(request: Request): Request {
   const url = new URL(request.url);
   url.hash = "";
   url.search = publicPageSearch(url).toString();
+  url.searchParams.set("__dsh_cache", "v2");
   url.searchParams.set("__dsh_locale", requestLocale(request));
   url.searchParams.sort();
   return new Request(url, {
