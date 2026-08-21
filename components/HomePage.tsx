@@ -7,6 +7,7 @@ const copy = {
     status: "已上线",
     nav: {
       plugins: "Plugins",
+      categories: "分类",
       profiles: "Profiles",
       docs: "文档",
       status: "状态",
@@ -16,6 +17,7 @@ const copy = {
     accent: "插件注册表",
     intro: "自有插件注册表：精确版本与 manifest 校验。",
     exploreHub: "浏览插件",
+    exploreCategories: "浏览分类",
     signIn: "登录",
     publishCta: "发布插件",
     disclaimer:
@@ -49,6 +51,7 @@ const copy = {
     status: "Live",
     nav: {
       plugins: "Plugins",
+      categories: "Categories",
       profiles: "Profiles",
       docs: "Docs",
       status: "Status",
@@ -58,6 +61,7 @@ const copy = {
     accent: "plugin registry",
     intro: "Exact versions, verified manifests, and one-command installs for DeepSeek Harness plugins.",
     exploreHub: "Browse plugins",
+    exploreCategories: "Browse categories",
     signIn: "Sign in",
     publishCta: "Publish a plugin",
     disclaimer:
@@ -65,7 +69,7 @@ const copy = {
     knowledgeEyebrow: "ABOUT THE REGISTRY",
     knowledgeTitle: "A community entry point for the Harness plugin ecosystem",
     knowledgeIntro:
-      "DeepSeek Harness is built around an “everything is a plugin” architecture. This registry makes community plugins easier to discover with verified manifests and exact versions.",
+      "DeepSeek Harness is built around an \u201ceverything is a plugin\u201d architecture. This registry makes community plugins easier to discover with verified manifests and exact versions.",
     officialSource: "View the official DeepSeek Harness open-source project",
     faq: [
       [
@@ -74,7 +78,7 @@ const copy = {
       ],
       [
         "Can I use it now?",
-        "Yes. The plugin catalog is public — anyone can browse, search, and install plugins. Publishing and claiming plugins requires sign-in.",
+        "Yes. The plugin catalog is public \u2014 anyone can browse, search, and install plugins. Publishing and claiming plugins requires sign-in.",
       ],
       [
         "Is this an official DeepSeek website?",
@@ -82,9 +86,9 @@ const copy = {
       ],
     ],
     cards: [
-      ["⌘", "Plugin hosting & sharing", "Publish, discover, and install plugins"],
-      ["◈", "Harness profiles", "Share your installed-plugin setups"],
-      ["★", "Ratings & reviews", "Rate plugins and community profiles"],
+      ["\u2318", "Plugin hosting & sharing", "Publish, discover, and install plugins"],
+      ["\u25c8", "Harness profiles", "Share your installed-plugin setups"],
+      ["\u2605", "Ratings & reviews", "Rate plugins and community profiles"],
     ],
   },
 } as const;
@@ -115,8 +119,8 @@ function pageStructuredData(language: keyof typeof copy) {
     url: `https://dshpluginhub.ai${path}`,
     name:
       language === "en"
-        ? "DSH plugin registry — exact versions, manifests, one-command installs"
-        : "DSH 插件注册表 — 精确版本、manifest 与一键安装",
+        ? "DSH plugin registry \u2014 exact versions, manifests, one-command installs"
+        : "DSH 插件注册表 \u2014 精确版本、manifest 与一键安装",
     description: copy[language].intro,
     isPartOf: { "@id": "https://dshpluginhub.ai/#website" },
     about: {
@@ -175,6 +179,9 @@ export default function HomePage({
           <Link className="hub-entry-link" href="/plugins">
             {t.exploreHub}
           </Link>
+          <Link className="hero-secondary-link" href="/categories">
+            {t.exploreCategories}
+          </Link>
           <Link className="hero-secondary-link" href="/sign-in">
             {t.publishCta}
           </Link>
@@ -207,7 +214,7 @@ export default function HomePage({
             rel="noreferrer"
           >
             {t.officialSource}
-            <span aria-hidden="true"> ↗</span>
+            <span aria-hidden="true"> \u2197</span>
           </a>
         </div>
 
