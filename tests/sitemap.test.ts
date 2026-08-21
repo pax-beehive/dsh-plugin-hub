@@ -6,12 +6,14 @@ import {
   buildSitemapShards,
   entriesForShard,
   listAllPackages,
+  listAllPackageSlugs,
   sitemapEntriesToXml,
   sitemapIndexLocs,
   sitemapShardIds,
   staticSitemapEntries,
   type PackageSearch,
 } from "../lib/sitemap.ts";
+import { parseSitemapPackageSearchResponse } from "../lib/registry-search-response.ts";
 
 function plugin(index: number) {
   return {
@@ -155,4 +157,70 @@ test("serializes a urlset Vinext can serve from the Route Handler", () => {
   assert.match(xml, /<loc>https:\/\/dshpluginhub\.ai\/plugins\/acme&amp;co<\/loc>/);
   assert.match(xml, /<lastmod>2026-08-20T00:00:00\.000Z<\/lastmod>/);
   assert.equal(xml.includes("/report"), false);
+});
+
+test("slim sitemap parser keeps slugs when catalog items fail strict PluginSummary", () => {
+  const result = parseSitemapPackageSearchResponse({
+    items: [
+      {
+        slug: "hello-dsh",
+        updatedAt: "2026-08-20T00:00:00.000Z",
+        securityPassed: true,
+        dailyDownloads: 12,
+        dailyDownloadsDelta: 3,
+        unexpectedExtra: "passthrough",
+      },
+      { displayName: "no slug here" },
+      { slug: "second-plugin" },
+    ],
+    nextCursor: null,
+    total: 3836,
+  });
+
+  assert.deepEqual(
+    result.items.map((item) => item.slug),
+    ["hello-dsh", "second-plugin"],
+  );
+  assert.equal(result.items[0]?.updatedAt, "2026-08-20T00:00:00.000Z");
+  assert.equal(result.total, 3836);
+});
+
+test("continues paging when a page adds 0 slugs if total says more remain", async () => {
+  const search: PackageSearch = async (_query, options) => {
+    const page = options?.page ?? 1;
+    if (page === 1) {
+      return { items: [], nextCursor: null, total: 3 };
+    }
+    return {
+      items: [plugin(1), plugin(2), plugin(3)],
+      nextCursor: null,
+      total: 3,
+    };
+  };
+
+  const plugins = await listAllPackageSlugs(search);
+  assert.equal(plugins.length, 3);
+  assert.equal(plugins[0]?.slug, "plugin-0001");
+});
+
+test("listAllPackages slim-parses extra fields instead of dropping the slug", async () => {
+  const search: PackageSearch = async () => ({
+    items: [
+      {
+        slug: "quarantined-card",
+        updatedAt: "2026-08-20T00:00:00.000Z",
+        securityPassed: true,
+        dailyDownloads: 0,
+        dailyDownloadsDelta: 0,
+      },
+    ],
+    nextCursor: null,
+    total: 1,
+  });
+
+  const plugins = await listAllPackages(search);
+  assert.deepEqual(
+    plugins.map((item) => item.slug),
+    ["quarantined-card"],
+  );
 });

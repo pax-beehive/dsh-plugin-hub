@@ -1,4 +1,5 @@
 import { guides } from "./guides.ts";
+import { parseSitemapPackage } from "./registry-search-response.ts";
 import { absoluteUrl, SITE_HOME } from "./site-url.ts";
 import type { MetadataRoute } from "next";
 
@@ -24,7 +25,7 @@ export type PackageSearch = (
   query: string,
   options?: { limit?: number; page?: number; cursor?: string },
 ) => Promise<{
-  items: SitemapPackage[];
+  items: unknown[];
   nextCursor: string | null;
   total?: number;
 }>;
@@ -62,14 +63,27 @@ export async function listAllPackages(
     });
 
     let added = 0;
-    for (const item of result.items) {
-      if (!item.slug || seen.has(item.slug)) continue;
+    for (const raw of result.items) {
+      const item = parseSitemapPackage(raw);
+      if (!item || seen.has(item.slug)) continue;
       seen.add(item.slug);
       items.push(item);
       added += 1;
     }
 
-    if (result.items.length === 0 || added === 0) break;
+    const moreRemain =
+      typeof result.total === "number" && items.length < result.total;
+
+    // An empty/quarantined page must not abort the walk while `total` says
+    // more catalog rows remain. Duplicate pages (API returned items, 0 new
+    // slugs) still stop. Only treat a truly empty API page as EOF when we
+    // are not still short of `total`.
+    if (result.items.length === 0) {
+      if (!moreRemain) break;
+    } else if (added === 0) {
+      break;
+    }
+
     if (typeof result.total === "number" && items.length >= result.total) break;
 
     if (result.nextCursor) {
@@ -79,12 +93,15 @@ export async function listAllPackages(
     }
 
     cursor = undefined;
-    if (result.items.length < SITEMAP_PAGE_SIZE) break;
+    if (result.items.length < SITEMAP_PAGE_SIZE && !moreRemain) break;
     page += 1;
   }
 
   return items;
 }
+
+/** Alias used by the sitemap route so listing never depends on PluginSummary. */
+export const listAllPackageSlugs = listAllPackages;
 
 export function pluginSitemapEntries(
   plugins: SitemapPackage[],

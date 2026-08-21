@@ -19,11 +19,11 @@ async function loadCatalog(): Promise<{
   profiles: SitemapProfile[];
   categories: SitemapCategory[];
 }> {
-  const { listCategories, searchPackages, searchProfiles } = await import(
+  const { listCategories, searchProfiles, searchSitemapPackages } = await import(
     "@/lib/hub-api"
   );
   const [plugins, profiles, categories] = await Promise.all([
-    listAllPackages(searchPackages),
+    listAllPackages(searchSitemapPackages),
     searchProfiles("", 50),
     listCategories(50),
   ]);

@@ -18,7 +18,9 @@ import {
 } from "./category-count-response";
 import {
   parseRegistrySearchResponse,
+  parseSitemapPackageSearchResponse,
   type PluginSummary,
+  type SitemapPackageSlug,
 } from "./registry-search-response";
 
 export type { CategoryCount, PluginSummary };
@@ -119,14 +121,10 @@ export type PackageSearchOptions = {
   category?: string;
 };
 
-export async function searchPackages(
+function packageSearchParams(
   query: string,
   options?: PackageSearchOptions,
-): Promise<{
-  items: PluginSummary[];
-  nextCursor: string | null;
-  total?: number;
-}> {
+): URLSearchParams {
   const params = new URLSearchParams({ q: query });
   if (options?.limit !== undefined) params.set("limit", String(options.limit));
   if (options?.page !== undefined && options.page > 1)
@@ -135,8 +133,36 @@ export async function searchPackages(
   if (options?.sort && options.sort !== "popular")
     params.set("sort", options.sort);
   if (options?.category) params.set("category", options.category);
-  const payload = await expectOk(await hubFetch(`/api/v1/packages?${params}`));
+  return params;
+}
+
+export async function searchPackages(
+  query: string,
+  options?: PackageSearchOptions,
+): Promise<{
+  items: PluginSummary[];
+  nextCursor: string | null;
+  total?: number;
+}> {
+  const payload = await expectOk(
+    await hubFetch(`/api/v1/packages?${packageSearchParams(query, options)}`),
+  );
   return parseRegistrySearchResponse(payload);
+}
+
+/** Catalog listing for sitemaps: slug + optional updatedAt only. Extra fields pass through. */
+export async function searchSitemapPackages(
+  query: string,
+  options?: PackageSearchOptions,
+): Promise<{
+  items: SitemapPackageSlug[];
+  nextCursor: string | null;
+  total?: number;
+}> {
+  const payload = await expectOk(
+    await hubFetch(`/api/v1/packages?${packageSearchParams(query, options)}`),
+  );
+  return parseSitemapPackageSearchResponse(payload);
 }
 
 export async function listCategories(limit = 12): Promise<CategoryCount[]> {

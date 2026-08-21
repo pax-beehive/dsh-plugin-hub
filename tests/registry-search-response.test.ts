@@ -84,3 +84,24 @@ test("accepts optional securityPassed:true and still parses items without it", (
   assert.equal(withoutField.items.length, 1);
   assert.equal(withoutField.items[0]?.securityPassed, undefined);
 });
+
+test("accepts catalog dailyDownloads and dailyDownloadsDelta (PR #6 / 2e4541f)", () => {
+  const result = parseRegistrySearchResponse({
+    items: [{ ...validItem, dailyDownloads: 4, dailyDownloadsDelta: 1 }],
+    nextCursor: null,
+    total: 1,
+  });
+  assert.equal(result.items.length, 1);
+  assert.equal(result.items[0]?.dailyDownloads, 4);
+  assert.equal(result.items[0]?.dailyDownloadsDelta, 1);
+});
+
+test("defaults missing daily download fields to 0", () => {
+  const result = parseRegistrySearchResponse({
+    items: [validItem],
+    nextCursor: null,
+    total: 1,
+  });
+  assert.equal(result.items[0]?.dailyDownloads, 0);
+  assert.equal(result.items[0]?.dailyDownloadsDelta, 0);
+});
