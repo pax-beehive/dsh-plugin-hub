@@ -52,6 +52,19 @@ export default function SiteDocument({
       {/* The root document owns these non-metadata link relations. */}
       {/* eslint-disable-next-line @next/next/no-head-element */}
       <head>
+        <link
+          rel="icon"
+          href="/deepseek-whale-black.svg?v=2"
+          type="image/svg+xml"
+          sizes="any"
+        />
+        <link rel="shortcut icon" href="/deepseek-whale-black.svg?v=2" />
+        <link
+          rel="apple-touch-icon"
+          href="/favicon-64.png?v=2"
+          type="image/png"
+          sizes="64x64"
+        />
         <link rel="describedby" href="https://dshpluginhub.ai/llms.txt" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>

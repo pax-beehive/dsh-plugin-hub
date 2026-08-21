@@ -104,14 +104,18 @@ test("catalog header includes the shared sign-in action", async () => {
 });
 
 test("public and dashboard layouts share the black whale favicon", async () => {
-  const [icons, publicLayout, dashboardLayout] = await Promise.all([
+  const [icons, document, publicLayout, dashboardLayout] = await Promise.all([
     readFile(new URL("../lib/site-icons.ts", import.meta.url), "utf8"),
+    readFile(new URL("../components/SiteDocument.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/(default)/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/dashboard/layout.tsx", import.meta.url), "utf8"),
   ]);
 
   assert.match(icons, /deepseek-whale-black\.svg\?v=2/);
   assert.match(icons, /shortcut: whaleIcon/);
+  assert.match(document, /rel="icon"/);
+  assert.match(document, /rel="shortcut icon"/);
+  assert.match(document, /deepseek-whale-black\.svg\?v=2/g);
   assert.match(publicLayout, /icons: siteIcons/);
   assert.match(dashboardLayout, /icons: siteIcons/);
 });
