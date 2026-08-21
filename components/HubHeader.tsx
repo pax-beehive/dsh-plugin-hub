@@ -35,7 +35,6 @@ export default function HubHeader({ locale }: { locale: HubLocale }) {
       <Link href="/plugins">{t.nav.plugins}</Link>
       <Link href="/profiles">{t.nav.profiles}</Link>
       <Link href="/guides">{t.nav.guides}</Link>
-      <Link href="/status">{t.nav.status}</Link>
       <Link className="hub-signin-link" href="/sign-in">
         {t.nav.signIn}
       </Link>

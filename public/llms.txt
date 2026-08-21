@@ -16,7 +16,6 @@ Important interpretation notes:
 - [Plugin catalog](https://dshpluginhub.ai/plugins): Searchable directory of verified DSH plugins with versions, compatibility, HMR behavior, sources, and exact install commands.
 - [Profiles](https://dshpluginhub.ai/profiles): Ordered, versioned DeepSeek Harness profiles that reproduce a full Harness setup with one command.
 - [Guides](https://dshpluginhub.ai/guides): Step-by-step guides for plugin installation, troubleshooting, compatibility, and plugin development.
-- [Sync status](https://dshpluginhub.ai/status): Public ingestion-pipeline status and recently synced packages.
 - [Homepage in Markdown](https://dshpluginhub.ai/index.md): Complete, low-noise description of the Hub, its capabilities, FAQs, and identity boundaries.
 
 ## Registry API
@@ -29,7 +28,6 @@ Public, cacheable JSON endpoints:
 - `GET https://dshpluginhub.ai/api/v1/profiles?limit=20` — list public profiles
 - `GET https://dshpluginhub.ai/api/v1/profiles/{slug}` — ordered profile bundles
 - `GET https://dshpluginhub.ai/api/v1/categories` — category counts
-- `GET https://dshpluginhub.ai/api/v1/status` — sync pipeline status
 
 ## CLI
 

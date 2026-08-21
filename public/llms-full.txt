@@ -21,8 +21,7 @@ Last updated: 2026-08-19
 - **Profiles** at https://dshpluginhub.ai/profiles — ordered, versioned plugin compositions. Applying a profile writes a lockfile and reproduces the same Harness setup on any machine.
 - **Categories** at https://dshpluginhub.ai/categories — browse the catalog by capability area.
 - **Guides** at https://dshpluginhub.ai/guides — installation troubleshooting, version compatibility, HMR, publishing, and plugin development walkthroughs, in Chinese and English.
-- **Sync status** at https://dshpluginhub.ai/status — public view of the npm/GitHub ingestion pipeline and recently synced packages.
-- **Registry API** — public JSON endpoints under `/api/v1/` for packages, versions, profiles, categories, and status. Responses are cacheable for 60 seconds with stale revalidation.
+- **Registry API** — public JSON endpoints under `/api/v1/` for packages, versions, profiles, and categories. Responses are cacheable for 60 seconds with stale revalidation.
 - **`dsh-hub` CLI** — search, exact resolution, install, profile apply, and lockfiles. A successful apply writes `~/.dsh/profiles/<profile>/dsh-hub.lock.json` with resolved versions, sources, and integrity.
 - **Publishing** — publish an npm package containing a valid `dsh.bundle` or `dsh.profile` manifest; the Hub discovers it automatically, validates every version's manifest, and records npm's exact tarball URL and integrity. Keywords only discover candidates; a valid manifest controls catalog admission. Authors can claim listings via a GitHub App and edit listing copy from a dashboard.
 - **Immutability** — published `(package, version)` records are immutable. Versions removed from npm are retained and marked withdrawn. The Hub does not host tarballs.
@@ -80,7 +79,6 @@ DeepSeek Harness Plugin Hub 是一个由社区独立创建和维护的非官方�
 - Plugin catalog: https://dshpluginhub.ai/plugins
 - Profiles: https://dshpluginhub.ai/profiles
 - Guides: https://dshpluginhub.ai/guides
-- Sync status: https://dshpluginhub.ai/status
 - Detailed Markdown homepage: https://dshpluginhub.ai/index.md
 - LLM navigation file: https://dshpluginhub.ai/llms.txt
 - Official DeepSeek Harness repository: https://github.com/deepseek-ai/deepseek-harness

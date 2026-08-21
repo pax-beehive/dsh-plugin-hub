@@ -3,7 +3,6 @@ const PUBLIC_HUB_READS = [
   /^\/api\/v1\/packages(?:\/[^/]+)?$/,
   /^\/api\/v1\/profiles(?:\/[^/]+)?$/,
   /^\/api\/v1\/source-listings$/,
-  /^\/api\/v1\/status$/,
 ];
 
 export function isPublicHubRead(method: string, target: string | URL): boolean {

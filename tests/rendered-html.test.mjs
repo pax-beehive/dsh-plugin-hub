@@ -267,22 +267,12 @@ test("homepage H1 includes the space and a site nav", async () => {
   assert.match(html, /<nav class="hub-nav"[^>]*>/);
   assert.match(html, /href="\/guides"/);
   assert.match(html, /href="\/profiles"/);
-  assert.match(html, /href="\/status"/);
   assert.match(
     html,
     /<a(?=[^>]*class="brand")(?=[^>]*href="\/")[^>]*>/,
   );
   assert.doesNotMatch(html, /class="brand" href="#top"/);
   assert.doesNotMatch(html, /DeepSeek HarnessPlugin Hub/);
-});
-
-test("status page declares its own canonical metadata", async () => {
-  const source = await readFile(
-    new URL("../app/(default)/status/page.tsx", import.meta.url),
-    "utf8",
-  );
-  assert.match(source, /pageMetadata\(\{/);
-  assert.match(source, /path: "\/status"/);
 });
 
 test("guides page does not advertise the homepage markdown alternate", async () => {

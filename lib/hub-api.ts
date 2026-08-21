@@ -186,45 +186,6 @@ export async function listSourceOnlyListings(input?: {
   }
 }
 
-const syncStatusSchema = z
-  .object({
-    summary: z.array(
-      z
-        .object({
-          status: z.string(),
-          count: z.number().int().nonnegative(),
-        })
-        .strict(),
-    ),
-    recent: z.array(
-      z
-        .object({
-          packageName: z.string(),
-          status: z.string(),
-          packageKind: z.string().nullable(),
-          lastSyncedAt: z.string().nullable(),
-          lastError: z.string().nullable(),
-        })
-        .strict(),
-    ),
-    sourceOnlyCount: z.number().int().nonnegative(),
-  })
-  .strict();
-
-export type SyncStatus = z.infer<typeof syncStatusSchema>;
-
-// Public ingestion-pipeline status. Returns null when the backend doesn't
-// serve /api/v1/status yet so the status page can render a placeholder.
-export async function getSyncStatus(): Promise<SyncStatus | null> {
-  try {
-    const response = await hubFetch("/api/v1/status");
-    if (!response.ok) return null;
-    return syncStatusSchema.parse(await response.json());
-  } catch {
-    return null;
-  }
-}
-
 export async function getPackageBySlug(
   slug: string,
 ): Promise<PluginRecord | null> {

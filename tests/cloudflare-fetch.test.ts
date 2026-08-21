@@ -10,7 +10,6 @@ test("only anonymous catalog GET endpoints are eligible for upstream caching", (
     "/api/v1/profiles/team-profile",
     "/api/v1/categories",
     "/api/v1/source-listings",
-    "/api/v1/status",
   ]) {
     assert.equal(isPublicHubRead("GET", `https://api.dshpluginhub.ai${path}`), true);
   }

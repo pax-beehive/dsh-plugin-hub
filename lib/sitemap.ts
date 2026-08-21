@@ -34,7 +34,6 @@ export function staticSitemapEntries(): MetadataRoute.Sitemap {
     { url: SITE_HOME, changeFrequency: "weekly", priority: 1 },
     { url: absoluteUrl("/plugins"), changeFrequency: "hourly", priority: 0.9 },
     { url: absoluteUrl("/profiles"), changeFrequency: "hourly", priority: 0.8 },
-    { url: absoluteUrl("/status"), changeFrequency: "hourly", priority: 0.4 },
     { url: absoluteUrl("/guides"), changeFrequency: "weekly", priority: 0.6 },
     { url: absoluteUrl("/privacy"), changeFrequency: "yearly", priority: 0.2 },
     ...guides.map((guide) => ({

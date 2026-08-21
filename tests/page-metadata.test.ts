@@ -19,14 +19,14 @@ test("homepage metadata self-canonicals with a trailing slash and owns index.md"
 
 test("inner pages set matching canonical and og:url", () => {
   const metadata = pageMetadata({
-    path: "/status",
-    title: "Status — DSH Plugin Hub",
-    description: "Pipeline status",
+    path: "/guides",
+    title: "Guides — DSH Plugin Hub",
+    description: "Integration guides",
   });
 
-  assert.equal(metadata.alternates?.canonical, "https://dshpluginhub.ai/status");
-  assert.equal(metadata.openGraph?.url, "https://dshpluginhub.ai/status");
-  assert.equal(metadata.openGraph?.title, "Status — DSH Plugin Hub");
+  assert.equal(metadata.alternates?.canonical, "https://dshpluginhub.ai/guides");
+  assert.equal(metadata.openGraph?.url, "https://dshpluginhub.ai/guides");
+  assert.equal(metadata.openGraph?.title, "Guides — DSH Plugin Hub");
   assert.equal(metadata.alternates?.types, undefined);
   assert.notEqual(metadata.alternates?.canonical, SITE_HOME);
 });
@@ -54,5 +54,5 @@ test("404 metadata is noindex only and does not reuse the homepage", () => {
 
 test("absoluteUrl uses the trailing-slash homepage convention", () => {
   assert.equal(absoluteUrl("/"), SITE_HOME);
-  assert.equal(absoluteUrl("/status"), "https://dshpluginhub.ai/status");
+  assert.equal(absoluteUrl("/guides"), "https://dshpluginhub.ai/guides");
 });

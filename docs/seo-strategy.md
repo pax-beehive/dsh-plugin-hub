@@ -169,7 +169,7 @@ Verified manifest, exact versions, integrity-checked.
 | 错误修复页 ×10–15 | `/guides/{slug}` | 2.5 节词群 | 中（模板化生产） |
 | 概念指南 ×4–6 | `/guides/{slug}` | 2.3 节词群 | 中 |
 | 安全立场页 | `/security`（或 guide） | dsh plugin safety / 插件安全吗 | 小（素材在 handover 里） |
-| 收录动态页 | `/status` 已有 | 无直接搜索价值，但是新鲜度信号 + 爬虫入口 | 已有，补 sitemap 即可 |
+| 收录动态页 | `/status`（已下线，后端接口就绪后可恢复） | 无直接搜索价值，但是新鲜度信号 + 爬虫入口 | 低 |
 
 ### 3.5 内链结构
 
@@ -212,7 +212,7 @@ Verified manifest, exact versions, integrity-checked.
 ### 4.3 Sitemap 修正（`app/sitemap.ts`）
 
 - `searchPackages("", { limit: 100 })` 有上限——收录量超过 100 后插件会从 sitemap 消失，**必须分页全量输出**（这是当前最紧急的技术 bug 之一）。
-- 补 `/status`、`/faq`、分类页 lastModified。
+- 补 `/faq`、分类页 lastModified。
 - guides 的 changeFrequency 从 monthly 改为 weekly（我们会持续更新）。
 
 ### 4.4 llms.txt 更新（`public/`，P0，半天工作量）

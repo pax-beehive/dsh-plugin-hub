@@ -20,8 +20,7 @@ Last updated: 2026-08-19
 - **Install with one command**: each listing shows the exact command, typically `dsh plugin --profile web add <package>@<exact-version>`. The `dsh-hub` CLI adds search, exact resolution, profile apply, and lockfiles.
 - **Share and apply profiles**: https://dshpluginhub.ai/profiles — ordered, versioned plugin compositions that reproduce a full Harness setup on any machine.
 - **Read guides**: https://dshpluginhub.ai/guides — installation troubleshooting, version compatibility, HMR, publishing, and plugin development, in Chinese and English.
-- **Check ingestion status**: https://dshpluginhub.ai/status — public sync pipeline status and recently synced packages.
-- **Use the Registry API**: public JSON endpoints under `/api/v1/` for packages, versions, profiles, categories, and status.
+- **Use the Registry API**: public JSON endpoints under `/api/v1/` for packages, versions, profiles, and categories.
 
 ## Publishing a plugin
 
