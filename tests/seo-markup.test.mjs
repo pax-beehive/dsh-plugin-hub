@@ -10,11 +10,12 @@ const wrangler = readFileSync(new URL("../wrangler.jsonc", import.meta.url), "ut
 
 test("homepage H1 keeps a space between Harness and Plugin Hub", () => {
   assert.match(home, /\{t\.title\}\{" "\}/);
-  assert.match(home, /<nav className="site-nav"/);
-  assert.match(home, /href="\/guides"/);
-  assert.match(home, /href="\/profiles"/);
-  assert.match(home, /href="\/status"/);
-  assert.match(home, /className="brand" href="\/"/);
+  assert.match(home, /<HubHeader locale=\{language\} \/>/);
+  assert.match(header, /<nav className="hub-nav"/);
+  assert.match(header, /href="\/guides"/);
+  assert.match(header, /href="\/profiles"/);
+  assert.match(header, /href="\/status"/);
+  assert.match(header, /className="brand" href="\/"/);
   assert.doesNotMatch(home, /href="#top"/);
   assert.doesNotMatch(home, /priority/);
 });
