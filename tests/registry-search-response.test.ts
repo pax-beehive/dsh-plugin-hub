@@ -28,12 +28,13 @@ test("quarantines malformed search items without rejecting the page", () => {
 
 test("preserves totals when every search item is valid", () => {
   const result = parseRegistrySearchResponse({
-    items: [validItem],
+    items: [{ ...validItem, weeklyDownloads: 42 }],
     nextCursor: null,
     total: 1,
   });
 
   assert.equal(result.total, 1);
+  assert.equal(result.items[0]?.weeklyDownloads, 42);
 });
 
 test("keeps the response envelope strict", () => {

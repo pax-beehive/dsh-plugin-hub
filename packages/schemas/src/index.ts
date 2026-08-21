@@ -241,6 +241,7 @@ export const pluginRecordSchema = z
     replacement: npmPackageNameSchema.optional(),
     latestVersion: exactSemverSchema,
     distTags: z.record(z.string(), exactSemverSchema).default({}),
+    weeklyDownloads: z.number().int().nonnegative().optional(),
     versions: z.array(pluginVersionSchema).min(1),
     createdAt: z.iso.datetime(),
     updatedAt: z.iso.datetime(),
