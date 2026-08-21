@@ -228,6 +228,7 @@ export const pluginRecordSchema = z
       })
       .strict()
       .optional(),
+    weeklyDownloads: z.number().int().nonnegative().default(0),
     homepage: z.url().optional(),
     license: z.string().max(100).optional(),
     categories: z.array(z.string().min(1)).default([]),

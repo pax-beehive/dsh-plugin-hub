@@ -3,15 +3,13 @@ import { HubFooter } from "@/components/HubHeader";
 import { getHubLocale } from "@/lib/i18n-server";
 import {
   OG_IMAGE_HEIGHT,
-  OG_IMAGE_PATH,
+  OG_IMAGE_URL,
   OG_IMAGE_WIDTH,
-  SITE_HOME,
 } from "@/lib/site-url";
 import { siteIcons } from "@/lib/site-icons";
 import type { Metadata } from "next";
 import "../globals.css";
 
-const siteUrl = new URL(SITE_HOME);
 const localizedMetadata = {
   zh: {
     locale: "zh_CN",
@@ -27,7 +25,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const locale = await getHubLocale();
   const copy = localizedMetadata[locale];
   return {
-    metadataBase: siteUrl,
+    // Do not set metadataBase. Vinext's metadata URL formatter turns
+    // https://dshpluginhub.ai/ into the slashless origin whenever it
+    // resolves against metadataBase. Page metadata already uses absolute URLs.
     applicationName: "DeepSeek Harness Plugin Hub",
     creator: "DeepSeek Harness Plugin Hub Community",
     publisher: "DeepSeek Harness Plugin Hub Community",
@@ -55,7 +55,7 @@ export async function generateMetadata(): Promise<Metadata> {
       alternateLocale: [...copy.alternateLocale],
       images: [
         {
-          url: OG_IMAGE_PATH,
+          url: OG_IMAGE_URL,
           width: OG_IMAGE_WIDTH,
           height: OG_IMAGE_HEIGHT,
           alt: "DeepSeek Harness Plugin Hub — independent community project",
@@ -64,7 +64,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      images: [OG_IMAGE_PATH],
+      images: [OG_IMAGE_URL],
     },
   };
 }
