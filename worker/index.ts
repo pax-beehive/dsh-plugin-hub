@@ -64,7 +64,11 @@ const worker = {
       );
     }
 
-    const edgeCache = defaultEdgeCache();
+    // Sites dispatches through a restricted Worker environment where touching
+    // CacheStorage.default terminates the request before application rendering.
+    const edgeCache = request.headers.has("x-dispatched-app")
+      ? null
+      : defaultEdgeCache();
     const shouldCache = edgeCache !== null && isPublicHtmlCacheRequest(request);
     const cacheKey = shouldCache ? publicPageCacheKey(request) : null;
 

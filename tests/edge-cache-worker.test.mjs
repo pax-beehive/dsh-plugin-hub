@@ -81,9 +81,11 @@ test("the Worker caches anonymous public HTML by locale", async () => {
 
 test("the Worker bypasses edge caching when the runtime denies the default cache", async () => {
   const restrictedCacheStorage = {};
+  let defaultCacheReads = 0;
   Object.defineProperty(restrictedCacheStorage, "default", {
     configurable: true,
     get() {
+      defaultCacheReads += 1;
       throw new Error("This Worker is not permitted to access the default cache.");
     },
   });
@@ -97,7 +99,10 @@ test("the Worker bypasses edge caching when the runtime denies the default cache
   const { default: worker } = await import(workerUrl.href);
   const response = await worker.fetch(
     new Request("http://localhost/docs", {
-      headers: { accept: "text/html" },
+      headers: {
+        accept: "text/html",
+        "x-dispatched-app": "site---test",
+      },
     }),
     {
       ASSETS: {
@@ -116,6 +121,7 @@ test("the Worker bypasses edge caching when the runtime denies the default cache
   );
 
   assert.equal(response.status, 200);
+  assert.equal(defaultCacheReads, 0);
   assert.equal(response.headers.get("x-dsh-edge-cache"), "BYPASS");
   assert.match(await response.text(), /可靠地使用与构建插件/);
 });
