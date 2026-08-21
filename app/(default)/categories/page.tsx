@@ -102,12 +102,11 @@ export default async function CategoriesIndexPage() {
         ) : (
           categories.map((entry) => {
             const preview = previews.get(entry.name) ?? [];
-            const href = `/categories/${encodeURIComponent(entry.name)}`;
             return (
               <section className="category-index-block" key={entry.name}>
                 <div className="catalog-section-heading">
                   <h2>
-                    <Link href={href} prefetch={false}>
+                    <Link href={`/categories/${encodeURIComponent(entry.name)}`} prefetch={false}>
                       {entry.name}
                     </Link>
                   </h2>
@@ -149,7 +148,7 @@ export default async function CategoriesIndexPage() {
                   </div>
                 )}
                 <p className="category-index-more">
-                  <Link href={href} prefetch={false}>
+                  <Link href={`/categories/${encodeURIComponent(entry.name)}`} prefetch={false}>
                     {t.plugins.viewCategory}
                   </Link>
                 </p>
