@@ -122,26 +122,28 @@ export default async function PluginsPage({
         ) : null}
       </section>
       <section className="catalog-section" aria-label="Plugin results">
-        <div className="catalog-section-heading">
-          <h2>{q ? t.plugins.result(q) : t.plugins.all}</h2>
-          <span>
-            {paginated
-              ? t.plugins.totalCount(result.total!)
-              : t.plugins.count(catalogItems.length)}
-          </span>
+        <div className="catalog-results-header">
+          <div className="catalog-section-heading">
+            <h2>{q ? t.plugins.result(q) : t.plugins.all}</h2>
+            <span>
+              {paginated
+                ? t.plugins.totalCount(result.total!)
+                : t.plugins.count(catalogItems.length)}
+            </span>
+          </div>
+          <nav className="sort-tabs" aria-label={t.plugins.sortLabel}>
+            {sortValues.map((value) => (
+              <Link
+                aria-current={value === sort ? "true" : undefined}
+                className={value === sort ? "active" : undefined}
+                href={pageHref({ sort: value, page: 1 })}
+                key={value}
+              >
+                {sortLabels[value]}
+              </Link>
+            ))}
+          </nav>
         </div>
-        <nav className="sort-tabs" aria-label={t.plugins.sortLabel}>
-          {sortValues.map((value) => (
-            <Link
-              aria-current={value === sort ? "true" : undefined}
-              className={value === sort ? "active" : undefined}
-              href={pageHref({ sort: value, page: 1 })}
-              key={value}
-            >
-              {sortLabels[value]}
-            </Link>
-          ))}
-        </nav>
         {catalogItems.length ? (
           <div className="plugin-grid">
             {catalogItems.map((plugin) => (

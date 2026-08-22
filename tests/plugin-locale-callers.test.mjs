@@ -7,13 +7,15 @@ const files = {
   detail: new URL("../app/(default)/plugins/[slug]/page.tsx", import.meta.url),
   category: new URL("../app/(default)/categories/[category]/page.tsx", import.meta.url),
   categories: new URL("../app/(default)/categories/page.tsx", import.meta.url),
+  categoryPreviews: new URL("../lib/category-previews.ts", import.meta.url),
 };
 
 test("localized catalog callers pass their resolved locale to package searches", async () => {
-  const [catalog, category, categories] = await Promise.all([
+  const [catalog, category, categories, categoryPreviews] = await Promise.all([
     readFile(files.catalog, "utf8"),
     readFile(files.category, "utf8"),
     readFile(files.categories, "utf8"),
+    readFile(files.categoryPreviews, "utf8"),
   ]);
 
   assert.match(catalog, /searchPackages\(q, \{\s+locale,/);
@@ -23,9 +25,10 @@ test("localized catalog callers pass their resolved locale to package searches",
     /searchPackages\("", \{\s+category,\s+limit: pageSize,\s+locale,\s+page: requestedPage,/,
   );
   assert.match(categories, /safeSearchPackages\("", \{ locale, limit: 1 \}\)/);
+  assert.match(categories, /loadCategoryPreviews\(categories, locale, PREVIEW_LIMIT\)/);
   assert.match(
-    categories,
-    /safeSearchPackages\("", \{\s+category: entry\.name,\s+limit: PREVIEW_LIMIT,\s+locale,/,
+    categoryPreviews,
+    /search\("", \{\s+category: entry\.name,\s+limit,\s+locale,/,
   );
 });
 

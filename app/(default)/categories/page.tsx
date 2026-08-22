@@ -1,7 +1,6 @@
 import HubHeader from "@/components/HubHeader";
 import PluginIcon from "@/components/PluginIcon";
-import PluginCardHeading from "@/components/PluginCardHeading";
-import { altPackageHint } from "@/lib/catalog-display";
+import { loadCategoryPreviews } from "@/lib/category-previews";
 import {
   listCategories,
   searchPackages,
@@ -18,7 +17,7 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-const PREVIEW_LIMIT = 4;
+const PREVIEW_LIMIT = 3;
 
 function categoryTitle(entry: CategoryCount, locale: "zh" | "en"): string {
   if (locale === "zh") {
@@ -61,18 +60,7 @@ export default async function CategoriesIndexPage() {
   // One source of truth: registry search `total`. Category counts sum lower
   // because uncategorized packages exist; do not substitute that sum.
   const total = catalog.total;
-  const previews = new Map(
-    await Promise.all(
-      categories.map(async (entry) => {
-        const preview = await safeSearchPackages("", {
-          category: entry.name,
-          limit: PREVIEW_LIMIT,
-          locale,
-        });
-        return [entry.name, preview.items] as const;
-      }),
-    ),
-  );
+  const previews = await loadCategoryPreviews(categories, locale, PREVIEW_LIMIT);
   const heading = typeof total === "number" && total > 0 ? t.plugins.browseAll(total) : t.plugins.browseAllUnknown;
 
   return (
@@ -89,6 +77,20 @@ export default async function CategoriesIndexPage() {
         <p className="catalog-eyebrow">{t.plugins.browseAllEyebrow}</p>
         <h1>{heading}</h1>
         <p>{t.plugins.browseAllIntro}</p>
+        {categories.length ? (
+          <nav className="category-rail category-index-rail" aria-label={t.plugins.allCategories}>
+            {categories.map((entry) => (
+              <Link
+                href={`/categories/${encodeURIComponent(entry.name)}`}
+                key={entry.name}
+                prefetch={false}
+              >
+                {categoryTitle(entry, locale)}
+                <span>{entry.count}</span>
+              </Link>
+            ))}
+          </nav>
+        ) : null}
       </section>
       <section className="catalog-section" aria-label={t.plugins.allCategories}>
         {categories.length === 0 ? (
@@ -101,59 +103,58 @@ export default async function CategoriesIndexPage() {
             </p>
           </div>
         ) : (
-          categories.map((entry) => {
-            const preview = previews.get(entry.name) ?? [];
-            return (
-              <section className="category-index-block" key={entry.name}>
-                <div className="catalog-section-heading">
-                  <h2>
-                    <Link href={`/categories/${encodeURIComponent(entry.name)}`} prefetch={false}>
-                      {categoryTitle(entry, locale)}
-                    </Link>
-                  </h2>
-                  <span>{t.plugins.count(entry.count)}</span>
-                </div>
-                {preview.length ? (
-                  <div className="plugin-grid">
-                    {preview.map((plugin) => (
-                      <Link
-                        className="plugin-card"
-                        href={`/plugins/${plugin.slug}`}
-                        key={plugin.id}
-                        prefetch={false}
-                      >
-                        <div className="plugin-card-topline">
-                          <PluginIcon
-                            className="plugin-icon"
-                            displayName={plugin.displayName}
-                            iconUrl={plugin.iconUrl}
-                          />
-                          <span className="plugin-version">v{plugin.latestVersion}</span>
-                        </div>
-                        <PluginCardHeading
-                          altHint={altPackageHint(preview, plugin)}
-                          claimedLabel={t.common.claimed}
-                          displayName={plugin.displayName}
-                          packageName={plugin.packageName}
-                          verified={plugin.verified}
-                        />
-                        <p>{plugin.summary}</p>
-                      </Link>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="catalog-empty">
-                    <p>{t.plugins.categoryEmpty}</p>
-                  </div>
-                )}
-                <p className="category-index-more">
-                  <Link href={`/categories/${encodeURIComponent(entry.name)}`} prefetch={false}>
-                    {t.plugins.viewCategory}
+          <>
+            <div className="category-directory-heading">
+              <div>
+                <h2>{t.plugins.allCategories}</h2>
+                <span>{categories.length}</span>
+              </div>
+              <Link href="/plugins" prefetch={false}>
+                {t.plugins.all} <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+            <div className="category-directory-grid">
+              {categories.map((entry) => {
+                const preview = previews.get(entry.name) ?? [];
+                return (
+                  <Link
+                    className="category-directory-card"
+                    href={`/categories/${encodeURIComponent(entry.name)}`}
+                    key={entry.name}
+                    prefetch={false}
+                  >
+                    <div className="category-directory-card-topline">
+                      <span className="category-directory-mark" aria-hidden="true">#</span>
+                      <span className="category-directory-count">{t.plugins.count(entry.count)}</span>
+                    </div>
+                    <h3>{categoryTitle(entry, locale)}</h3>
+                    {preview.length ? (
+                      <ul className="category-directory-preview">
+                        {preview.map((plugin) => (
+                          <li key={plugin.id}>
+                            <PluginIcon
+                              className="plugin-icon"
+                              displayName={plugin.displayName}
+                              iconUrl={plugin.iconUrl}
+                            />
+                            <span>
+                              <strong>{plugin.displayName}</strong>
+                              <small>{plugin.packageName}</small>
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="category-directory-empty">{t.plugins.categoryEmpty}</p>
+                    )}
+                    <span className="category-directory-cta">
+                      {t.plugins.viewCategory} <span aria-hidden="true">→</span>
+                    </span>
                   </Link>
-                </p>
-              </section>
-            );
-          })
+                );
+              })}
+            </div>
+          </>
         )}
       </section>
     </main>

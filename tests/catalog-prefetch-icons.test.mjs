@@ -46,7 +46,10 @@ test("catalog plugin cards, category chips, and pagination disable prefetch", as
     linksContaining(category, "/categories/${encodeURIComponent(entry.name)}"),
     "category chip",
   );
-  assertPrefetchDisabled(linksContaining(categoriesIndex, "plugin-card"), "index plugin-card");
+  assertPrefetchDisabled(
+    linksContaining(categoriesIndex, "category-directory-card"),
+    "index category card",
+  );
   assertPrefetchDisabled(
     linksContaining(categoriesIndex, "/categories/${encodeURIComponent(entry.name)}"),
     "index category heading",

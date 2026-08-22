@@ -154,6 +154,33 @@ test("catalog header includes the shared sign-in action", async () => {
   assert.match(styles, /\.catalog-section \{\s+width: min\(1180px, calc\(100% - 40px\)\)/);
 });
 
+test("plugin results use a unified, responsive section header", async () => {
+  const [page, styles] = await Promise.all([
+    readFile(new URL("../app/(default)/plugins/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(page, /className="catalog-results-header"/);
+  assert.match(page, /catalog-results-header[\s\S]*catalog-section-heading[\s\S]*sort-tabs/);
+  assert.match(styles, /\.catalog-results-header \{[\s\S]*justify-content: space-between/);
+  assert.match(styles, /@media \(max-width: 680px\) \{[\s\S]*\.catalog-results-header \{[\s\S]*flex-direction: column/);
+});
+
+test("category index uses quick links and a compact responsive directory", async () => {
+  const [page, styles] = await Promise.all([
+    readFile(new URL("../app/(default)/categories/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(page, /className="category-rail category-index-rail"/);
+  assert.match(page, /className="category-directory-grid"/);
+  assert.match(page, /className="category-directory-card"/);
+  assert.match(page, /loadCategoryPreviews\(categories, locale, PREVIEW_LIMIT\)/);
+  assert.doesNotMatch(page, /className="category-index-block"/);
+  assert.match(styles, /\.category-directory-grid \{[\s\S]*grid-template-columns: repeat\(3/);
+  assert.match(styles, /@media \(max-width: 560px\) \{[\s\S]*\.category-directory-grid \{[\s\S]*grid-template-columns: 1fr/);
+});
+
 test("publisher pages use the shared header chrome", async () => {
   const [dashboard, editor, authError] = await Promise.all([
     readFile(new URL("../app/dashboard/page.tsx", import.meta.url), "utf8"),

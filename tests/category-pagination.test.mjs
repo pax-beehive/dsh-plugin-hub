@@ -24,8 +24,6 @@ test("category details paginate against the API total", async () => {
 test("category index fetches each category preview from that category", async () => {
   const source = await readFile(categoriesIndexUrl, "utf8");
 
-  assert.match(source, /categories\.map\(async \(entry\) =>/);
-  assert.match(source, /category: entry\.name/);
-  assert.match(source, /limit: PREVIEW_LIMIT/);
+  assert.match(source, /loadCategoryPreviews\(categories, locale, PREVIEW_LIMIT\)/);
   assert.doesNotMatch(source, /previewByCategory/);
 });
