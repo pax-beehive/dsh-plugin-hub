@@ -3,6 +3,30 @@
 Community registry, publisher console, and CLI for versioned DeepSeek Harness
 plugins and profiles. The project is independent and unofficial.
 
+[Visit DSH Plugin Hub](https://dshpluginhub.ai) ·
+[Browse Plugins](https://dshpluginhub.ai/plugins) ·
+[Explore Profiles](https://dshpluginhub.ai/profiles) ·
+[Install the CLI](https://www.npmjs.com/package/@dsh-plugin-hub/cli)
+
+DSH Plugin Hub lets users discover DSH plugins, share complete version-locked
+Profiles, apply them through the `dsh-hub` CLI, and roll back to a recoverable
+local revision. Start on [dshpluginhub.ai](https://dshpluginhub.ai).
+
+## Install
+
+Use the CLI directly:
+
+```bash
+npm install --global @dsh-plugin-hub/cli
+dsh-hub --help
+```
+
+Or add the Hub tools to a DSH Profile:
+
+```bash
+dsh plugin --profile web add @dsh-plugin-hub/dsh-plugin
+```
+
 ## What is implemented
 
 - Public plugin search, detail pages, screenshots, compatibility and exact install specs

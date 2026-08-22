@@ -1,10 +1,20 @@
 {
   "name": "@dsh-plugin-hub/dsh-plugin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "DSH tools for planning and applying reproducible Plugin Hub Profiles through the local dsh-hub CLI",
+  "keywords": ["dsh-plugin", "deepseek-harness", "profile", "agent-tools", "rollback"],
+  "homepage": "https://dshpluginhub.ai",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pax-beehive/dsh-plugin-hub.git",
+    "directory": "packages/dsh-plugin"
+  },
+  "bugs": {
+    "url": "https://github.com/pax-beehive/dsh-plugin-hub/issues"
+  },
   "type": "module",
   "main": "./index.js",
-  "files": ["index.js", "cordis.patch.yml", "README.md"],
+  "files": ["index.js", "cordis.patch.yml", "README.md", "LICENSE"],
   "dependencies": {
     "@dsh-plugin-hub/cli": "workspace:*"
   },
