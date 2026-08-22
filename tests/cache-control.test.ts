@@ -63,6 +63,14 @@ test("auth, dashboard, collect, mutations, and private APIs stay no-store", () =
   }
 });
 
+test("signed-in public pages are never stored in a shared cache", () => {
+  const signedIn = new Request("https://dshpluginhub.ai/plugins", {
+    headers: { cookie: "dsh-hub-locale=en; wos-session=sealed" },
+  });
+  assert.equal(cacheControlFor(signedIn), PRIVATE_CACHE_CONTROL);
+  assert.equal(cachePolicyFor(signedIn), "no-store");
+});
+
 test("successful public Hub API reads cache for 300s and 404s for 30s", () => {
   const packages = request("/api/v1/packages");
   assert.equal(cacheControlFor(packages, 200), HUB_API_SUCCESS_CACHE_CONTROL);

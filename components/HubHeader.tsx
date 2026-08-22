@@ -1,7 +1,10 @@
 import Link from "next/link";
 import BrandLogo from "./BrandLogo";
 import LanguageSwitch from "./LanguageSwitch";
+import UserAvatar from "./UserAvatar";
 import { hubCopy, type HubLocale } from "@/lib/i18n";
+import { hubAccountFromUser, type HubAccount } from "@/lib/user-account";
+import { withAuth } from "@workos-inc/authkit-nextjs";
 
 function HeaderChrome({
   children,
@@ -28,8 +31,45 @@ function HeaderChrome({
   );
 }
 
-export default function HubHeader({ locale }: { locale: HubLocale }) {
+function AccountMenu({
+  account,
+  locale,
+}: {
+  account: HubAccount;
+  locale: HubLocale;
+}) {
+  const copy = locale === "en"
+    ? { account: "Account", dashboard: "Dashboard", signOut: "Sign out" }
+    : { account: "账户", dashboard: "控制台", signOut: "退出登录" };
+
+  return (
+    <details className="hub-account">
+      <summary
+        className="hub-account-trigger"
+        aria-label={`${copy.account}: ${account.displayName}`}
+      >
+        <UserAvatar
+          avatarUrl={account.avatarUrl}
+          initials={account.initials}
+        />
+        <span className="hub-account-chevron" aria-hidden="true">⌄</span>
+      </summary>
+      <div className="hub-account-menu">
+        <div className="hub-account-identity">
+          <strong>{account.displayName}</strong>
+          {account.displayName !== account.email ? <span>{account.email}</span> : null}
+        </div>
+        <Link href="/dashboard">{copy.dashboard}</Link>
+        <a href="/sign-out">{copy.signOut}</a>
+      </div>
+    </details>
+  );
+}
+
+export default async function HubHeader({ locale }: { locale: HubLocale }) {
   const t = hubCopy[locale];
+  const { user } = await withAuth();
+  const account = user ? hubAccountFromUser(user) : null;
   return (
     <HeaderChrome homeHref="/" locale={locale}>
       <Link href="/plugins">{t.nav.plugins}</Link>
@@ -37,9 +77,13 @@ export default function HubHeader({ locale }: { locale: HubLocale }) {
       <Link href="/profiles">{t.nav.profiles}</Link>
       <Link href="/docs">{t.nav.docs}</Link>
       <Link href="/status">{t.nav.status}</Link>
-      <Link className="hub-signin-link" href="/sign-in">
-        {t.nav.signIn}
-      </Link>
+      {account ? (
+        <AccountMenu account={account} locale={locale} />
+      ) : (
+        <Link className="hub-signin-link" href="/sign-in">
+          {t.nav.signIn}
+        </Link>
+      )}
       <Link className="hub-publish-link" href="/dashboard">
         {t.nav.publish}
       </Link>

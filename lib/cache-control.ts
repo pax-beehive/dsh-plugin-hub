@@ -73,6 +73,13 @@ function isSearchVariant(url: URL): boolean {
   return false;
 }
 
+function hasWorkosSession(request: Request): boolean {
+  const cookie = request.headers.get("cookie") ?? "";
+  return cookie
+    .split(";")
+    .some((part) => part.trim().startsWith("wos-session="));
+}
+
 export function cacheDecision(
   request: Request,
   status = 200,
@@ -87,6 +94,10 @@ export function cacheDecision(
 
   if (pathname.startsWith("/plugin-icons/gravatar/")) {
     return { control: PLUGIN_ICON_CACHE_CONTROL, policy: "plugin-icon" };
+  }
+
+  if (hasWorkosSession(request)) {
+    return { control: PRIVATE_CACHE_CONTROL, policy: "no-store" };
   }
 
   if (isPublicHubApiPath(pathname)) {

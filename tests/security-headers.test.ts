@@ -37,6 +37,7 @@ test("security headers allow optional Google and ChatGPT Ads pixels", async () =
   assert.match(csp, /img-src[^;]*https:\/\/www\.googletagmanager\.com/);
   assert.match(csp, /img-src[^;]*https:\/\/bzr\.openai\.com/);
   assert.match(csp, /img-src[^;]*https:\/\/www\.google\.com/);
+  assert.match(csp, /img-src[^;]*https:\/\/workoscdn\.com/);
 });
 
 test("security headers require Gravatar plugin icons to use the same-origin proxy", () => {

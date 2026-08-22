@@ -132,6 +132,9 @@ test("catalog header includes the shared sign-in action", async () => {
   assert.match(header, /<BrandLogo \/>/);
   assert.match(header, /className="hub-signin-link" href="\/sign-in"/);
   assert.match(header, /t\.nav\.signIn/);
+  assert.match(header, /<AccountMenu account=\{account\} locale=\{locale\} \/>/);
+  assert.match(header, /href="\/sign-out"/);
+  assert.match(header, /<UserAvatar/);
   assert.match(header, /export function DashboardHeader/);
   assert.match(header, /<HeaderChrome homeHref="\/dashboard" locale=\{locale\}>/);
   assert.match(logo, /src="\/deepseek-whale-black\.svg"/);
