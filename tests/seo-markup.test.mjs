@@ -19,7 +19,7 @@ test("homepage H1 keeps a space between Harness and the registry accent", () => 
   assert.match(header, /<nav className="hub-nav"/);
   assert.match(header, /href="\/docs"/);
   assert.doesNotMatch(header, /href="\/status"/);
-  assert.doesNotMatch(header, /href="\/profiles"/);
+  assert.match(header, /href="\/profiles"/);
   assert.match(header, /<Link className="brand" href=\{homeHref\}>/);
   assert.match(header, /<HeaderChrome homeHref="\/" locale=\{locale\}>/);
   assert.doesNotMatch(home, /href="#top"/);
@@ -28,6 +28,7 @@ test("homepage H1 keeps a space between Harness and the registry accent", () => 
 
 test("hub chrome exposes the complete public-site footer", () => {
   assert.match(header, /href="\/docs"/);
+  assert.match(header, /href="\/profiles"/);
   assert.doesNotMatch(header, /href="\/status"/);
   assert.match(header, /t\.nav\.docs/);
   assert.match(header, /export function HubFooter/);

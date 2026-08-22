@@ -372,7 +372,7 @@ test("homepage H1 includes the space and a site nav", async () => {
   assert.match(html, /<nav class="hub-nav"[^>]*>/);
   assert.match(html, /href="\/docs"/);
   assert.doesNotMatch(html, /href="\/status"/);
-  assert.doesNotMatch(html, /href="\/profiles"/);
+  assert.match(html, /href="\/profiles"/);
   assert.match(
     html,
     /<a(?=[^>]*class="brand")(?=[^>]*href="\/")[^>]*>/,

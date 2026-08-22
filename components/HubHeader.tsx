@@ -38,6 +38,7 @@ export default async function HubHeader({ locale }: { locale: HubLocale }) {
   return (
     <HeaderChrome homeHref="/" locale={locale}>
       <Link href="/plugins">{t.nav.plugins}</Link>
+      <Link href="/profiles">{t.nav.profiles}</Link>
       <Link href="/categories">{t.nav.categories}</Link>
       <Link href="/docs">{t.nav.docs}</Link>
       {account ? (
@@ -65,6 +66,7 @@ export function DashboardHeader({
   return (
     <HeaderChrome homeHref="/dashboard" locale={locale}>
       <Link href="/plugins">{t.nav.plugins}</Link>
+      <Link href="/profiles">{t.nav.profiles}</Link>
       {contextAction ? (
         <Link className="hub-context-link" href={contextAction.href}>
           {contextAction.label}
@@ -84,6 +86,7 @@ export function HubFooter({ locale }: { locale: HubLocale }) {
     community: "Community",
     resources: "Resources",
     plugins: "Plugins",
+    profiles: "Profiles",
     docs: "Docs",
     publish: "Publish a plugin",
     contact: "Contact",
@@ -100,6 +103,7 @@ export function HubFooter({ locale }: { locale: HubLocale }) {
     community: "社区",
     resources: "相关链接",
     plugins: "插件目录",
+    profiles: "Profiles",
     docs: "文档中心",
     publish: "发布插件",
     contact: "联系我们",
@@ -126,6 +130,7 @@ export function HubFooter({ locale }: { locale: HubLocale }) {
           <nav className="hub-footer-column" aria-label={copy.explore}>
             <h2>{copy.explore}</h2>
             <Link href="/plugins">{copy.plugins}</Link>
+            <Link href="/profiles">{copy.profiles}</Link>
             <Link href="/docs">{copy.docs}</Link>
           </nav>
 

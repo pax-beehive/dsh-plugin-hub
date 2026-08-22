@@ -29,6 +29,7 @@ export function staticSitemapEntries(): MetadataRoute.Sitemap {
   return [
     { url: SITE_HOME, changeFrequency: "weekly", priority: 1 },
     { url: absoluteUrl("/plugins"), changeFrequency: "hourly", priority: 0.9 },
+    { url: absoluteUrl("/profiles"), changeFrequency: "daily", priority: 0.8 },
     { url: absoluteUrl("/categories"), changeFrequency: "daily", priority: 0.7 },
     { url: absoluteUrl("/docs"), changeFrequency: "weekly", priority: 0.6 },
     { url: absoluteUrl("/privacy"), changeFrequency: "yearly", priority: 0.2 },

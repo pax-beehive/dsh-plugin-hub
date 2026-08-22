@@ -63,6 +63,7 @@ export const hubCopy = {
     alternateLanguageName: "EN",
     nav: {
       plugins: "Plugins",
+      profiles: "Profiles",
       categories: "分类",
       docs: "文档",
       signIn: "登录",
@@ -219,6 +220,7 @@ export const hubCopy = {
     alternateLanguageName: "中文",
     nav: {
       plugins: "Plugins",
+      profiles: "Profiles",
       categories: "Categories",
       docs: "Docs",
       signIn: "Sign in",
