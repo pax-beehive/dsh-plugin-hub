@@ -63,14 +63,6 @@ export default async function DashboardPage({
       <DashboardSignupPixel />
       <DashboardHeader locale={locale} />
       <div className="dashboard-content">
-        <section className="dashboard-card dashboard-card-wide profile-dashboard-entry">
-          <div>
-            <p className="dashboard-eyebrow">PROFILE V1</p>
-            <h2>{locale === "en" ? "Share a complete DSH setup" : "分享完整的 DSH 配置组合"}</h2>
-            <p>{locale === "en" ? "Build from indexed Plugins on the web, or share the exact order from your local Profile with the CLI." : "在 Web 中组合已收录的 Plugin，或用 CLI 一键分享本地 Profile 的确定顺序。"}</p>
-          </div>
-          <Link className="dashboard-primary" href="/dashboard/profiles/new">{locale === "en" ? "Open Profile Builder" : "打开 Profile Builder"}</Link>
-        </section>
         <section className="dashboard-card dashboard-card-wide">
           <p className="dashboard-eyebrow">NPM SYNC</p>
           <h1>{t.hello}, {user.name ?? user.email}</h1>

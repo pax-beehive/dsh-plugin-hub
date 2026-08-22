@@ -28,9 +28,9 @@ test("static sitemap omits /report and uses the trailing-slash homepage", () => 
   assert.ok(urls.includes("https://dshpluginhub.ai/plugins"));
   assert.ok(urls.includes("https://dshpluginhub.ai/categories"));
   assert.ok(urls.includes("https://dshpluginhub.ai/docs"));
-  assert.ok(urls.includes("https://dshpluginhub.ai/status"));
+  assert.equal(urls.includes("https://dshpluginhub.ai/status"), false);
   assert.ok(urls.includes("https://dshpluginhub.ai/privacy"));
-  assert.ok(urls.includes("https://dshpluginhub.ai/profiles"));
+  assert.equal(urls.includes("https://dshpluginhub.ai/profiles"), false);
   assert.ok(urls.some((url) => url.startsWith("https://dshpluginhub.ai/docs/")));
   assert.equal(urls.includes("https://dshpluginhub.ai/report"), false);
   assert.equal(
@@ -96,7 +96,6 @@ test("shards plugins and never puts /report in the index or urlset", () => {
   const plugins = Array.from({ length: SITEMAP_CHUNK_SIZE + 12 }, (_, i) => plugin(i + 1));
   const shards = buildSitemapShards({
     plugins,
-    profiles: [{ slug: "team-web", updatedAt: "2026-08-20T00:00:00.000Z" }],
     categories: [{ name: "vision" }],
   });
 
@@ -114,7 +113,7 @@ test("shards plugins and never puts /report in the index or urlset", () => {
   ]);
 
   const staticUrls = entriesForShard(shards, 0).map((entry) => entry.url);
-  assert.ok(staticUrls.includes("https://dshpluginhub.ai/profiles/team-web"));
+  assert.equal(staticUrls.some((url) => url.includes("/profiles")), false);
   assert.ok(staticUrls.includes("https://dshpluginhub.ai/categories/vision"));
   assert.equal(staticUrls.some((url) => url.includes("/report")), false);
   assert.equal(staticUrls.some((url) => url.includes("/plugins/plugin-")), false);

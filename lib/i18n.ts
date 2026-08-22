@@ -64,9 +64,7 @@ export const hubCopy = {
     nav: {
       plugins: "Plugins",
       categories: "分类",
-      profiles: "Profiles",
       docs: "文档",
-      status: "状态",
       signIn: "登录",
       publish: "发布",
     },
@@ -221,9 +219,7 @@ export const hubCopy = {
     nav: {
       plugins: "Plugins",
       categories: "Categories",
-      profiles: "Profiles",
       docs: "Docs",
-      status: "Status",
       signIn: "Sign in",
       publish: "Publish",
     },

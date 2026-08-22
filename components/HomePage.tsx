@@ -5,14 +5,6 @@ import Link from "next/link";
 
 const copy = {
   zh: {
-    status: "已上线",
-    nav: {
-      plugins: "Plugins",
-      categories: "分类",
-      profiles: "Profiles",
-      docs: "文档",
-      status: "状态",
-    },
     badge: "NOW LIVE · 现已上线",
     title: "DeepSeek Harness",
     accent: "插件注册表",
@@ -44,19 +36,11 @@ const copy = {
     ],
     cards: [
       ["⌘", "插件托管与分享", "发布、发现并安装 Harness 插件"],
-      ["◈", "Harness 配置分享", "一键分享你的插件组合方案"],
-      ["★", "评分与评价", "为插件与配置打分、写评价"],
+      ["◈", "精确版本解析", "安装前确认兼容范围与完整性"],
+      ["★", "清晰的来源信息", "查看源码、许可证与发布者信息"],
     ],
   },
   en: {
-    status: "Live",
-    nav: {
-      plugins: "Plugins",
-      categories: "Categories",
-      profiles: "Profiles",
-      docs: "Docs",
-      status: "Status",
-    },
     badge: "NOW LIVE",
     title: "DeepSeek Harness",
     accent: "plugin registry",
@@ -88,8 +72,8 @@ const copy = {
     ],
     cards: [
       ["\u2318", "Plugin hosting & sharing", "Publish, discover, and install plugins"],
-      ["\u25c8", "Harness profiles", "Share your installed-plugin setups"],
-      ["\u2605", "Ratings & reviews", "Rate plugins and community profiles"],
+      ["\u25c8", "Exact version resolution", "Check compatibility and integrity before install"],
+      ["\u2605", "Clear source details", "Review source, license, and publisher information"],
     ],
   },
 } as const;

@@ -11,12 +11,12 @@ export async function generateMetadata(): Promise<Metadata> {
       ? {
           title: "DSH plugin registry — exact versions, manifests, one-command installs",
           description:
-            "The community registry for DeepSeek Harness (dsh) plugins: discover manifest-verified DSH plugins and reusable profiles, check exact versions, compatibility and integrity, and install with one command via the dsh-hub CLI. Independent and unofficial.",
+            "The community registry for DeepSeek Harness (dsh) plugins: discover manifest-verified DSH plugins, check exact versions, compatibility and integrity, and install with one command via the dsh-hub CLI. Independent and unofficial.",
         }
       : {
           title: "DSH 插件注册表 — 精确版本、manifest 与一键安装",
           description:
-            "DeepSeek Harness（dsh）插件的社区注册表：发现经过 manifest 校验的 DSH 插件与可复用 Profiles，查看精确版本、兼容范围与一键安装命令，并用 dsh-hub CLI 复现整套 Harness 配置。非官方独立社区项目。",
+            "DeepSeek Harness（dsh）插件的社区注册表：发现经过 manifest 校验的 DSH 插件，查看精确版本、兼容范围与一键安装命令。非官方独立社区项目。",
         },
   );
 }

@@ -4,7 +4,6 @@ import {
   listAllPackages,
   sitemapEntriesToXml,
   type SitemapCategory,
-  type SitemapProfile,
 } from "@/lib/sitemap";
 
 export const dynamic = "force-dynamic";
@@ -16,18 +15,16 @@ export const dynamic = "force-dynamic";
 // static routes so the sitemap never 500s or 404s.
 async function loadCatalog(): Promise<{
   plugins: Awaited<ReturnType<typeof listAllPackages>>;
-  profiles: SitemapProfile[];
   categories: SitemapCategory[];
 }> {
-  const { listCategories, searchProfiles, searchSitemapPackages } = await import(
+  const { listCategories, searchSitemapPackages } = await import(
     "@/lib/hub-api"
   );
-  const [plugins, profiles, categories] = await Promise.all([
+  const [plugins, categories] = await Promise.all([
     listAllPackages(searchSitemapPackages),
-    searchProfiles("", 50),
     listCategories(50),
   ]);
-  return { plugins, profiles, categories };
+  return { plugins, categories };
 }
 
 async function loadEntries() {

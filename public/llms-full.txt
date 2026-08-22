@@ -1,6 +1,6 @@
 # DeepSeek Harness Plugin Hub — Full Context
 
-> DeepSeek Harness Plugin Hub is an independent, unofficial community registry for discovering, publishing, and installing DeepSeek Harness (dsh) plugins and reusable Harness profiles — with exact versions, integrity metadata, and one-command installs.
+> DeepSeek Harness Plugin Hub is an independent, unofficial community registry for discovering, publishing, and installing DeepSeek Harness (dsh) plugins — with exact versions, integrity metadata, and one-command installs.
 
 Canonical URL: https://dshpluginhub.ai/
 
@@ -18,10 +18,9 @@ Last updated: 2026-08-19
 
 - **Plugin catalog** at https://dshpluginhub.ai/plugins — hundreds of verified DSH plugins. Every listing shows the npm package name, exact versions, compatibility range, HMR behavior, license, source repository, and a precise install command such as `dsh plugin --profile web add <package>@<exact-version>`.
 - **GitHub source listings** — repositories carrying ecosystem topics that have not published an npm package yet are listed separately and clearly marked as GitHub-source entries without verified install specs.
-- **Profiles** at https://dshpluginhub.ai/profiles — ordered, versioned plugin compositions. Applying a profile writes a lockfile and reproduces the same Harness setup on any machine.
 - **Categories** at https://dshpluginhub.ai/categories — browse the catalog by capability area.
 - **Documentation** at https://dshpluginhub.ai/docs — user-focused installation, compatibility, HMR, publishing, and plugin development documentation in Chinese and English.
-- **Registry API** — public JSON endpoints under `/api/v1/` for packages, versions, profiles, and categories. Responses are cacheable for 60 seconds with stale revalidation.
+- **Registry API** — public JSON endpoints under `/api/v1/` for packages, versions, and categories. Responses are cacheable for 60 seconds with stale revalidation.
 - **`dsh-hub` CLI** — search, exact resolution, install, profile apply, and lockfiles. A successful apply writes `~/.dsh/profiles/<profile>/dsh-hub.lock.json` with resolved versions, sources, and integrity.
 - **Publishing** — publish an npm package containing a valid `dsh.bundle` or `dsh.profile` manifest; the Hub discovers it automatically, validates every version's manifest, and records npm's exact tarball URL and integrity. Keywords only discover candidates; a valid manifest controls catalog admission. Authors can claim listings via a GitHub App and edit listing copy from a dashboard.
 - **Immutability** — published `(package, version)` records are immutable. Versions removed from npm are retained and marked withdrawn. The Hub does not host tarballs.
@@ -45,17 +44,13 @@ It is an independently maintained community registry and sharing platform for th
 
 DeepSeek Harness is DeepSeek AI's open-source, plugin-first agent runtime. Models, tools, sessions, sandboxes, the agent loop, and the UI are all composable plugins. The authoritative source is the official repository at https://github.com/deepseek-ai/deepseek-harness.
 
-### What is a DSH profile?
-
-A profile is a named runtime composition of a dsh instance: an ordered list of bundles plus user patches. On the Hub, profiles are shareable, versioned compositions that can be applied with one CLI command to reproduce the same Harness setup.
-
 ### How do I install a plugin from the Hub?
 
 Each listing shows the exact command, typically `dsh plugin --profile web add <package>@<exact-version>`. The `dsh-hub` CLI adds search, exact resolution, and lockfiles on top.
 
 ### Can I browse and install plugins now?
 
-Yes. The public catalog, profiles, documentation, registry API, and CLI are live.
+Yes. The public catalog, documentation, registry API, and CLI are live.
 
 ### Is this an official DeepSeek website?
 
@@ -66,7 +61,7 @@ No. It is an unofficial community project and has no affiliation, authorization,
 DeepSeek Harness Plugin Hub 是一个由社区独立创建和维护的非官方项目，为 DeepSeek Harness（dsh）插件生态提供可验证的注册表、目录与安装链路。
 
 - 插件目录已上线：https://dshpluginhub.ai/plugins ，每个收录包都有校验过的 manifest、精确版本、integrity 元数据和精确安装命令。
-- 提供公开 Profiles、分类浏览、中英双语文档库、同步状态页、Registry JSON API 和 `dsh-hub` CLI。
+- 提供分类浏览、中英双语文档库、Registry JSON API 和 `dsh-hub` CLI。
 - 已发布版本不可变；npm 删版会保留并标记为已撤回；Hub 不托管 tarball。
 - 发布方式：向 npm 发布带有合法 `dsh.bundle` 或 `dsh.profile` manifest 的包，Hub 会自动发现并校验收录；作者可通过 GitHub App 认领并管理条目。
 - 本站与 DeepSeek 官方没有隶属、授权或背书关系。
@@ -77,7 +72,6 @@ DeepSeek Harness Plugin Hub 是一个由社区独立创建和维护的非官方�
 - Plugin Hub homepage: https://dshpluginhub.ai/
 - Chinese and English share the canonical URL.
 - Plugin catalog: https://dshpluginhub.ai/plugins
-- Profiles: https://dshpluginhub.ai/profiles
 - Documentation: https://dshpluginhub.ai/docs
 - Detailed Markdown homepage: https://dshpluginhub.ai/index.md
 - LLM navigation file: https://dshpluginhub.ai/llms.txt

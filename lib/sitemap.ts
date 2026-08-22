@@ -12,11 +12,6 @@ export type SitemapPackage = {
   updatedAt?: string;
 };
 
-export type SitemapProfile = {
-  slug: string;
-  updatedAt?: string;
-};
-
 export type SitemapCategory = {
   name: string;
 };
@@ -35,9 +30,7 @@ export function staticSitemapEntries(): MetadataRoute.Sitemap {
     { url: SITE_HOME, changeFrequency: "weekly", priority: 1 },
     { url: absoluteUrl("/plugins"), changeFrequency: "hourly", priority: 0.9 },
     { url: absoluteUrl("/categories"), changeFrequency: "daily", priority: 0.7 },
-    { url: absoluteUrl("/profiles"), changeFrequency: "hourly", priority: 0.8 },
     { url: absoluteUrl("/docs"), changeFrequency: "weekly", priority: 0.6 },
-    { url: absoluteUrl("/status"), changeFrequency: "hourly", priority: 0.4 },
     { url: absoluteUrl("/privacy"), changeFrequency: "yearly", priority: 0.2 },
     ...guides.map((guide) => ({
       url: absoluteUrl(`/docs/${guide.slug}`),
@@ -114,17 +107,6 @@ export function pluginSitemapEntries(
   }));
 }
 
-export function profileSitemapEntries(
-  profiles: SitemapProfile[],
-): MetadataRoute.Sitemap {
-  return profiles.map((profile) => ({
-    url: absoluteUrl(`/profiles/${profile.slug}`),
-    lastModified: profile.updatedAt,
-    changeFrequency: "daily" as const,
-    priority: 0.6,
-  }));
-}
-
 export function categorySitemapEntries(
   categories: SitemapCategory[],
 ): MetadataRoute.Sitemap {
@@ -142,12 +124,10 @@ export type SitemapShards = {
 
 export function buildSitemapShards(input: {
   plugins?: SitemapPackage[];
-  profiles?: SitemapProfile[];
   categories?: SitemapCategory[];
 }): SitemapShards {
   const staticEntries = [
     ...staticSitemapEntries(),
-    ...profileSitemapEntries(input.profiles ?? []),
     ...categorySitemapEntries(input.categories ?? []),
   ];
   const pluginEntries = pluginSitemapEntries(input.plugins ?? []);

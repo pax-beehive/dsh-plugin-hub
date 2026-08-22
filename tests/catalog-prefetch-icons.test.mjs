@@ -76,7 +76,7 @@ test("HubHeader keeps default prefetch on primary nav routes", async () => {
   const header = await source("header");
   assert.match(header, /<Link href="\/plugins">\{t\.nav\.plugins\}<\/Link>/);
   assert.match(header, /<Link href="\/categories">\{t\.nav\.categories\}<\/Link>/);
-  assert.match(header, /<Link href="\/profiles">\{t\.nav\.profiles\}<\/Link>/);
+  assert.doesNotMatch(header, /href="\/profiles"/);
   assert.match(header, /<Link href="\/docs">\{t\.nav\.docs\}<\/Link>/);
   assert.match(header, /<Link className="hub-publish-link" href="\/dashboard">/);
   assert.doesNotMatch(header, /prefetch=\{false\}/);

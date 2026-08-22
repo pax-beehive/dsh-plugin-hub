@@ -37,7 +37,6 @@ export default async function DocsPage() {
           articles: (count: number) => `${count} ${count === 1 ? "article" : "articles"}`,
           quickLinks: "Product resources",
           plugins: "Browse verified plugins",
-          profiles: "Explore reproducible profiles",
           publish: "Open the publisher console",
           help: "Need a different answer?",
           helpBody: "Report a documentation gap or contact the community maintainers.",
@@ -55,7 +54,6 @@ export default async function DocsPage() {
           articles: (count: number) => `${count} 篇文档`,
           quickLinks: "产品入口",
           plugins: "浏览已验证插件",
-          profiles: "探索可复现 Profiles",
           publish: "打开发布控制台",
           help: "没有找到答案？",
           helpBody: "报告缺失的文档，或联系社区维护者。",
@@ -76,7 +74,6 @@ export default async function DocsPage() {
         </div>
         <nav className="docs-product-links" aria-label={t.quickLinks}>
           <Link href="/plugins">{t.plugins}<span aria-hidden="true"> →</span></Link>
-          <Link href="/profiles">{t.profiles}<span aria-hidden="true"> →</span></Link>
           <Link href="/dashboard">{t.publish}<span aria-hidden="true"> →</span></Link>
         </nav>
       </section>

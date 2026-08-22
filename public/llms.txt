@@ -1,6 +1,6 @@
 # DeepSeek Harness Plugin Hub
 
-> An independent, unofficial community registry for discovering, publishing, and installing DeepSeek Harness (dsh) plugins and reusable Harness profiles — with exact versions, integrity metadata, and one-command installs.
+> An independent, unofficial community registry for discovering, publishing, and installing DeepSeek Harness (dsh) plugins — with exact versions, integrity metadata, and one-command installs.
 
 DeepSeek Harness Plugin Hub is the community registry for the `dsh-plugin` ecosystem. The public catalog is live: every listed package carries a validated `dsh.bundle` or `dsh.profile` manifest, exact npm versions with integrity metadata, compatibility ranges, and a precise install command.
 
@@ -14,7 +14,6 @@ Important interpretation notes:
 
 - [Plugin Hub homepage](https://dshpluginhub.ai/): Canonical human-facing homepage. Chinese and English share the canonical URL via an in-place language switch.
 - [Plugin catalog](https://dshpluginhub.ai/plugins): Searchable directory of verified DSH plugins with versions, compatibility, HMR behavior, sources, and exact install commands.
-- [Profiles](https://dshpluginhub.ai/profiles): Ordered, versioned DeepSeek Harness profiles that reproduce a full Harness setup with one command.
 - [Documentation](https://dshpluginhub.ai/docs): User-focused documentation for plugin installation, troubleshooting, compatibility, development, and publishing.
 - [Homepage in Markdown](https://dshpluginhub.ai/index.md): Complete, low-noise description of the Hub, its capabilities, FAQs, and identity boundaries.
 
@@ -25,8 +24,6 @@ Public, cacheable JSON endpoints:
 - `GET https://dshpluginhub.ai/api/v1/packages?q=vision&limit=20` — search packages (cursor-paginated, limit max 50)
 - `GET https://dshpluginhub.ai/api/v1/packages/resolve?name=<npm-name>` — resolve a package by exact npm name
 - `GET https://dshpluginhub.ai/api/v1/packages/{slug}` — full package record with versions and install specs
-- `GET https://dshpluginhub.ai/api/v1/profiles?limit=20` — list public profiles
-- `GET https://dshpluginhub.ai/api/v1/profiles/{slug}` — ordered profile bundles
 - `GET https://dshpluginhub.ai/api/v1/categories` — category counts
 
 ## CLI

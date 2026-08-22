@@ -124,21 +124,33 @@ test("server-renders English on the same URL from the locale cookie", async () =
 });
 
 test("catalog header includes the shared sign-in action", async () => {
-  const [header, logo, styles] = await Promise.all([
+  const [header, accountMenu, logo, styles] = await Promise.all([
     readFile(new URL("../components/HubHeader.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/UserAccountMenu.tsx", import.meta.url), "utf8"),
     readFile(new URL("../components/BrandLogo.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
   assert.match(header, /<BrandLogo \/>/);
   assert.match(header, /className="hub-signin-link" href="\/sign-in"/);
   assert.match(header, /t\.nav\.signIn/);
-  assert.match(header, /<AccountMenu account=\{account\} locale=\{locale\} \/>/);
-  assert.match(header, /href="\/sign-out"/);
-  assert.match(header, /<UserAvatar/);
+  assert.match(header, /<UserAccountMenu account=\{account\} locale=\{locale\} \/>/);
+  assert.match(accountMenu, /className="hub-account-name"/);
+  assert.match(accountMenu, /\{account\.displayName\}/);
+  assert.match(accountMenu, /document\.addEventListener\("focusin", closeWhenOutside\)/);
+  assert.match(accountMenu, /document\.addEventListener\("keydown", closeOnEscape\)/);
+  assert.match(accountMenu, /document\.addEventListener\("pointerdown", closeWhenOutside\)/);
+  assert.match(accountMenu, /removeAttribute\("open"\)/);
+  assert.match(accountMenu, /event\.key === "Escape"/);
+  assert.match(accountMenu, /href="\/sign-out"/);
+  assert.match(accountMenu, /<UserAvatar/);
   assert.match(header, /export function DashboardHeader/);
   assert.match(header, /<HeaderChrome homeHref="\/dashboard" locale=\{locale\}>/);
   assert.match(logo, /src="\/deepseek-whale-black\.svg"/);
-  assert.match(styles, /padding: 13px max\(20px, calc\(50% - 590px\)\)/);
+  assert.match(styles, /\/\* Sticky floating glass header\. \*\//);
+  assert.match(styles, /width: min\(1240px, calc\(100% - 24px\)\)/);
+  assert.match(styles, /border-radius: 18px/);
+  assert.match(styles, /backdrop-filter: saturate\(155%\) blur\(20px\)/);
+  assert.match(styles, /0 20px 50px rgb\(22 30 70 \/ 10%\)/);
   assert.match(styles, /\.catalog-section \{\s+width: min\(1180px, calc\(100% - 40px\)\)/);
 });
 
@@ -302,7 +314,6 @@ test("serves the vinext hydration manifest directly from Worker assets", async (
     "/robots.txt",
     "/sitemap.xml",
     "/sitemap/*",
-    "/status",
   ]);
 });
 
@@ -314,8 +325,8 @@ test("homepage H1 includes the space and a site nav", async () => {
   );
   assert.match(html, /<nav class="hub-nav"[^>]*>/);
   assert.match(html, /href="\/docs"/);
-  assert.match(html, /href="\/status"/);
-  assert.match(html, /href="\/profiles"/);
+  assert.doesNotMatch(html, /href="\/status"/);
+  assert.doesNotMatch(html, /href="\/profiles"/);
   assert.match(
     html,
     /<a(?=[^>]*class="brand")(?=[^>]*href="\/")[^>]*>/,
@@ -324,17 +335,12 @@ test("homepage H1 includes the space and a site nav", async () => {
   assert.doesNotMatch(html, /DeepSeek Harnessplugin registry/);
 });
 
-test("status page self-canonicals and does not reuse the homepage og:url", async () => {
+test("removed status page returns not found", async () => {
   const response = await render("/status");
-  assert.equal(response.status, 200);
+  assert.equal(response.status, 404);
   const html = await response.text();
-  assert.match(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/status"/);
-  assert.match(html, /property="og:url" content="https:\/\/dshpluginhub\.ai\/status"/);
-  assert.doesNotMatch(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/"/);
-  assert.doesNotMatch(
-    html,
-    /rel="alternate" type="text\/markdown" href="https:\/\/dshpluginhub\.ai\/index\.md"/,
-  );
+  assert.match(html, /Not found/i);
+  assert.doesNotMatch(html, /dshpluginhub\.ai\/status/);
 });
 
 test("docs page does not advertise the homepage markdown alternate", async () => {

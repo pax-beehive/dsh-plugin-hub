@@ -23,7 +23,6 @@ test("stable anonymous pages and catalog detail use a 300s public cache", () => 
     "/plugins/memory",
     "/profiles",
     "/profiles/team-web",
-    "/status",
     "/docs",
     "/docs/first-plugin",
     "/privacy",

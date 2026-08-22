@@ -18,8 +18,8 @@ test("homepage H1 keeps a space between Harness and the registry accent", () => 
   assert.match(home, /<HubHeader locale=\{language\} \/>/);
   assert.match(header, /<nav className="hub-nav"/);
   assert.match(header, /href="\/docs"/);
-  assert.match(header, /href="\/status"/);
-  assert.match(header, /href="\/profiles"/);
+  assert.doesNotMatch(header, /href="\/status"/);
+  assert.doesNotMatch(header, /href="\/profiles"/);
   assert.match(header, /<Link className="brand" href=\{homeHref\}>/);
   assert.match(header, /<HeaderChrome homeHref="\/" locale=\{locale\}>/);
   assert.doesNotMatch(home, /href="#top"/);
@@ -28,7 +28,7 @@ test("homepage H1 keeps a space between Harness and the registry accent", () => 
 
 test("hub chrome exposes the complete public-site footer", () => {
   assert.match(header, /href="\/docs"/);
-  assert.match(header, /href="\/status"/);
+  assert.doesNotMatch(header, /href="\/status"/);
   assert.match(header, /t\.nav\.docs/);
   assert.match(header, /export function HubFooter/);
   assert.match(header, /href="\/privacy"/);
@@ -52,7 +52,7 @@ test("sitemap is a Route Handler urlset and drops /report", () => {
   assert.doesNotMatch(sitemap, /absoluteUrl\("\/report"\)|\/report`/);
   assert.doesNotMatch(sitemapLib, /absoluteUrl\("\/report"\)|\/report`/);
   assert.match(wrangler, /\/sitemap\/\*/);
-  assert.match(wrangler, /"\/status"/);
+  assert.doesNotMatch(wrangler, /"\/status"/);
 });
 
 test("public document keeps first-party attribution and defers measurement plus AuthKit", () => {

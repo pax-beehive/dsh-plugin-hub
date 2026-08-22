@@ -1,9 +1,9 @@
 import Link from "next/link";
 import BrandLogo from "./BrandLogo";
 import LanguageSwitch from "./LanguageSwitch";
-import UserAvatar from "./UserAvatar";
+import UserAccountMenu from "./UserAccountMenu";
 import { hubCopy, type HubLocale } from "@/lib/i18n";
-import { hubAccountFromUser, type HubAccount } from "@/lib/user-account";
+import { hubAccountFromUser } from "@/lib/user-account";
 import { withAuth } from "@workos-inc/authkit-nextjs";
 
 function HeaderChrome({
@@ -31,41 +31,6 @@ function HeaderChrome({
   );
 }
 
-function AccountMenu({
-  account,
-  locale,
-}: {
-  account: HubAccount;
-  locale: HubLocale;
-}) {
-  const copy = locale === "en"
-    ? { account: "Account", dashboard: "Dashboard", signOut: "Sign out" }
-    : { account: "账户", dashboard: "控制台", signOut: "退出登录" };
-
-  return (
-    <details className="hub-account">
-      <summary
-        className="hub-account-trigger"
-        aria-label={`${copy.account}: ${account.displayName}`}
-      >
-        <UserAvatar
-          avatarUrl={account.avatarUrl}
-          initials={account.initials}
-        />
-        <span className="hub-account-chevron" aria-hidden="true">⌄</span>
-      </summary>
-      <div className="hub-account-menu">
-        <div className="hub-account-identity">
-          <strong>{account.displayName}</strong>
-          {account.displayName !== account.email ? <span>{account.email}</span> : null}
-        </div>
-        <Link href="/dashboard">{copy.dashboard}</Link>
-        <a href="/sign-out">{copy.signOut}</a>
-      </div>
-    </details>
-  );
-}
-
 export default async function HubHeader({ locale }: { locale: HubLocale }) {
   const t = hubCopy[locale];
   const { user } = await withAuth();
@@ -74,11 +39,9 @@ export default async function HubHeader({ locale }: { locale: HubLocale }) {
     <HeaderChrome homeHref="/" locale={locale}>
       <Link href="/plugins">{t.nav.plugins}</Link>
       <Link href="/categories">{t.nav.categories}</Link>
-      <Link href="/profiles">{t.nav.profiles}</Link>
       <Link href="/docs">{t.nav.docs}</Link>
-      <Link href="/status">{t.nav.status}</Link>
       {account ? (
-        <AccountMenu account={account} locale={locale} />
+        <UserAccountMenu account={account} locale={locale} />
       ) : (
         <Link className="hub-signin-link" href="/sign-in">
           {t.nav.signIn}
@@ -116,13 +79,11 @@ export function DashboardHeader({
 
 export function HubFooter({ locale }: { locale: HubLocale }) {
   const copy = locale === "en" ? {
-    description:
-      "Discover, verify, and share plugins and reproducible profiles for DeepSeek Harness.",
+    description: "Discover, verify, and share plugins for DeepSeek Harness.",
     explore: "Explore",
     community: "Community",
     resources: "Resources",
     plugins: "Plugins",
-    profiles: "Profiles",
     docs: "Docs",
     publish: "Publish a plugin",
     contact: "Contact",
@@ -134,12 +95,11 @@ export function HubFooter({ locale }: { locale: HubLocale }) {
       "Independent and unofficial. Not affiliated with, authorized by, or endorsed by DeepSeek.",
     label: "Site footer",
   } : {
-    description: "发现、验证并分享 DeepSeek Harness 插件与可复现的 Profile。",
+    description: "发现、验证并分享 DeepSeek Harness 插件。",
     explore: "探索",
     community: "社区",
     resources: "相关链接",
     plugins: "插件目录",
-    profiles: "Profiles",
     docs: "文档中心",
     publish: "发布插件",
     contact: "联系我们",
@@ -166,7 +126,6 @@ export function HubFooter({ locale }: { locale: HubLocale }) {
           <nav className="hub-footer-column" aria-label={copy.explore}>
             <h2>{copy.explore}</h2>
             <Link href="/plugins">{copy.plugins}</Link>
-            <Link href="/profiles">{copy.profiles}</Link>
             <Link href="/docs">{copy.docs}</Link>
           </nav>
 

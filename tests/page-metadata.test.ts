@@ -31,20 +31,6 @@ test("inner pages set matching canonical and og:url", () => {
   assert.notEqual(metadata.alternates?.canonical, SITE_HOME);
 });
 
-test("status page sets matching canonical and og:url", () => {
-  const metadata = pageMetadata({
-    path: "/status",
-    title: "Status — DSH Plugin Hub",
-    description: "Pipeline status",
-  });
-
-  assert.equal(metadata.alternates?.canonical, "https://dshpluginhub.ai/status");
-  assert.equal(metadata.openGraph?.url, "https://dshpluginhub.ai/status");
-  assert.equal(metadata.openGraph?.title, "Status — DSH Plugin Hub");
-  assert.equal(metadata.alternates?.types, undefined);
-  assert.notEqual(metadata.alternates?.canonical, SITE_HOME);
-});
-
 test("report is noindex and omitted from markdown alternates", () => {
   const metadata = pageMetadata({
     path: "/report",
@@ -69,5 +55,5 @@ test("404 metadata is noindex only and does not reuse the homepage", () => {
 test("absoluteUrl uses the trailing-slash homepage convention", () => {
   assert.equal(absoluteUrl("/"), SITE_HOME);
   assert.equal(absoluteUrl("/docs"), "https://dshpluginhub.ai/docs");
-  assert.equal(absoluteUrl("/status"), "https://dshpluginhub.ai/status");
+  assert.equal(absoluteUrl("/privacy"), "https://dshpluginhub.ai/privacy");
 });
