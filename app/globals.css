@@ -3654,7 +3654,8 @@ details.hub-account:not([open]) > .hub-account-menu,
 .profile-builder-advanced label { margin-top: 14px; }
 .profile-code-input { font-family: ui-monospace, "SFMono-Regular", monospace !important; font-size: 12px !important; }
 .profile-builder-submit { display: flex; justify-content: flex-end; gap: 9px; margin-top: 22px; }
-.profile-builder-submit .dashboard-primary { border-color: #4653e6; }
+.profile-builder-submit > button { min-height: 44px; margin-top: 0; }
+.profile-builder-submit .dashboard-primary { border-color: #4653e6; background: #4653e6; color: #fff; margin-top: 0; }
 .profile-builder-aside { position: sticky; top: 24px; }
 .profile-builder-aside h2 { font-size: 18px; }
 .profile-builder-aside ol { padding-left: 22px; color: #3f4658; font-size: 13px; line-height: 1.9; }
