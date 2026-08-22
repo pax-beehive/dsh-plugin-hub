@@ -124,7 +124,8 @@ export const hubCopy = {
       firstPage: "返回第一页",
       totalCount: (count: number) => `共 ${count} 个`,
       sortLabel: "排序",
-      sortPopular: "下载最多",
+      sortPopular: "热门",
+      sortRising: "上升最快",
       sortUpdated: "最近更新",
       browseCategories: "按分类浏览",
       recommend: {
@@ -280,7 +281,8 @@ export const hubCopy = {
       firstPage: "Back to first page",
       totalCount: (count: number) => `${count} ${count === 1 ? "plugin" : "plugins"}`,
       sortLabel: "Sort",
-      sortPopular: "Most downloaded",
+      sortPopular: "Popular",
+      sortRising: "Rising",
       sortUpdated: "Recently updated",
       browseCategories: "Browse by category",
       recommend: {

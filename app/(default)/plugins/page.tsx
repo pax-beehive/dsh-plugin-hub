@@ -5,7 +5,7 @@ import {
   listCategories,
   searchPackages,
 } from "@/lib/hub-api";
-import { altPackageHint, sortByWeeklyDownloads } from "@/lib/catalog-display";
+import { altPackageHint } from "@/lib/catalog-display";
 import { pageWindow, parseCatalogPage } from "@/lib/catalog-pagination";
 import PluginCardHeading from "@/components/PluginCardHeading";
 import { formatCompactCount, isHotWeeklyDownloads } from "@/lib/format-count";
@@ -35,7 +35,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const pageSize = 30;
-const sortValues = ["popular", "updated"] as const;
+const sortValues = ["popular", "rising", "updated"] as const;
 type Sort = (typeof sortValues)[number];
 
 function parseSort(value: string | undefined): Sort {
@@ -75,10 +75,7 @@ export default async function PluginsPage({
       ? await searchPackages(q, { locale, sort, page, limit: pageSize })
       : result;
 
-  const catalogItems =
-    sort === "popular"
-      ? sortByWeeklyDownloads(pageResult.items)
-      : pageResult.items;
+  const catalogItems = pageResult.items;
 
   const categories = await listCategories(12);
 
@@ -95,6 +92,7 @@ export default async function PluginsPage({
 
   const sortLabels: Record<Sort, string> = {
     popular: t.plugins.sortPopular,
+    rising: t.plugins.sortRising,
     updated: t.plugins.sortUpdated,
   };
 
@@ -166,9 +164,6 @@ export default async function PluginsPage({
                 />
                 <p>{plugin.summary}</p>
                 <div className="plugin-tags">
-                  {plugin.categories.slice(0, 3).map((category) => (
-                    <span key={category}>{category}</span>
-                  ))}
                   {plugin.github ? (
                     <span className="tag-signal" title={plugin.github.pushedAt ? `${t.plugins.lastPush}: ${new Date(plugin.github.pushedAt).toLocaleDateString(localeTags[locale])}` : undefined}>
                       ★ {plugin.github.stars}

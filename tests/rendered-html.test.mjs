@@ -162,19 +162,38 @@ test("plugin results use a unified, responsive section header", async () => {
 
   assert.match(page, /className="catalog-results-header"/);
   assert.match(page, /catalog-results-header[\s\S]*catalog-section-heading[\s\S]*sort-tabs/);
+  assert.doesNotMatch(page, /plugin\.categories\.slice/);
   assert.match(styles, /\.catalog-results-header \{[\s\S]*justify-content: space-between/);
   assert.match(styles, /@media \(max-width: 680px\) \{[\s\S]*\.catalog-results-header \{[\s\S]*flex-direction: column/);
 });
 
 test("category index uses quick links and a compact responsive directory", async () => {
-  const [page, styles] = await Promise.all([
+  const [page, categoryIcon, styles] = await Promise.all([
     readFile(new URL("../app/(default)/categories/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/CategoryIcon.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
 
   assert.match(page, /className="category-rail category-index-rail"/);
   assert.match(page, /className="category-directory-grid"/);
   assert.match(page, /className="category-directory-card"/);
+  assert.match(page, /<CategoryIcon category=\{entry\.name\} \/>/);
+  assert.doesNotMatch(page, /category-directory-mark[^>]*>\s*#/);
+  for (const category of [
+    "agents-orchestration",
+    "memory-context",
+    "developer-tools",
+    "ui-customization",
+    "integrations-communication",
+    "vision-media",
+    "search-research",
+    "security-access",
+    "models-usage",
+    "productivity-workflow",
+  ]) {
+    assert.match(categoryIcon, new RegExp(`"${category}"`));
+    assert.match(styles, new RegExp(`data-category="${category}"`));
+  }
   assert.match(page, /loadCategoryPreviews\(categories, locale, PREVIEW_LIMIT\)/);
   assert.doesNotMatch(page, /className="category-index-block"/);
   assert.match(styles, /\.category-directory-grid \{[\s\S]*grid-template-columns: repeat\(3/);
@@ -382,6 +401,42 @@ test("docs page does not advertise the homepage markdown alternate", async () =>
     /rel="alternate" type="text\/markdown" href="https:\/\/dshpluginhub\.ai\/index\.md"/,
   );
   assert.match(html, /rel="describedby" href="https:\/\/dshpluginhub\.ai\/llms\.txt"/);
+});
+
+test("docs landing uses focused paths and readable document rows", async () => {
+  const [page, styles] = await Promise.all([
+    readFile(new URL("../app/(default)/docs/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(styles, /--docs-ui-size: 14px;/);
+  assert.match(styles, /--docs-body-size: 16px;/);
+  assert.match(styles, /--docs-section-title-size: 26px;/);
+  assert.match(styles, /--font-hub-sans: "Geist", "Geist Fallback", -apple-system,/);
+  assert.match(styles, /body \{[\s\S]*font-family: var\(--font-hub-sans\);/);
+  assert.match(styles, /\.docs-site:lang\(zh-CN\) \{[\s\S]*"PingFang SC"[\s\S]*"Noto Sans CJK SC"/);
+  assert.match(styles, /\.docs-sidebar-group a \{[\s\S]*font-size: var\(--docs-ui-size\);[\s\S]*line-height: 1\.5;/);
+  assert.match(styles, /\.docs-toc a \{[\s\S]*font-size: var\(--docs-ui-size\);/);
+  assert.match(styles, /\.docs-sidebar-group a\[aria-current="page"\] \{[\s\S]*background:/);
+  assert.match(styles, /\.docs-hero h1 \{[\s\S]*font-weight: 650;[\s\S]*letter-spacing: -0\.035em;/);
+  assert.match(styles, /\.docs-site:lang\(zh-CN\) \.docs-hero h1 \{[\s\S]*font-weight: 600;[\s\S]*letter-spacing: -0\.01em;/);
+  assert.match(page, /className="docs-path-grid"/);
+  assert.match(styles, /\.docs-path-grid \{[\s\S]*grid-template-columns: repeat\(3/);
+  assert.match(styles, /\.docs-path-grid > a \{[\s\S]*border-right: 1px solid var\(--line\);/);
+  assert.match(styles, /\.docs-card \{[\s\S]*border-radius: 0;[\s\S]*background: transparent;/);
+  assert.match(styles, /\.docs-card-grid \{[\s\S]*grid-template-columns: 1fr;/);
+  assert.match(page, /className="docs-category-title"[\s\S]*<h2[\s\S]*<p>\{category\.description\[locale\]\}<\/p>/);
+  assert.match(styles, /\.docs-category-heading \{[\s\S]*grid-template-columns: minmax\(0, 1fr\) auto;[\s\S]*padding-inline: 2px;/);
+  assert.match(styles, /\.docs-category-heading p \{[\s\S]*margin-top: 7px;[\s\S]*color: var\(--quiet\);[\s\S]*font-size: 13px;[\s\S]*font-style: italic;/);
+  assert.match(styles, /\.docs-site:lang\(zh-CN\) \.docs-category-heading p \{[\s\S]*font-style: normal;[\s\S]*line-height: 1\.65;/);
+  assert.match(styles, /\.docs-card h3 \{[\s\S]*font-weight: 600;/);
+  assert.match(styles, /\.docs-article-section p \{[\s\S]*line-height: 1\.65;/);
+  assert.match(styles, /\.docs-site:lang\(zh-CN\) \.docs-article-section p \{[\s\S]*line-height: 1\.8;/);
+  assert.match(styles, /\.docs-related-grid a \{[\s\S]*border-radius: 0;/);
+  assert.doesNotMatch(page, /docs-home-nav|docs-featured|docs-library-heading|browseIntro/);
+  assert.doesNotMatch(page, /docs-card-icon/);
+  assert.doesNotMatch(page, /docs-card-link/);
+  assert.doesNotMatch(page, /<p className="docs-section-label">\{t\.browse\}<\/p>/);
 });
 
 test("legacy guide URLs permanently redirect into the docs library", async () => {

@@ -123,7 +123,7 @@ export type PackageSearchOptions = {
   limit?: number;
   page?: number;
   cursor?: string;
-  sort?: "popular" | "updated" | "name";
+  sort?: "popular" | "rising" | "updated" | "name";
   category?: string;
 };
 

@@ -29,11 +29,9 @@ export default async function DocsPage() {
           title: "Build with confidence",
           intro:
             "Practical documentation for finding, installing, building, and publishing plugins across the DSH ecosystem.",
-          start: "Start here",
-          startIntro: "New to DSH plugins? Follow the complete workflow from scaffold to a published listing.",
-          read: "Read documentation",
+          startCta: "Get started",
           browse: "Browse the library",
-          browseIntro: "Choose a topic based on what you are trying to accomplish.",
+          library: "All documentation",
           articles: (count: number) => `${count} ${count === 1 ? "article" : "articles"}`,
           quickLinks: "Product resources",
           plugins: "Browse verified plugins",
@@ -46,11 +44,9 @@ export default async function DocsPage() {
           eyebrow: "PLUGIN HUB 文档",
           title: "可靠地使用与构建插件",
           intro: "从发现、安装到开发与发布，面向 DSH 插件生态用户的实用文档。",
-          start: "从这里开始",
-          startIntro: "第一次接触 DSH 插件？按照完整流程，从脚手架一路完成发布与上架。",
-          read: "阅读文档",
+          startCta: "开始使用",
           browse: "浏览文档库",
-          browseIntro: "根据你现在要完成的任务，选择对应主题。",
+          library: "全部文档",
           articles: (count: number) => `${count} 篇文档`,
           quickLinks: "产品入口",
           plugins: "浏览已验证插件",
@@ -67,10 +63,19 @@ export default async function DocsPage() {
       <HubHeader locale={locale} />
 
       <section className="docs-hero">
-        <div>
+        <div className="docs-hero-copy">
           <p className="docs-eyebrow">{t.eyebrow}</p>
           <h1>{t.title}</h1>
           <p>{t.intro}</p>
+          {featured ? (
+            <Link
+              className="docs-start-link"
+              href={`/docs/${featured.slug}`}
+              prefetch={false}
+            >
+              {t.startCta}<span aria-hidden="true"> ↗</span>
+            </Link>
+          ) : null}
         </div>
         <nav className="docs-product-links" aria-label={t.quickLinks}>
           <Link href="/plugins">{t.plugins}<span aria-hidden="true"> →</span></Link>
@@ -78,38 +83,27 @@ export default async function DocsPage() {
         </nav>
       </section>
 
-      <div className="docs-home-shell">
-        <aside className="docs-home-nav">
-          <p>{t.browse}</p>
-          {docCategories.map((category) => (
-            <a key={category.id} href={`#${category.id}`}>
-              {category.label[locale]}
-            </a>
-          ))}
-        </aside>
+      <div className="docs-home-content">
+        <nav className="docs-path-grid" aria-label={t.browse}>
+          {docCategories.map((category, index) => {
+            const count = guides.filter(
+              (guide) => guide.category === category.id,
+            ).length;
+            return (
+              <a href={`#${category.id}`} key={category.id}>
+                <span className="docs-path-index">0{index + 1}</span>
+                <h2>{category.label[locale]}</h2>
+                <p>{category.description[locale]}</p>
+                <small>{t.articles(count)}</small>
+              </a>
+            );
+          })}
+        </nav>
 
-        <div className="docs-home-content">
-          {featured ? (
-            <section className="docs-featured" aria-labelledby="docs-start-heading">
-              <div>
-                <p className="docs-section-label">{t.start}</p>
-                <h2 id="docs-start-heading">{featured.title[locale]}</h2>
-                <p>{t.startIntro}</p>
-              </div>
-              <Link href={`/docs/${featured.slug}`} prefetch={false}>
-                {t.read}<span aria-hidden="true"> →</span>
-              </Link>
-            </section>
-          ) : null}
-
-          <div className="docs-library-heading">
-            <div>
-              <p className="docs-section-label">{t.browse}</p>
-              <h2>{t.browse}</h2>
-            </div>
-            <p>{t.browseIntro}</p>
+        <section className="docs-library" aria-labelledby="docs-library-title">
+          <div className="docs-library-title">
+            <h2 id="docs-library-title">{t.library}</h2>
           </div>
-
           <div className="docs-category-list">
             {docCategories.map((category) => {
               const categoryGuides = guides.filter(
@@ -123,7 +117,7 @@ export default async function DocsPage() {
                   aria-labelledby={`${category.id}-heading`}
                 >
                   <div className="docs-category-heading">
-                    <div>
+                    <div className="docs-category-title">
                       <h2 id={`${category.id}-heading`}>{category.label[locale]}</h2>
                       <p>{category.description[locale]}</p>
                     </div>
@@ -137,10 +131,8 @@ export default async function DocsPage() {
                         key={guide.slug}
                         prefetch={false}
                       >
-                        <span className="docs-card-icon" aria-hidden="true">↗</span>
                         <h3>{guide.title[locale]}</h3>
                         <p>{guide.description[locale]}</p>
-                        <span className="docs-card-link">{t.read} →</span>
                       </Link>
                     ))}
                   </div>
@@ -148,15 +140,15 @@ export default async function DocsPage() {
               );
             })}
           </div>
+        </section>
 
-          <aside className="docs-help-card">
-            <div>
-              <h2>{t.help}</h2>
-              <p>{t.helpBody}</p>
-            </div>
-            <Link href="/report">{t.report} →</Link>
-          </aside>
-        </div>
+        <aside className="docs-help-card">
+          <div>
+            <h2>{t.help}</h2>
+            <p>{t.helpBody}</p>
+          </div>
+          <Link href="/report">{t.report} →</Link>
+        </aside>
       </div>
     </main>
   );

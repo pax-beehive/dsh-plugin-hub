@@ -67,8 +67,9 @@ function publicPageSearch(url: URL): URLSearchParams {
       1,
     );
     if (page > 1) normalized.set("page", String(page));
-    if (url.searchParams.get("sort") === "updated") {
-      normalized.set("sort", "updated");
+    const sort = url.searchParams.get("sort");
+    if (sort === "rising" || sort === "updated") {
+      normalized.set("sort", sort);
     }
   }
   normalized.sort();
@@ -79,7 +80,7 @@ export function publicPageCacheKey(request: Request): Request {
   const url = new URL(request.url);
   url.hash = "";
   url.search = publicPageSearch(url).toString();
-  url.searchParams.set("__dsh_cache", "v3");
+  url.searchParams.set("__dsh_cache", "v5");
   url.searchParams.set("__dsh_locale", requestLocale(request));
   url.searchParams.sort();
   return new Request(url, {

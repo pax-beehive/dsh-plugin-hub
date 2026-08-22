@@ -1,4 +1,5 @@
 import HubHeader from "@/components/HubHeader";
+import CategoryIcon from "@/components/CategoryIcon";
 import PluginIcon from "@/components/PluginIcon";
 import { loadCategoryPreviews } from "@/lib/category-previews";
 import {
@@ -124,7 +125,7 @@ export default async function CategoriesIndexPage() {
                     prefetch={false}
                   >
                     <div className="category-directory-card-topline">
-                      <span className="category-directory-mark" aria-hidden="true">#</span>
+                      <CategoryIcon category={entry.name} />
                       <span className="category-directory-count">{t.plugins.count(entry.count)}</span>
                     </div>
                     <h3>{categoryTitle(entry, locale)}</h3>

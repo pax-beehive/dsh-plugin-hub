@@ -24,7 +24,7 @@ test("public HTML cache varies only on rendered query fields and locale", () => 
   assert.equal(requestLocale(request), "en");
   assert.equal(
     key.search,
-    "?__dsh_cache=v3&__dsh_locale=en&page=2&q=memory&sort=updated",
+    "?__dsh_cache=v5&__dsh_locale=en&page=2&q=memory&sort=updated",
   );
 });
 
@@ -37,6 +37,11 @@ test("public HTML cache normalizes query values exactly like the pages", () => {
   assert.equal(key.searchParams.get("q"), "x".repeat(120));
   assert.equal(key.searchParams.has("page"), false);
   assert.equal(key.searchParams.has("sort"), false);
+
+  const rising = new URL(
+    publicPageCacheKey(htmlRequest("/plugins?sort=rising")).url,
+  );
+  assert.equal(rising.searchParams.get("sort"), "rising");
 });
 
 test("public cache excludes auth, private paths, RSC, prefetch, and mutations", () => {
@@ -103,7 +108,7 @@ test("public HTML cache keys are versioned and do not vary by country", () => {
     cookie: "dsh-hub-locale=zh",
   });
   const key = new URL(publicPageCacheKey(request).url);
-  assert.equal(key.searchParams.get("__dsh_cache"), "v3");
+  assert.equal(key.searchParams.get("__dsh_cache"), "v5");
   assert.equal(key.searchParams.get("__dsh_locale"), "zh");
   assert.equal(key.searchParams.has("country"), false);
   assert.equal(key.searchParams.has("cf-ipcountry"), false);
