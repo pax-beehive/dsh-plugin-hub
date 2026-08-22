@@ -1,4 +1,3 @@
-import { headers } from "next/headers";
 import {
   hubProfileSchema,
   pluginRecordSchema,
@@ -10,21 +9,27 @@ import {
   type ProfileCatalogItem,
 } from "@dsh-plugin-hub/schemas";
 import { z } from "zod";
-import { fetchHub } from "./cloudflare-fetch";
+import { fetchHub } from "./cloudflare-fetch.ts";
+import type { HubLocale } from "./i18n.ts";
 import {
   categoryLabel,
   parseCategoryCountResponse,
   type CategoryCount,
-} from "./category-count-response";
+} from "./category-count-response.ts";
 import {
   parseRegistrySearchResponse,
   parseSitemapPackageSearchResponse,
   type PluginSummary,
   type SitemapPackageSlug,
-} from "./registry-search-response";
+} from "./registry-search-response.ts";
 
 export type { CategoryCount, PluginSummary };
 export { categoryLabel };
+
+async function getRequestHeaders() {
+  const { headers } = await import("next/headers");
+  return headers();
+}
 
 const ownedPluginSummarySchema = z
   .object({
@@ -77,7 +82,7 @@ async function resolveBaseUrl(): Promise<string> {
     }
   }
   if (configured) return configured.replace(/\/$/, "");
-  const headerList = await headers();
+  const headerList = await getRequestHeaders();
   const host = headerList.get("x-forwarded-host") ?? headerList.get("host");
   if (!host) {
     throw new Error(
@@ -99,7 +104,7 @@ async function hubFetch(
   const baseUrl = await resolveBaseUrl();
   const requestHeaders: Record<string, string> = { accept: "application/json" };
   if (options?.forwardCookie) {
-    const cookie = (await headers()).get("cookie");
+    const cookie = (await getRequestHeaders()).get("cookie");
     if (cookie) requestHeaders.cookie = cookie;
   }
   return fetchHub(`${baseUrl}${path}`, { headers: requestHeaders });
@@ -114,6 +119,7 @@ async function expectOk(response: Response): Promise<unknown> {
 }
 
 export type PackageSearchOptions = {
+  locale?: HubLocale;
   limit?: number;
   page?: number;
   cursor?: string;
@@ -126,6 +132,7 @@ function packageSearchParams(
   options?: PackageSearchOptions,
 ): URLSearchParams {
   const params = new URLSearchParams({ q: query });
+  if (options?.locale) params.set("locale", options.locale);
   if (options?.limit !== undefined) params.set("limit", String(options.limit));
   if (options?.page !== undefined && options.page > 1)
     params.set("page", String(options.page));
@@ -247,9 +254,11 @@ export async function getSyncStatus(): Promise<SyncStatus | null> {
 
 export async function getPackageBySlug(
   slug: string,
+  locale: HubLocale,
 ): Promise<PluginRecord | null> {
+  const params = new URLSearchParams({ locale });
   const response = await hubFetch(
-    `/api/v1/packages/${encodeURIComponent(slug)}`,
+    `/api/v1/packages/${encodeURIComponent(slug)}?${params}`,
   );
   if (response.status === 404) return null;
   const payload = await expectOk(response);

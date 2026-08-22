@@ -15,8 +15,8 @@ import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-async function getPlugin(slug: string) {
-  return getPackageBySlug(slug);
+async function getPlugin(slug: string, locale: "zh" | "en") {
+  return getPackageBySlug(slug, locale);
 }
 
 export async function generateMetadata({
@@ -24,9 +24,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const plugin = await getPlugin((await params).slug);
-  if (!plugin) return {};
   const locale = await getHubLocale();
+  const plugin = await getPlugin((await params).slug, locale);
+  if (!plugin) return {};
   const title =
     locale === "en"
       ? `${plugin.displayName} — DSH Plugin for DeepSeek Harness`
@@ -52,9 +52,9 @@ export default async function PluginDetailPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const plugin = await getPlugin((await params).slug);
-  if (!plugin) notFound();
   const locale = await getHubLocale();
+  const plugin = await getPlugin((await params).slug, locale);
+  if (!plugin) notFound();
   const t = hubCopy[locale];
   const latest = plugin.versions.find((version) => version.version === plugin.latestVersion) ?? plugin.versions.at(-1)!;
   const effectiveHmr = plugin.publisherMetadata.compatibility?.hmr ?? latest.compatibility.hmr;

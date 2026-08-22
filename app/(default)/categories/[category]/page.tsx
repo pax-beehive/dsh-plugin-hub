@@ -49,7 +49,7 @@ export default async function CategoryPage({
   // category is a passthrough param; backends without category filtering
   // return the unfiltered list, which is still a reasonable page.
   const [result, categories] = await Promise.all([
-    searchPackages("", { category, limit: 60 }),
+    searchPackages("", { category, limit: 60, locale }),
     listCategories(50),
   ]);
   const items = result.items;

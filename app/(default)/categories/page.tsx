@@ -6,6 +6,7 @@ import {
   listCategories,
   searchPackages,
   type CategoryCount,
+  type PackageSearchOptions,
   type PluginSummary,
 } from "@/lib/hub-api";
 import { hubCopy } from "@/lib/i18n";
@@ -28,7 +29,7 @@ function categoryTitle(entry: CategoryCount, locale: "zh" | "en"): string {
 
 async function safeSearchPackages(
   query: string,
-  options?: { limit?: number; category?: string },
+  options?: Pick<PackageSearchOptions, "locale" | "limit" | "category">,
 ): Promise<{ items: PluginSummary[]; nextCursor: string | null; total?: number }> {
   try {
     return await searchPackages(query, options);
@@ -58,7 +59,7 @@ function previewByCategory(
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getHubLocale();
   const t = hubCopy[locale];
-  const catalog = await safeSearchPackages("", { limit: 1 });
+  const catalog = await safeSearchPackages("", { locale, limit: 1 });
   const total = catalog.total ?? 0;
   const title = total > 0 ? t.plugins.browseAll(total) : t.plugins.browseAllUnknown;
   return pageMetadata({
@@ -73,7 +74,7 @@ export default async function CategoriesIndexPage() {
   const t = hubCopy[locale];
   const [categories, catalog] = await Promise.all([
     listCategories(50),
-    safeSearchPackages("", { limit: 60 }),
+    safeSearchPackages("", { locale, limit: 60 }),
   ]);
   // One source of truth: registry search `total`. Category counts sum lower
   // because uncategorized packages exist; do not substitute that sum.

@@ -70,6 +70,7 @@ export default async function PluginsPage({
   const locale = await getHubLocale();
   const t = hubCopy[locale];
   const result = await searchPackages(q, {
+    locale,
     sort,
     page: requestedPage,
     limit: pageSize,
@@ -87,7 +88,7 @@ export default async function PluginsPage({
   // clamped out of range (e.g. stale links after delisting).
   const pageResult =
     paginated && page !== requestedPage
-      ? await searchPackages(q, { sort, page, limit: pageSize })
+      ? await searchPackages(q, { locale, sort, page, limit: pageSize })
       : result;
 
   const catalogItems =
