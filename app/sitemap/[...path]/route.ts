@@ -9,9 +9,11 @@ import {
 
 export const dynamic = "force-dynamic";
 
-function parseShardId(value: string): number | null {
-  if (!/^\d+$/.test(value)) return null;
-  const id = Number(value);
+function parseShardId(path: string[]): number | null {
+  if (path.length !== 1) return null;
+  const match = /^(\d+)\.xml$/.exec(path[0] ?? "");
+  if (!match) return null;
+  const id = Number(match[1]);
   return Number.isSafeInteger(id) && id >= 0 && id <= SITEMAP_MAX_PAGES
     ? id
     : null;
@@ -36,9 +38,9 @@ async function loadShard(id: number) {
 
 export async function GET(
   _request: Request,
-  context: { params: Promise<{ id: string }> },
+  context: { params: Promise<{ path: string[] }> },
 ): Promise<Response> {
-  const id = parseShardId((await context.params).id);
+  const id = parseShardId((await context.params).path);
   if (id === null) return new Response("Not found", { status: 404 });
 
   let entries;

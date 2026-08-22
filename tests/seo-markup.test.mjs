@@ -6,6 +6,10 @@ const home = readFileSync(new URL("../components/HomePage.tsx", import.meta.url)
 const header = readFileSync(new URL("../components/HubHeader.tsx", import.meta.url), "utf8");
 const document = readFileSync(new URL("../components/SiteDocument.tsx", import.meta.url), "utf8");
 const sitemap = readFileSync(new URL("../app/sitemap.xml/route.ts", import.meta.url), "utf8");
+const sitemapShard = readFileSync(
+  new URL("../app/sitemap/[...path]/route.ts", import.meta.url),
+  "utf8",
+);
 const sitemapLib = readFileSync(new URL("../lib/sitemap.ts", import.meta.url), "utf8");
 const wrangler = readFileSync(new URL("../wrangler.jsonc", import.meta.url), "utf8");
 
@@ -49,6 +53,8 @@ test("sitemap is a sharded Route Handler index and drops /report", () => {
   assert.match(sitemap, /export async function GET/);
   assert.match(sitemap, /searchSitemapPackages/);
   assert.match(sitemap, /sitemapIndexToXml/);
+  assert.match(sitemapShard, /params: Promise<\{ path: string\[\] \}>/);
+  assert.match(sitemapShard, /\\\.xml/);
   assert.match(sitemap, /application\/xml; charset=utf-8/);
   assert.match(sitemapLib, /sitemapEntriesToXml/);
   assert.doesNotMatch(sitemap, /absoluteUrl\("\/report"\)|\/report`/);
