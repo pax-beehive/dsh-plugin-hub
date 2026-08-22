@@ -128,3 +128,19 @@ test("Chinese category page renders translated plugin summaries", async () => {
   assert.match(html, new RegExp(zhSummary));
   assert.doesNotMatch(html, new RegExp(enSummary));
 });
+
+test("category page renders the API total and numbered pagination", async () => {
+  const payload = { ...pluginSearchEnvelope("en"), total: 65 };
+  const response = await render(
+    "/categories/memory-context?page=2",
+    "en",
+    payload,
+  );
+  const html = await response.text();
+
+  assert.equal(response.status, 200, html);
+  assert.match(html, />65 plugins</);
+  assert.match(html, /class="catalog-pagination"/);
+  assert.match(html, /href="\/categories\/memory-context\?page=3"/);
+  assert.match(html, /aria-current="page"[^>]*>2<\/a>/);
+});

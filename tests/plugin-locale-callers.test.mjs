@@ -18,9 +18,15 @@ test("localized catalog callers pass their resolved locale to package searches",
 
   assert.match(catalog, /searchPackages\(q, \{\s+locale,/);
   assert.match(catalog, /searchPackages\(q, \{ locale, sort, page, limit: pageSize \}\)/);
-  assert.match(category, /searchPackages\("", \{ category, limit: 60, locale \}\)/);
+  assert.match(
+    category,
+    /searchPackages\("", \{\s+category,\s+limit: pageSize,\s+locale,\s+page: requestedPage,/,
+  );
   assert.match(categories, /safeSearchPackages\("", \{ locale, limit: 1 \}\)/);
-  assert.match(categories, /safeSearchPackages\("", \{ locale, limit: 60 \}\)/);
+  assert.match(
+    categories,
+    /safeSearchPackages\("", \{\s+category: entry\.name,\s+limit: PREVIEW_LIMIT,\s+locale,/,
+  );
 });
 
 test("plugin metadata resolves locale before fetching localized plugin content", async () => {

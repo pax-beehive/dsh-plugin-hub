@@ -38,24 +38,6 @@ async function safeSearchPackages(
   }
 }
 
-function previewByCategory(
-  categories: CategoryCount[],
-  plugins: PluginSummary[],
-): Map<string, PluginSummary[]> {
-  const map = new Map<string, PluginSummary[]>();
-  for (const category of categories) {
-    map.set(category.name, []);
-  }
-  for (const plugin of plugins) {
-    for (const name of plugin.categories) {
-      const list = map.get(name);
-      if (!list || list.length >= PREVIEW_LIMIT) continue;
-      list.push(plugin);
-    }
-  }
-  return map;
-}
-
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getHubLocale();
   const t = hubCopy[locale];
@@ -74,12 +56,23 @@ export default async function CategoriesIndexPage() {
   const t = hubCopy[locale];
   const [categories, catalog] = await Promise.all([
     listCategories(50),
-    safeSearchPackages("", { locale, limit: 60 }),
+    safeSearchPackages("", { locale, limit: 1 }),
   ]);
   // One source of truth: registry search `total`. Category counts sum lower
   // because uncategorized packages exist; do not substitute that sum.
   const total = catalog.total;
-  const previews = previewByCategory(categories, catalog.items);
+  const previews = new Map(
+    await Promise.all(
+      categories.map(async (entry) => {
+        const preview = await safeSearchPackages("", {
+          category: entry.name,
+          limit: PREVIEW_LIMIT,
+          locale,
+        });
+        return [entry.name, preview.items] as const;
+      }),
+    ),
+  );
   const heading = typeof total === "number" && total > 0 ? t.plugins.browseAll(total) : t.plugins.browseAllUnknown;
 
   return (

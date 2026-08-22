@@ -6,6 +6,7 @@ import {
   searchPackages,
 } from "@/lib/hub-api";
 import { altPackageHint, sortByWeeklyDownloads } from "@/lib/catalog-display";
+import { pageWindow, parseCatalogPage } from "@/lib/catalog-pagination";
 import PluginCardHeading from "@/components/PluginCardHeading";
 import { formatCompactCount, isHotWeeklyDownloads } from "@/lib/format-count";
 import { hubCopy, localeTags } from "@/lib/i18n";
@@ -41,23 +42,6 @@ function parseSort(value: string | undefined): Sort {
   return sortValues.includes(value as Sort) ? (value as Sort) : "popular";
 }
 
-// Numbered pagination window: first/last page plus two neighbors around the
-// current page, with ellipsis markers (null) for collapsed gaps.
-function pageWindow(page: number, pageCount: number): Array<number | null> {
-  const wanted = new Set([1, pageCount, page - 2, page - 1, page, page + 1, page + 2]);
-  const pages = [...wanted]
-    .filter((entry) => entry >= 1 && entry <= pageCount)
-    .sort((a, b) => a - b);
-  const windowed: Array<number | null> = [];
-  let previous = 0;
-  for (const entry of pages) {
-    if (previous && entry - previous > 1) windowed.push(null);
-    windowed.push(entry);
-    previous = entry;
-  }
-  return windowed;
-}
-
 export default async function PluginsPage({
   searchParams,
 }: {
@@ -66,7 +50,7 @@ export default async function PluginsPage({
   const params = await searchParams;
   const q = (params.q ?? "").trim().slice(0, 120);
   const sort = parseSort(params.sort);
-  const requestedPage = Math.max(Number.parseInt(params.page ?? "1", 10) || 1, 1);
+  const requestedPage = parseCatalogPage(params.page);
   const locale = await getHubLocale();
   const t = hubCopy[locale];
   const result = await searchPackages(q, {

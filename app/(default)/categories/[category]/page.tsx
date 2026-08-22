@@ -2,6 +2,7 @@ import HubHeader from "@/components/HubHeader";
 import PluginIcon from "@/components/PluginIcon";
 import PluginCardHeading from "@/components/PluginCardHeading";
 import { altPackageHint } from "@/lib/catalog-display";
+import { pageWindow, parseCatalogPage } from "@/lib/catalog-pagination";
 import { categoryLabel, listCategories, searchPackages } from "@/lib/hub-api";
 import { formatCompactCount, isHotWeeklyDownloads } from "@/lib/format-count";
 import { hubCopy, localeTags } from "@/lib/i18n";
@@ -12,6 +13,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
+
+const pageSize = 30;
 
 export async function generateMetadata({
   params,
@@ -40,21 +43,44 @@ export async function generateMetadata({
 
 export default async function CategoryPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ category: string }>;
+  searchParams: Promise<{ page?: string }>;
 }) {
   const category = decodeURIComponent((await params).category).slice(0, 60);
+  const requestedPage = parseCatalogPage((await searchParams).page);
   const locale = await getHubLocale();
   const t = hubCopy[locale];
-  // category is a passthrough param; backends without category filtering
-  // return the unfiltered list, which is still a reasonable page.
   const [result, categories] = await Promise.all([
-    searchPackages("", { category, limit: 60, locale }),
+    searchPackages("", {
+      category,
+      limit: pageSize,
+      locale,
+      page: requestedPage,
+    }),
     listCategories(50),
   ]);
-  const items = result.items;
+  const paginated = typeof result.total === "number";
+  const pageCount = paginated
+    ? Math.max(Math.ceil(result.total! / pageSize), 1)
+    : 1;
+  const page = paginated ? Math.min(requestedPage, pageCount) : 1;
+  const pageResult =
+    paginated && page !== requestedPage
+      ? await searchPackages("", {
+          category,
+          limit: pageSize,
+          locale,
+          page,
+        })
+      : result;
+  const items = pageResult.items;
   const current = categories.find((entry) => entry.name === category);
   const label = categoryLabel(current ?? { name: category, count: 0 }, locale);
+  const categoryPath = `/categories/${encodeURIComponent(category)}`;
+  const pageHref = (targetPage: number) =>
+    targetPage > 1 ? `${categoryPath}?page=${targetPage}` : categoryPath;
 
   return (
     <main className="hub-shell">
@@ -87,7 +113,11 @@ export default async function CategoryPage({
       <section className="catalog-section" aria-label={t.plugins.categoryResult(label)}>
         <div className="catalog-section-heading">
           <h2>{t.plugins.all}</h2>
-          <span>{t.plugins.count(items.length)}</span>
+          <span>
+            {paginated
+              ? t.plugins.totalCount(result.total!)
+              : t.plugins.count(items.length)}
+          </span>
         </div>
         {items.length ? (
           <div className="plugin-grid">
@@ -139,6 +169,45 @@ export default async function CategoryPage({
             </p>
           </div>
         )}
+        {pageCount > 1 ? (
+          <nav className="catalog-pagination" aria-label="Pagination">
+            {page > 1 ? (
+              <Link
+                className="pagination-link"
+                href={pageHref(page - 1)}
+                prefetch={false}
+              >
+                ← {t.plugins.prevPage}
+              </Link>
+            ) : null}
+            {pageWindow(page, pageCount).map((entry, index) =>
+              entry === null ? (
+                <span className="pagination-ellipsis" key={`gap-${index}`}>
+                  …
+                </span>
+              ) : (
+                <Link
+                  aria-current={entry === page ? "page" : undefined}
+                  className={`pagination-link pagination-number ${entry === page ? "active" : ""}`}
+                  href={pageHref(entry)}
+                  key={entry}
+                  prefetch={false}
+                >
+                  {entry}
+                </Link>
+              ),
+            )}
+            {page < pageCount ? (
+              <Link
+                className="pagination-link pagination-next"
+                href={pageHref(page + 1)}
+                prefetch={false}
+              >
+                {t.plugins.nextPage} →
+              </Link>
+            ) : null}
+          </nav>
+        ) : null}
       </section>
     </main>
   );
