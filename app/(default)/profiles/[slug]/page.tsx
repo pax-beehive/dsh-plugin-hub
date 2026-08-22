@@ -69,7 +69,13 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
           {latest.bundles.map((bundle, index) => (
             <div className="profile-layer" key={`${bundle.packageName}-${index}`}>
               <span>{String(index + 1).padStart(2, "0")}</span>
-              <div><strong>{bundle.packageName}</strong><code>{bundle.selector}</code></div>
+              <div>
+                <strong>{bundle.packageName}</strong>
+                <span className="profile-layer-version">
+                  <code>{bundle.version ?? bundle.selector}</code>
+                  {bundle.version && bundle.version !== bundle.selector ? <small>{locale === "en" ? `resolved from ${bundle.selector}` : `由 ${bundle.selector} 解析`}</small> : null}
+                </span>
+              </div>
             </div>
           ))}
         </section>

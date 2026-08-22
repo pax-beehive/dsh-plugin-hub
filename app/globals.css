@@ -1956,6 +1956,18 @@ a {
   color: var(--blue-dark);
 }
 
+.profile-layer-version {
+  display: grid;
+  gap: 3px;
+  justify-items: end;
+  text-align: right;
+}
+
+.profile-layer-version small {
+  color: var(--quiet);
+  font-size: 11px;
+}
+
 .profile-meta {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -3789,7 +3801,10 @@ details.hub-account:not([open]) > .hub-account-menu,
 .profile-builder-advanced summary { cursor: pointer; font-weight: 600; font-size: 13px; }
 .profile-builder-advanced label { margin-top: 14px; }
 .profile-code-input { font-family: ui-monospace, "SFMono-Regular", monospace !important; font-size: 12px !important; }
-.profile-builder-submit { display: flex; justify-content: flex-end; gap: 9px; margin-top: 22px; }
+.profile-builder-submit { display: flex; align-items: center; justify-content: flex-end; gap: 9px; margin-top: 22px; }
+.profile-builder-submit > p { flex: 1; margin: 0; font-size: 12px; line-height: 1.45; }
+.profile-publish-readiness { color: #8a5a10; }
+.profile-publish-ready { color: #16834a; }
 .profile-builder-submit > button { min-height: 44px; margin-top: 0; }
 .profile-builder-submit .dashboard-primary { border-color: #4653e6; background: #4653e6; color: #fff; margin-top: 0; }
 .profile-builder-aside { position: sticky; top: 24px; }

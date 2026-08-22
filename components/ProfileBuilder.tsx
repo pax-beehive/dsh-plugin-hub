@@ -145,6 +145,8 @@ export default function ProfileBuilder({ locale }: { locale: "en" | "zh" }) {
     } finally { setBusy(false); }
   }
 
+  const publishIssue = validate();
+
   return (
     <div className="profile-builder">
       <section className="profile-builder-main">
@@ -160,7 +162,7 @@ export default function ProfileBuilder({ locale }: { locale: "en" | "zh" }) {
           <label>Slug<input value={slug} onChange={(event) => setSlug(event.target.value.toLowerCase())} placeholder="research-stack" /></label>
           <label>{zh ? "Release 版本" : "Release version"}<input value={releaseVersion} onChange={(event) => setReleaseVersion(event.target.value)} /></label>
           <label>DSH range<input value={dshRange} onChange={(event) => setDshRange(event.target.value)} /></label>
-          <label>{zh ? "DSH 精确版本" : "Exact DSH version"}<input value={runtimeVersion} onChange={(event) => setRuntimeVersion(event.target.value)} placeholder="0.1.0-rc.7" /></label>
+          <label>{zh ? "DSH 精确版本" : "Exact DSH version"}<input value={runtimeVersion} onChange={(event) => setRuntimeVersion(event.target.value)} placeholder="0.1.0-rc.7" aria-required="true" aria-invalid={runtimeVersion.length > 0 && !versionPattern.test(runtimeVersion)} /></label>
         </div>
         <label>{zh ? "说明" : "Description"}<textarea value={description} onChange={(event) => setDescription(event.target.value)} rows={3} /></label>
 
@@ -191,7 +193,13 @@ export default function ProfileBuilder({ locale }: { locale: "en" | "zh" }) {
           <label>{zh ? "环境变量（逗号分隔，值不会上传）" : "Environment keys (comma-separated; values never upload)"}<input value={inputKeys} onChange={(event) => setInputKeys(event.target.value.toUpperCase())} placeholder="DEEPSEEK_API_KEY" /></label>
         </details>
         {message ? <p className={message.includes("saved") || message.includes("保存") ? "dashboard-success" : "dashboard-error"}>{message}</p> : null}
-        <div className="profile-builder-submit"><button onClick={() => void save(false)} disabled={busy}>{zh ? "保存 Draft" : "Save Draft"}</button><button className="dashboard-primary" onClick={() => void save(true)} disabled={busy}>{busy ? "…" : (zh ? "发布 Release" : "Publish Release")}</button></div>
+        <div className="profile-builder-submit">
+          <p id="profile-publish-requirement" className={publishIssue ? "profile-publish-readiness" : "profile-publish-ready"}>
+            {publishIssue ? (zh ? `完成必填项后可发布：${publishIssue}` : `Complete required fields to publish: ${publishIssue}`) : (zh ? "已满足发布条件" : "Ready to publish")}
+          </p>
+          <button onClick={() => void save(false)} disabled={busy}>{zh ? "保存 Draft" : "Save Draft"}</button>
+          <button className="dashboard-primary" onClick={() => void save(true)} disabled={busy || Boolean(publishIssue)} aria-describedby="profile-publish-requirement">{busy ? "…" : (zh ? "发布 Release" : "Publish Release")}</button>
+        </div>
       </section>
       <aside className="profile-builder-aside">
         <p className="dashboard-eyebrow">V1 CONTRACT</p>
