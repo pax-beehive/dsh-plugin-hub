@@ -1085,6 +1085,83 @@ a {
   margin-top: 20px;
 }
 
+.dashboard-stack-card {
+  margin-top: 20px;
+}
+
+.dashboard-section-title {
+  margin: 0;
+  font-size: clamp(26px, 4vw, 34px);
+  letter-spacing: -0.025em;
+}
+
+.profile-path-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 30px;
+}
+
+.profile-path-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fafbff;
+}
+
+.profile-path-kicker {
+  color: var(--blue-dark);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.profile-path-card h2 {
+  margin: 10px 0 0;
+  font-size: 20px;
+}
+
+.profile-path-card > p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.profile-path-card .install-command {
+  margin-top: 20px;
+}
+
+.profile-path-card > small {
+  margin-top: 12px;
+  color: var(--quiet);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.profile-path-card .dashboard-primary {
+  align-self: flex-start;
+  margin-top: 20px;
+}
+
+.profile-path-secondary {
+  align-self: flex-start;
+  margin-top: 14px;
+  color: var(--blue-dark);
+  font-size: 12px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+@media (max-width: 760px) {
+  .profile-path-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .optional-heading {
   display: flex;
   align-items: flex-start;

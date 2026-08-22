@@ -10,7 +10,7 @@ const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf
 
 function rule(selector) {
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return styles.match(new RegExp(`${escaped}\\s*\\{([^}]*)\\}`))?.[1] ?? "";
+  return styles.match(new RegExp(`(?:^|\\n)\\s*${escaped}\\s*\\{([^}]*)\\}`))?.[1] ?? "";
 }
 
 test("keeps the copy action visible while only the command text scrolls", () => {

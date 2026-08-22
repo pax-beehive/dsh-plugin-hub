@@ -1,5 +1,6 @@
 import DashboardSignupPixel from "@/components/DashboardSignupPixel";
 import { DashboardHeader } from "@/components/HubHeader";
+import CopyCommand from "@/components/CopyCommand";
 import PublishRepositoryButton from "@/components/PublishRepositoryButton";
 import PublishNpmPackageForm from "@/components/PublishNpmPackageForm";
 import { listGitHubRepositories, listOwnedPlugins } from "@/lib/hub-api";
@@ -14,11 +15,20 @@ export default async function DashboardPage({
 }: {
   searchParams: Promise<{ github?: string }>;
 }) {
-  const { user } = await withAuth({ ensureSignedIn: true });
+  await withAuth({ ensureSignedIn: true });
   const locale = await getHubLocale();
   const t = locale === "en" ? {
-    hello: "Hello",
-    intro: "Enter an npm package name to sync every valid DSH version now. The Hub will check for future versions automatically.",
+    profileTitle: "Share or build a reproducible DSH Profile",
+    profileIntro: "Bring your current local setup to the Hub in one CLI command, or compose an ordered Profile directly on the web. Both paths publish the same immutable Release format.",
+    shareTitle: "Share your current Profile",
+    shareBody: "Capture the exact local bundle order, installed versions, patch and required input keys from the official DSH Profile.",
+    loginNote: "One-time setup: run npx -y @dsh-plugin-hub/cli@latest login first.",
+    webTitle: "Build on the web",
+    webBody: "Choose indexed Plugins, confirm their order and selectors, then save a Draft or publish a versioned Release.",
+    buildWeb: "Open Web Builder →",
+    browseProfiles: "Browse public Profiles",
+    npmTitle: "Sync an npm Plugin",
+    npmIntro: "Enter an npm package name to sync every valid DSH version now. The Hub will check for future versions automatically.",
     admission: "Admission rules",
     bundle: "package.json contains dsh.bundle or dsh.profile",
     repository: "Plugins declare a GitHub repository",
@@ -36,8 +46,17 @@ export default async function DashboardPage({
     private: "Private repositories are not published to the public Registry yet",
     empty: "No repositories are connected for claims yet.",
   } : {
-    hello: "你好",
-    intro: "输入 npm 包名即可立即同步全部有效 DSH 版本。之后 Hub 会自动检查新版本。",
+    profileTitle: "分享或构建可复现的 DSH Profile",
+    profileIntro: "用一条 CLI 命令把当前本地配置带到 Hub，或者直接在网页中组装有序 Profile。两条路径都会发布相同的不可变 Release。",
+    shareTitle: "分享当前 Profile",
+    shareBody: "从官方 DSH Profile 捕获准确的 Bundle 顺序、已安装版本、Patch 与本地输入键。",
+    loginNote: "首次使用请先运行：npx -y @dsh-plugin-hub/cli@latest login",
+    webTitle: "在 Web 上构建",
+    webBody: "选择 Hub 已收录的 Plugins，确认顺序与选择器，然后保存 Draft 或发布版本化 Release。",
+    buildWeb: "打开 Web Builder →",
+    browseProfiles: "浏览公开 Profiles",
+    npmTitle: "同步 npm Plugin",
+    npmIntro: "输入 npm 包名即可立即同步全部有效 DSH 版本。之后 Hub 会自动检查新版本。",
     admission: "准入规则",
     bundle: "package.json 包含 dsh.bundle 或 dsh.profile",
     repository: "Plugin 填写 GitHub repository",
@@ -64,9 +83,35 @@ export default async function DashboardPage({
       <DashboardHeader locale={locale} />
       <div className="dashboard-content">
         <section className="dashboard-card dashboard-card-wide">
+          <p className="dashboard-eyebrow">PROFILE CREATION</p>
+          <h1>{t.profileTitle}</h1>
+          <p>{t.profileIntro}</p>
+          <div className="profile-path-grid">
+            <article className="profile-path-card">
+              <span className="profile-path-kicker">CLI · CURRENT PROFILE</span>
+              <h2>{t.shareTitle}</h2>
+              <p>{t.shareBody}</p>
+              <CopyCommand
+                command={'npx -y @dsh-plugin-hub/cli@latest profile share my-profile --version 1.0.0 --profile web --display-name "My Profile"'}
+                locale={locale}
+                profile="web"
+                purpose="profile-share"
+              />
+              <small>{t.loginNote}</small>
+            </article>
+            <article className="profile-path-card">
+              <span className="profile-path-kicker">WEB · NEW PROFILE</span>
+              <h2>{t.webTitle}</h2>
+              <p>{t.webBody}</p>
+              <Link className="dashboard-primary" href="/dashboard/profiles/new">{t.buildWeb}</Link>
+              <Link className="profile-path-secondary" href="/profiles">{t.browseProfiles}</Link>
+            </article>
+          </div>
+        </section>
+        <section className="dashboard-card dashboard-card-wide dashboard-stack-card">
           <p className="dashboard-eyebrow">NPM SYNC</p>
-          <h1>{t.hello}, {user.name ?? user.email}</h1>
-          <p>{t.intro}</p>
+          <h2 className="dashboard-section-title">{t.npmTitle}</h2>
+          <p>{t.npmIntro}</p>
           <PublishNpmPackageForm locale={locale} />
           <div className="publisher-requirements">
             <strong>{t.admission}</strong>
@@ -92,7 +137,7 @@ export default async function DashboardPage({
             </div>
           ) : null}
         </section>
-        <section className="dashboard-card dashboard-card-wide github-optional-card">
+        <section className="dashboard-card dashboard-card-wide dashboard-stack-card github-optional-card">
           <div className="optional-heading">
             <div>
               <p className="dashboard-eyebrow">OPTIONAL AUTOMATION</p>

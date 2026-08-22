@@ -9,11 +9,13 @@ export default function CopyCommand({
   locale = "zh",
   packageName,
   profile,
+  purpose = "install",
 }: {
   command: string;
   locale?: HubLocale;
   packageName?: string;
   profile?: string;
+  purpose?: "install" | "profile-share";
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -21,19 +23,28 @@ export default function CopyCommand({
     await navigator.clipboard.writeText(command);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
-    void trackHubEvent("copy_install", {
-      props: {
-        package: packageName,
-        profile,
-        command,
-      },
-    });
+    if (purpose === "install") {
+      void trackHubEvent("copy_install", {
+        props: {
+          package: packageName,
+          profile,
+          command,
+        },
+      });
+    }
   }
+
+  const commandLabel = purpose === "profile-share"
+    ? (locale === "en" ? "Profile share command" : "Profile 分享命令")
+    : (locale === "en" ? "Install command" : "安装命令");
+  const copyLabel = purpose === "profile-share"
+    ? (locale === "en" ? "Copy Profile share command" : "复制 Profile 分享命令")
+    : (locale === "en" ? "Copy install command" : "复制安装命令");
 
   return (
     <div className="install-command">
       <div
-        aria-label={locale === "en" ? "Install command" : "安装命令"}
+        aria-label={commandLabel}
         className="install-command-scroll"
         role="region"
         // A keyboard focus target lets users scroll long commands without a pointer.
@@ -42,7 +53,7 @@ export default function CopyCommand({
       >
         <code>{command}</code>
       </div>
-      <button type="button" onClick={copy} aria-label={locale === "en" ? "Copy install command" : "复制安装命令"}>
+      <button type="button" onClick={copy} aria-label={copyLabel}>
         {copied ? (locale === "en" ? "Copied" : "已复制") : (locale === "en" ? "Copy" : "复制")}
       </button>
     </div>
