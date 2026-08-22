@@ -64,8 +64,12 @@ export function buildDshValidationCommand(profile: string, runtimeVersion?: stri
     : { command: "dsh", args: ["--profile", profile, "--dump-config"] };
 }
 
-export async function validateCurrentProfile(profile: string): Promise<void> {
-  await run(buildDshValidationCommand(profile));
+export async function validateCurrentProfile(
+  profile: string,
+  runtimeVersion?: string,
+  execute: (command: DshInstallCommand) => Promise<void> = run,
+): Promise<void> {
+  await execute(buildDshValidationCommand(profile, runtimeVersion));
 }
 
 function run(command: DshInstallCommand): Promise<void> {

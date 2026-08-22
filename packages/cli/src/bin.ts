@@ -257,7 +257,7 @@ async function main() {
       print({ draft, version }, json);
       return;
     }
-    await validateCurrentProfile(parsed.values.profile);
+    await validateCurrentProfile(parsed.values.profile, runtimeVersion);
     await client.saveProfileDraft(draft);
     print(await client.publishProfile(value, version, true), json);
     return;

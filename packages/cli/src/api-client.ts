@@ -13,7 +13,7 @@ export class HubApiClient {
   readonly baseUrl: string;
   readonly accessToken?: () => Promise<string>;
 
-  constructor(baseUrl = "https://dshpluginhub.ai/api/v1", accessToken?: () => Promise<string>) {
+  constructor(baseUrl = "https://api.dshpluginhub.ai/api/v1", accessToken?: () => Promise<string>) {
     this.baseUrl = baseUrl.replace(/\/$/, "");
     this.accessToken = accessToken;
   }
@@ -32,11 +32,16 @@ export class HubApiClient {
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(30_000),
     });
+    const text = await response.text();
     if (!response.ok) {
-      const detail = await response.text();
+      const detail = text;
       throw new Error(`Hub API ${response.status}: ${detail.slice(0, 500)}`);
     }
-    return response.json();
+    try {
+      return JSON.parse(text) as unknown;
+    } catch {
+      throw new Error(`Hub API returned ${response.headers.get("content-type") ?? "an unknown content type"}, expected JSON`);
+    }
   }
 
   private async get(path: string): Promise<unknown> {

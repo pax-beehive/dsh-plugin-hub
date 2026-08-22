@@ -11,6 +11,7 @@ import {
 import {
   assertProfileApplyPrerequisites,
   buildDshInstallCommand,
+  validateCurrentProfile,
   captureProfile,
   installResolvedProfile,
   listProfileRevisions,
@@ -20,6 +21,7 @@ import {
 } from "../src/index.ts";
 import { createPluginStarter } from "../src/scaffold.ts";
 import { validatePackageDirectory } from "../src/package-validation.ts";
+import { HubApiClient } from "../src/api-client.ts";
 import {
   applyOperationPlan,
   createProfileApplyPlan,
@@ -114,6 +116,19 @@ test("builds the official dsh plugin add command without a shell", () => {
   assert.deepEqual(buildDshInstallCommand("web", "dsh-memory@1.2.3", "0.1.0-rc.7"), {
     command: "npx",
     args: ["-y", "@deepseek-ai/dsh@0.1.0-rc.7", "plugin", "--profile", "web", "add", "dsh-memory@1.2.3"],
+  });
+});
+
+test("uses the bearer-aware production API origin by default", () => {
+  assert.equal(new HubApiClient().baseUrl, "https://api.dshpluginhub.ai/api/v1");
+});
+
+test("validates a shared Profile with its exact DSH runtime", async () => {
+  let command: { command: string; args: string[] } | undefined;
+  await validateCurrentProfile("web", "0.1.1-rc.2", async (value) => { command = value; });
+  assert.deepEqual(command, {
+    command: "npx",
+    args: ["-y", "@deepseek-ai/dsh@0.1.1-rc.2", "--profile", "web", "--dump-config"],
   });
 });
 
