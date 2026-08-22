@@ -9,10 +9,12 @@ import {
   hubListingSchema,
 } from "@dsh-plugin-hub/schemas";
 import {
+  assertProfileApplyPrerequisites,
   buildDshInstallCommand,
   captureProfile,
   installResolvedProfile,
   listProfileRevisions,
+  parseAllowBuilds,
   profileLockPath,
   rollbackProfile,
 } from "../src/index.ts";
@@ -115,6 +117,23 @@ test("builds the official dsh plugin add command without a shell", () => {
   });
 });
 
+test("fails Profile apply prerequisites before network or profile mutation", async () => {
+  await assert.rejects(assertProfileApplyPrerequisites({
+    nodeVersion: "20.6.1",
+    pnpmAvailable: async () => true,
+  }), /Node\.js >=22\.13\.0/);
+  await assert.rejects(assertProfileApplyPrerequisites({
+    nodeVersion: "22.13.0",
+    pnpmAvailable: async () => false,
+  }), /pnpm on PATH/);
+});
+
+test("accepts only explicitly true package names from pinned GitHub build policy", () => {
+  assert.deepEqual(parseAllowBuilds(`packages:\n  - .\nallowBuilds:\n  node-pty: true\n  protobufjs: true\n  ignored: false\n`), ["node-pty", "protobufjs"]);
+  assert.throws(() => parseAllowBuilds(`allowBuilds:\n  dangerouslyAllowAllBuilds: '*'\n`), /Unsupported allowBuilds entry/);
+  assert.throws(() => parseAllowBuilds(`allowBuilds:\n  ..\/..\/escape: true\n`), /Unsupported allowBuilds package/);
+});
+
 test("dry-run produces commands without touching the profile", async () => {
   const root = await mkdtemp(join(tmpdir(), "dsh-hub-cli-"));
   const result = await installResolvedProfile({
@@ -157,8 +176,45 @@ test("successful installs are executed in profile order and locked", async () =>
 
   assert.deepEqual(seen, ["dsh-search@1.0.0", "dsh-memory@2.0.0"]);
   const lock = JSON.parse(await readFile(profileLockPath("research", root), "utf8"));
+  const manifest = JSON.parse(await readFile(join(root, "profiles", "research", "package.json"), "utf8"));
   assert.equal(lock.hubProfile.slug, "research-stack");
+  assert.equal(manifest.name, "dsh-hub-research");
   assert.deepEqual(lock.bundles.map((bundle: { packageName: string }) => bundle.packageName), ["dsh-search", "dsh-memory"]);
+});
+
+test("stages a pinned GitHub build allowlist before running dsh plugin add", async () => {
+  const root = await mkdtemp(join(tmpdir(), "dsh-hub-github-builds-"));
+  const commit = "f0965e1d6157a3e06ed2f5c7775a64428d5d3c29";
+  let workspace = "";
+
+  await installResolvedProfile({
+    profile: "web",
+    dshHome: root,
+    resolveBuildAllowlist: async () => [
+      "dsh-better-sidebar",
+      "node-pty",
+      "protobufjs",
+    ],
+    execute: async (command) => {
+      const stageProfile = command.args[command.args.indexOf("--profile") + 1]!;
+      workspace = await readFile(join(root, "profiles", stageProfile, "pnpm-workspace.yaml"), "utf8");
+    },
+    resolved: {
+      profileVersion: "1.0.0",
+      bundles: [{
+        packageName: "dsh-better-sidebar",
+        selector: "0.15.0",
+        version: "0.15.0",
+        installSpec: `github:omdsh-dev/DSH-better-sidebar#${commit}`,
+        sourceKind: "github",
+      }],
+    },
+  });
+
+  assert.match(workspace, /allowBuilds:/);
+  assert.match(workspace, /dsh-better-sidebar: true/);
+  assert.match(workspace, /node-pty: true/);
+  assert.match(workspace, /protobufjs: true/);
 });
 
 test("a validated install records local structural and composition evidence", async () => {
@@ -240,6 +296,22 @@ test("captures exact bundle order, installed versions, patch and input candidate
   assert.equal(draft.bundles[1]?.version, "1.4.2");
   assert.equal(draft.inputs[0]?.key, "DEEPSEEK_API_KEY");
   assert.equal(draft.patchYaml, "apiKeyEnv: DEEPSEEK_API_KEY\n");
+});
+
+test("captures a pinned GitHub dependency without rewriting it as npm", async () => {
+  const root = await mkdtemp(join(tmpdir(), "dsh-hub-capture-github-"));
+  const profile = join(root, "profiles", "web");
+  const commit = "f0965e1d6157a3e06ed2f5c7775a64428d5d3c29";
+  await mkdir(join(profile, "node_modules", "dsh-better-sidebar"), { recursive: true });
+  await writeFile(join(profile, "package.json"), JSON.stringify({
+    dependencies: { "dsh-better-sidebar": `github:omdsh-dev/DSH-better-sidebar#${commit}` },
+    dsh: { profile: { bundles: ["dsh-better-sidebar"] } },
+  }), "utf8");
+  await writeFile(join(profile, "node_modules", "dsh-better-sidebar", "package.json"), JSON.stringify({ version: "0.15.0" }), "utf8");
+  const draft = await captureProfile({ profile: "web", slug: "github-web", dshHome: root });
+  assert.equal(draft.bundles[0]?.sourceKind, "github");
+  assert.equal(draft.bundles[0]?.installSpec, `github:omdsh-dev/DSH-better-sidebar#${commit}`);
+  assert.equal(draft.bundles[0]?.version, "0.15.0");
 });
 
 test("operation plans are persisted, preconditioned and single-use", async () => {

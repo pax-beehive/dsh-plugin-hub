@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 import { cp, mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
-import { basename, dirname, join } from "node:path";
+import { dirname, join } from "node:path";
 import { randomUUID } from "node:crypto";
 import type { ResolvedProfile, ResolvedProfileBundle } from "@dsh-plugin-hub/registry";
 import type { HubProfileVersion, ProfileDraft } from "@dsh-plugin-hub/schemas";
@@ -16,6 +16,7 @@ export interface HubLockfile {
   resolvedAt: string;
   contentHash?: string;
   verification?: { structural: "passed"; composition: "passed"; platform: NodeJS.Platform; verifiedAt: string };
+  buildAllowlist?: string[];
   bundles: ResolvedProfileBundle[];
 }
 
@@ -85,6 +86,31 @@ export function executeDshCommand(command: DshInstallCommand): Promise<void> {
   return run(command);
 }
 
+export function assertSupportedNodeVersion(version = process.versions.node): void {
+  const [major = 0, minor = 0] = version.split(".").map((part) => Number.parseInt(part, 10));
+  if (major < 22 || (major === 22 && minor < 13)) {
+    throw new Error(`Profiles require Node.js >=22.13.0 (current: ${version})`);
+  }
+}
+
+function commandSucceeds(command: string, args: string[]): Promise<boolean> {
+  return new Promise((resolve) => {
+    const child = spawn(command, args, { stdio: "ignore", env: process.env });
+    child.once("error", () => resolve(false));
+    child.once("exit", (code) => resolve(code === 0));
+  });
+}
+
+export async function assertProfileApplyPrerequisites(options?: {
+  nodeVersion?: string;
+  pnpmAvailable?: () => Promise<boolean>;
+}): Promise<void> {
+  assertSupportedNodeVersion(options?.nodeVersion);
+  if (!await (options?.pnpmAvailable ?? (() => commandSucceeds("pnpm", ["--version"])))()) {
+    throw new Error("Profiles require pnpm on PATH. Install pnpm, then retry.");
+  }
+}
+
 export function detectDshVersion(): Promise<string> {
   return new Promise((resolve, reject) => {
     const child = spawn("dsh", ["--version"], { stdio: ["ignore", "pipe", "pipe"], env: process.env });
@@ -115,7 +141,66 @@ async function readJSON(path: string): Promise<Record<string, unknown>> {
   return JSON.parse(await readFile(path, "utf8")) as Record<string, unknown>;
 }
 
-async function materializeProfile(stage: string, resolved: ResolvedProfile, release?: HubProfileVersion) {
+const npmPackageName = /^(?:@[a-z0-9][a-z0-9._-]*\/[a-z0-9][a-z0-9._-]*|[a-z0-9][a-z0-9._-]*)$/i;
+const pinnedGitHubSpec = /^github:([a-z0-9_.-]+)\/([a-z0-9_.-]+)#([0-9a-f]{40})$/i;
+
+export function parseAllowBuilds(workspaceYaml: string): string[] {
+  if (Buffer.byteLength(workspaceYaml, "utf8") > 128 * 1024) {
+    throw new Error("Pinned GitHub pnpm-workspace.yaml is too large");
+  }
+  const lines = workspaceYaml.split(/\r?\n/);
+  const start = lines.findIndex((line) => /^allowBuilds:\s*(?:#.*)?$/.test(line));
+  if (start === -1) return [];
+  const allowed: string[] = [];
+  for (const line of lines.slice(start + 1)) {
+    if (!line.trim() || /^\s*#/.test(line)) continue;
+    if (!/^\s/.test(line)) break;
+    const match = line.match(/^\s{2}([^:#][^:]*):\s*(true|false)\s*(?:#.*)?$/);
+    if (!match) throw new Error("Unsupported allowBuilds entry in pinned GitHub workspace");
+    const key = match[1]!.trim().replace(/^(['"])(.*)\1$/, "$2");
+    if (!npmPackageName.test(key)) {
+      throw new Error(`Unsupported allowBuilds package in pinned GitHub workspace: ${key}`);
+    }
+    if (match[2] === "true") allowed.push(key);
+    if (allowed.length > 64) throw new Error("Pinned GitHub allowBuilds contains too many packages");
+  }
+  return [...new Set(allowed)].sort();
+}
+
+export async function resolvePinnedGitHubBuildAllowlist(bundles: ResolvedProfileBundle[]): Promise<string[]> {
+  const keys = await Promise.all(bundles.map(async (bundle) => {
+    if (bundle.sourceKind !== "github") return [];
+    const match = bundle.installSpec.match(pinnedGitHubSpec);
+    if (!match) throw new Error(`GitHub Profile bundle must use an immutable commit: ${bundle.installSpec}`);
+    const [, owner, repository, commit] = match;
+    const prepareKey = bundle.packageName;
+    const response = await fetch(
+      `https://raw.githubusercontent.com/${owner}/${repository}/${commit}/pnpm-workspace.yaml`,
+      { headers: { accept: "text/plain", "user-agent": "dsh-hub-cli/0.1" }, signal: AbortSignal.timeout(15_000) },
+    );
+    if (response.status === 404) return [prepareKey];
+    if (!response.ok) throw new Error(`Unable to read pinned GitHub build policy (${response.status}) for ${bundle.packageName}`);
+    return [prepareKey, ...parseAllowBuilds(await response.text())];
+  }));
+  return [...new Set(keys.flat())].sort();
+}
+
+async function writeBuildWorkspace(stage: string, allowBuilds: string[]): Promise<void> {
+  await mkdir(stage, { recursive: true });
+  const policy = allowBuilds.length
+    ? `allowBuilds:\n${allowBuilds.map((key) => `  ${key}: true`).join("\n")}\n`
+    : "";
+  await writeFile(join(stage, "pnpm-workspace.yaml"), [
+    "packages:",
+    "  - .",
+    "nodeLinker: hoisted",
+    "autoInstallPeers: false",
+    policy.trimEnd(),
+    "",
+  ].filter((line, index, all) => line || index === all.length - 1).join("\n"), { encoding: "utf8", mode: 0o600 });
+}
+
+async function materializeProfile(stage: string, profileName: string, resolved: ResolvedProfile, release?: HubProfileVersion) {
   await mkdir(stage, { recursive: true });
   const manifestPath = join(stage, "package.json");
   const current = (await exists(manifestPath)) ? await readJSON(manifestPath) : {};
@@ -130,7 +215,7 @@ async function materializeProfile(stage: string, resolved: ResolvedProfile, rele
   dsh.profile = { bundles: resolved.bundles.map((bundle) => bundle.packageName) };
   await writeFile(manifestPath, `${JSON.stringify({
     ...current,
-    name: typeof current.name === "string" ? current.name : `dsh-hub-${basename(stage)}`,
+    name: `dsh-hub-${profileName.toLowerCase()}`,
     private: true,
     dependencies,
     dsh,
@@ -174,6 +259,7 @@ export async function installResolvedProfile(options: {
   execute?: (command: DshInstallCommand) => Promise<void>;
   validate?: (command: DshInstallCommand) => Promise<void>;
   persistState?: (path: string, state: HubLockfile) => Promise<void>;
+  resolveBuildAllowlist?: (bundles: ResolvedProfileBundle[]) => Promise<string[]>;
 }): Promise<{ commands: DshInstallCommand[]; lockfile: HubLockfile; revision?: string }> {
   assertProfileName(options.profile);
   const stageProfile = `.hub-${options.profile}-${randomUUID().slice(0, 8)}`;
@@ -208,8 +294,11 @@ export async function installResolvedProfile(options: {
   let revision: string | undefined;
   let switched = false;
   try {
+    const buildAllowlist = await (options.resolveBuildAllowlist ?? resolvePinnedGitHubBuildAllowlist)(options.resolved.bundles);
+    if (buildAllowlist.length) lockfile.buildAllowlist = buildAllowlist;
+    await writeBuildWorkspace(stage, buildAllowlist);
     for (const command of commands) await (options.execute ?? run)(command);
-    await materializeProfile(stage, options.resolved, options.release);
+    await materializeProfile(stage, options.profile, options.resolved, options.release);
     await structuralValidation(stage, options.resolved);
     if (options.validate) {
       await options.validate(buildDshValidationCommand(stageProfile, runtimeVersion));
@@ -314,8 +403,19 @@ export async function captureProfile(options: {
       if (typeof installed.version === "string") version = installed.version;
     }
     const builtin = ["@deepseek-ai/dsh-base", "@deepseek-ai/dsh-web-app", "@deepseek-ai/dsh-headless"].includes(packageName);
-    return { packageName, selector, version, installSpec: version ? `${packageName}@${version}` : undefined,
-      sourceKind: builtin ? "builtin" as const : "npm" as const, before: [], after: [] };
+    const github = selector.startsWith("github:");
+    if (github && !pinnedGitHubSpec.test(selector)) {
+      throw new Error(`${packageName} uses a mutable GitHub reference; pin it to a full commit before sharing`);
+    }
+    return {
+      packageName,
+      selector,
+      version,
+      installSpec: github ? selector : version ? `${packageName}@${version}` : undefined,
+      sourceKind: builtin ? "builtin" as const : github ? "github" as const : "npm" as const,
+      before: [],
+      after: [],
+    };
   }));
   const patchPath = join(directory, "cordis.patch.yml");
   const patchYaml = (await exists(patchPath)) ? await readFile(patchPath, "utf8") : "[]\n";

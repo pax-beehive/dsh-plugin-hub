@@ -9,7 +9,7 @@ version-locked Profiles, applying them safely, and rolling back local revisions.
 
 ## Install
 
-Requires Node.js 22.13 or later.
+Requires Node.js 22.13 or later and `pnpm` on `PATH`.
 
 ```bash
 npm install --global @dsh-plugin-hub/cli
@@ -39,7 +39,8 @@ dsh-hub profile rollback --profile web
 
 A Profile Release locks the DSH runtime, Plugin versions, sources, integrity,
 and user-confirmed sequence. Apply uses a staging Profile, validation, atomic
-switch, and recoverable local revisions.
+switch, recoverable local revisions, and an auditable build-script allowlist
+derived from each pinned GitHub source.
 
 This is an independent community project and is not affiliated with or endorsed
 by DeepSeek.

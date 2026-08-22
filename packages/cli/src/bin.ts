@@ -13,6 +13,7 @@ import {
 } from "./operations.js";
 import { readProfileArchive, verifyProfileRelease } from "./profile-archive.js";
 import {
+  assertProfileApplyPrerequisites,
   buildDshInstallCommand,
   captureProfile,
   detectDshVersion,
@@ -86,6 +87,7 @@ async function main() {
   });
   const [command, subject, value] = parsed.positionals;
   const json = parsed.values.json ?? false;
+  if (json) process.env.DSH_HUB_MACHINE = "1";
   if (parsed.values.help || !command) {
     console.log(usage);
     return;
@@ -167,6 +169,7 @@ async function main() {
   }
 
   if (command === "profile" && subject === "apply" && value) {
+    if (!parsed.values["dry-run"] && !parsed.values.plan) await assertProfileApplyPrerequisites();
     const profile = await client.profile(value);
     const selected = parsed.values.version === "latest"
       ? profile.versions.find((candidate) => candidate.version === profile.latestVersion)
@@ -214,6 +217,7 @@ async function main() {
   }
 
   if (command === "profile" && subject === "import" && value) {
+    if (!parsed.values["dry-run"]) await assertProfileApplyPrerequisites();
     const selected = await readProfileArchive(resolve(value));
     const records = await Promise.all(selected.bundles
       .filter((bundle) => bundle.sourceKind !== "builtin")
@@ -281,7 +285,6 @@ async function main() {
   }
 
   if (command === "operation" && subject === "apply" && value) {
-    if (json) process.env.DSH_HUB_MACHINE = "1";
     const result = await applyOperationPlan({
       id: value,
       progress: (event) => {
