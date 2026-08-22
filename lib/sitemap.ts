@@ -164,6 +164,17 @@ export function sitemapIndexLocs(shards: SitemapShards): string[] {
   );
 }
 
+export function sitemapPageCount(total: number | undefined): number {
+  if (total === undefined || !Number.isFinite(total) || total <= 0) return 0;
+  return Math.min(SITEMAP_MAX_PAGES, Math.ceil(total / SITEMAP_PAGE_SIZE));
+}
+
+export function sitemapIndexLocsForTotal(total: number | undefined): string[] {
+  return Array.from({ length: sitemapPageCount(total) + 1 }, (_, id) =>
+    absoluteUrl(`/sitemap/${id}.xml`),
+  );
+}
+
 function escapeXml(value: string): string {
   return value
     .replaceAll("&", "&amp;")
@@ -186,4 +197,11 @@ export function sitemapEntriesToXml(entries: MetadataRoute.Sitemap): string {
     return `  <url>\n    <loc>${escapeXml(entry.url)}</loc>${lastmod}\n  </url>`;
   });
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>\n`;
+}
+
+export function sitemapIndexToXml(locs: string[]): string {
+  const sitemaps = locs.map(
+    (loc) => `  <sitemap>\n    <loc>${escapeXml(loc)}</loc>\n  </sitemap>`,
+  );
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemaps.join("\n")}\n</sitemapindex>\n`;
 }

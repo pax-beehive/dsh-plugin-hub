@@ -1,45 +1,28 @@
 import {
-  allSitemapEntries,
-  buildSitemapShards,
-  listAllPackages,
-  sitemapEntriesToXml,
-  type SitemapCategory,
+  sitemapIndexLocsForTotal,
+  sitemapIndexToXml,
 } from "@/lib/sitemap";
 
 export const dynamic = "force-dynamic";
 
-// hub-api is imported lazily: vinext eagerly evaluates route modules when
-// building the server entry, and hub-api statically imports
-// `cloudflare:workers`, which breaks plain-Node render tests. Deferring keeps
-// the entry chunk clean. If the Hub API is unreachable we still serve the
-// static routes so the sitemap never 500s or 404s.
-async function loadCatalog(): Promise<{
-  plugins: Awaited<ReturnType<typeof listAllPackages>>;
-  categories: SitemapCategory[];
-}> {
-  const { listCategories, searchSitemapPackages } = await import(
-    "@/lib/hub-api"
-  );
-  const [plugins, categories] = await Promise.all([
-    listAllPackages(searchSitemapPackages),
-    listCategories(50),
-  ]);
-  return { plugins, categories };
-}
-
-async function loadEntries() {
+async function loadPackageTotal(): Promise<number | undefined> {
   try {
-    return allSitemapEntries(buildSitemapShards(await loadCatalog()));
+    const { searchSitemapPackages } = await import("@/lib/hub-api");
+    const result = await searchSitemapPackages("", { limit: 1, page: 1 });
+    return result.total ?? result.items.length;
   } catch {
-    return allSitemapEntries(buildSitemapShards({}));
+    return undefined;
   }
 }
 
 export async function GET(): Promise<Response> {
-  const xml = sitemapEntriesToXml(await loadEntries());
+  const xml = sitemapIndexToXml(
+    sitemapIndexLocsForTotal(await loadPackageTotal()),
+  );
   return new Response(xml, {
     headers: {
       "Content-Type": "application/xml; charset=utf-8",
+      "Cache-Control": "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
     },
   });
 }

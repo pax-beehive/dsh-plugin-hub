@@ -8,7 +8,10 @@ import {
   listAllPackages,
   listAllPackageSlugs,
   sitemapEntriesToXml,
+  sitemapIndexLocsForTotal,
+  sitemapIndexToXml,
   sitemapIndexLocs,
+  sitemapPageCount,
   sitemapShardIds,
   staticSitemapEntries,
   type PackageSearch,
@@ -156,6 +159,22 @@ test("serializes a urlset Vinext can serve from the Route Handler", () => {
   assert.match(xml, /<loc>https:\/\/dshpluginhub\.ai\/plugins\/acme&amp;co<\/loc>/);
   assert.match(xml, /<lastmod>2026-08-20T00:00:00\.000Z<\/lastmod>/);
   assert.equal(xml.includes("/report"), false);
+});
+
+test("builds a bounded sitemap index directly from the catalog total", () => {
+  assert.equal(sitemapPageCount(0), 0);
+  assert.equal(sitemapPageCount(4354), 88);
+  assert.equal(sitemapPageCount(Number.POSITIVE_INFINITY), 0);
+  const locs = sitemapIndexLocsForTotal(51);
+  assert.deepEqual(locs, [
+    "https://dshpluginhub.ai/sitemap/0.xml",
+    "https://dshpluginhub.ai/sitemap/1.xml",
+    "https://dshpluginhub.ai/sitemap/2.xml",
+  ]);
+  const xml = sitemapIndexToXml(locs);
+  assert.match(xml, /<sitemapindex/);
+  assert.match(xml, /https:\/\/dshpluginhub\.ai\/sitemap\/0\.xml/);
+  assert.doesNotMatch(xml, /<urlset/);
 });
 
 test("slim sitemap parser keeps slugs when catalog items fail strict PluginSummary", () => {

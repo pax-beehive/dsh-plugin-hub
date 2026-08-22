@@ -45,9 +45,10 @@ test("markdown alternate is not sitewide in SiteDocument", () => {
   assert.match(document, /llms\.txt/);
 });
 
-test("sitemap is a Route Handler urlset and drops /report", () => {
+test("sitemap is a sharded Route Handler index and drops /report", () => {
   assert.match(sitemap, /export async function GET/);
-  assert.match(sitemap, /listAllPackages/);
+  assert.match(sitemap, /searchSitemapPackages/);
+  assert.match(sitemap, /sitemapIndexToXml/);
   assert.match(sitemap, /application\/xml; charset=utf-8/);
   assert.match(sitemapLib, /sitemapEntriesToXml/);
   assert.doesNotMatch(sitemap, /absoluteUrl\("\/report"\)|\/report`/);
