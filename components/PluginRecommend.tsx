@@ -100,7 +100,10 @@ export default function PluginRecommend({
   useEffect(() => {
     const initial = (ask ?? "").trim();
     if (!initial) return;
-    void recommend(initial, false);
+    const timer = window.setTimeout(() => {
+      void recommend(initial, false);
+    }, 0);
+    return () => window.clearTimeout(timer);
     // Auto-run once from the shareable ?ask= value supplied by the server.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

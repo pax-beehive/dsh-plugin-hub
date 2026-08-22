@@ -49,8 +49,8 @@ test("sitemap is a Route Handler urlset and drops /report", () => {
   assert.match(sitemap, /listAllPackages/);
   assert.match(sitemap, /application\/xml; charset=utf-8/);
   assert.match(sitemapLib, /sitemapEntriesToXml/);
-  assert.doesNotMatch(sitemap, /absoluteUrl\(\"\/report\"\)|\/report`/);
-  assert.doesNotMatch(sitemapLib, /absoluteUrl\(\"\/report\"\)|\/report`/);
+  assert.doesNotMatch(sitemap, /absoluteUrl\("\/report"\)|\/report`/);
+  assert.doesNotMatch(sitemapLib, /absoluteUrl\("\/report"\)|\/report`/);
   assert.match(wrangler, /\/sitemap\/\*/);
   assert.match(wrangler, /"\/status"/);
 });

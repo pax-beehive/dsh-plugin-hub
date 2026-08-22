@@ -51,7 +51,7 @@ test("server-renders the Plugin Hub coming-soon page", async () => {
   assert.match(html, /What is the DSH plugin registry?/);
   assert.match(html, /href="\/plugins"/);
   assert.match(html, /class="hub-header"/);
-  assert.match(html, /href="\/sign-in" class="hub-signin-link">登录<\/a>/);
+  assert.match(html, /href="\/sign-in" class="hub-signin-link">Sign in<\/a>/);
   assert.doesNotMatch(html, /waitlist-form|name="email"/);
   assert.match(html, /href="\/privacy"/);
   assert.match(html, /class="hub-footer"/);
@@ -341,9 +341,9 @@ test("docs page does not advertise the homepage markdown alternate", async () =>
   const html = await (await render("/docs")).text();
   assert.match(html, /rel="canonical" href="https:\/\/dshpluginhub\.ai\/docs"/);
   assert.match(html, /property="og:url" content="https:\/\/dshpluginhub\.ai\/docs"/);
-  assert.match(html, /可靠地使用与构建插件/);
+  assert.match(html, /Build with confidence/);
   assert.match(html, /href="\/docs\/first-plugin"/);
-  assert.match(html, /文档中心/);
+  assert.match(html, /Documentation/);
   assert.doesNotMatch(
     html,
     /rel="alternate" type="text\/markdown" href="https:\/\/dshpluginhub\.ai\/index\.md"/,

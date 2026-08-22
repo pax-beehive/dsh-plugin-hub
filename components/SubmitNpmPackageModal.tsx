@@ -57,12 +57,13 @@ export default function SubmitNpmPackageModal({
   }
 
   return (
-    <div
-      className="modal-overlay"
-      onClick={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
-    >
+    <div className="modal-overlay">
+      <button
+        aria-label={t.close}
+        className="modal-backdrop"
+        onClick={onClose}
+        type="button"
+      />
       <div
         aria-labelledby={titleId}
         aria-modal="true"

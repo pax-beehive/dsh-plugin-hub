@@ -3786,10 +3786,18 @@ details.hub-account:not([open]) > .hub-account-menu,
   display: grid;
   place-items: center;
   padding: 24px;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
   background: rgb(11 17 48 / 42%);
+  cursor: default;
 }
 
 .modal-dialog {
+  position: relative;
   width: min(440px, 100%);
   padding: 28px;
   border: 1px solid var(--line);

@@ -79,7 +79,7 @@ test("the Worker caches anonymous public HTML by locale", async () => {
     cookie: "dsh-hub-locale=en",
     "accept-language": "zh-CN,zh;q=0.9",
   });
-  assert.equal(cookieWins.headers.get("x-dsh-edge-cache"), "MISS");
+  assert.equal(cookieWins.headers.get("x-dsh-edge-cache"), "HIT");
   assert.match(await cookieWins.text(), /lang="en"/);
 
   const signedIn = await fetchPage({ cookie: "wos-session=sealed" });
