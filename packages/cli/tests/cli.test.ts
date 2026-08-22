@@ -131,7 +131,7 @@ test("fails Profile apply prerequisites before network or profile mutation", asy
 test("accepts only explicitly true package names from pinned GitHub build policy", () => {
   assert.deepEqual(parseAllowBuilds(`packages:\n  - .\nallowBuilds:\n  node-pty: true\n  protobufjs: true\n  ignored: false\n`), ["node-pty", "protobufjs"]);
   assert.throws(() => parseAllowBuilds(`allowBuilds:\n  dangerouslyAllowAllBuilds: '*'\n`), /Unsupported allowBuilds entry/);
-  assert.throws(() => parseAllowBuilds(`allowBuilds:\n  ..\/..\/escape: true\n`), /Unsupported allowBuilds package/);
+  assert.throws(() => parseAllowBuilds(`allowBuilds:\n  ../../escape: true\n`), /Unsupported allowBuilds package/);
 });
 
 test("dry-run produces commands without touching the profile", async () => {
